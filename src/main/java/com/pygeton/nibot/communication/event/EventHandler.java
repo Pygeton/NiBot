@@ -1,6 +1,6 @@
-package com.pygeton.nibot.event;
+package com.pygeton.nibot.communication.event;
 
-import com.pygeton.nibot.entity.Message;
+import com.pygeton.nibot.communication.entity.Message;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

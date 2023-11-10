@@ -1,8 +1,8 @@
-package com.pygeton.nibot.websocket;
+package com.pygeton.nibot.communication.websocket;
 
 import com.alibaba.fastjson.JSONObject;
-import com.pygeton.nibot.entity.Message;
-import com.pygeton.nibot.event.EventHandler;
+import com.pygeton.nibot.communication.entity.Message;
+import com.pygeton.nibot.communication.event.EventHandler;
 import jakarta.websocket.*;
 
 import java.io.IOException;

@@ -1,11 +1,11 @@
-package com.pygeton.nibot.function;
+package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
-import com.pygeton.nibot.entity.Message;
-import com.pygeton.nibot.entity.Params;
-import com.pygeton.nibot.entity.Request;
-import com.pygeton.nibot.event.IMessageEvent;
-import com.pygeton.nibot.websocket.Client;
+import com.pygeton.nibot.communication.entity.Message;
+import com.pygeton.nibot.communication.entity.Params;
+import com.pygeton.nibot.communication.entity.Request;
+import com.pygeton.nibot.communication.event.IMessageEvent;
+import com.pygeton.nibot.communication.websocket.Client;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.pygeton.nibot.entity;
+package com.pygeton.nibot.communication.entity;
 
 import lombok.Data;
 

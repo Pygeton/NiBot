@@ -1,6 +1,6 @@
 package com.pygeton.nibot;
 
-import com.pygeton.nibot.websocket.Client;
+import com.pygeton.nibot.communication.websocket.Client;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

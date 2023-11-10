@@ -9,6 +9,8 @@ public class Start implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Client.connect("ws://127.0.0.1:9099");
+        if(!Client.connect("ws://127.0.0.1:9099")){
+            Client.reconnect();
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.pygeton.nibot.communication.websocket;
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.event.EventHandler;
+import com.pygeton.nibot.communication.thread.ReconnectTask;
 import jakarta.websocket.*;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ public class Client {
 
     private Session session;
     private static Client INSTANCE;
+    private volatile static boolean connecting = false;
 
     public Client(String url) throws DeploymentException, IOException {
         session = ContainerProvider.getWebSocketContainer().connectToServer(this, URI.create(url));
@@ -21,11 +23,24 @@ public class Client {
     public synchronized static boolean connect(String url){
         try {
             INSTANCE = new Client(url);
+            connecting = false;
             return true;
         }
-        catch (DeploymentException | IOException e){
+        catch (Exception e){
+            System.out.println("连接失败");
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public synchronized static void reconnect(){
+        if(!connecting) {
+            connecting = true;
+            if (INSTANCE != null) {
+                INSTANCE.session = null;
+                INSTANCE = null;
+            }
+            ReconnectTask.execute();
         }
     }
 
@@ -50,13 +65,14 @@ public class Client {
 
     @OnClose
     public void onClose(Session session){
-        System.out.println("连接关闭，正在请求重连...");
-        Client.connect("ws://127.0.0.1:9099");
+        System.out.println("连接关闭");
+        reconnect();
     }
 
     @OnError
     public void onError(Session session,Throwable throwable){
-        System.out.println("连接异常" + throwable.getMessage());
+        System.out.println("连接异常：" + throwable.getMessage());
+        reconnect();
     }
 
     public static void sendMessage(String json){

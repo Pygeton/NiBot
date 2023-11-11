@@ -27,21 +27,16 @@ public class Luck implements IMessageEvent {
             //同日请求检测，后续补全
             Random random = new Random();
             int luck = random.nextInt(101);
-
-            request = new Request<>();
-            request.setAction("send_msg");
-            params = new Params();
-            params.setUser_id(message.getUser_id());
-            params.setGroup_id(message.getGroup_id());
-            params.setMessage_type(message.getMessage_type());
+            params = new Params(message);
+            String text;
             if(message.getMessage_type().equals("group")){
-                params.setMessage(message.getSender().getCard() + "的今日运势为：" + luck + " 【" + match(luck) + "】");
+                text = message.getSender().getCard() + "的今日运势为：" + luck + " 【" + match(luck) + "】";
             }
             else{
-                params.setMessage(message.getUser_id() + "的今日运势为：" + luck + " 【" + match(luck) + "】");
+                text = message.getUser_id() + "的今日运势为：" + luck + " 【" + match(luck) + "】";
             }
-            params.setAuto_escape(false);
-            request.setParams(params);
+            params.addTextMessageSegment(text);
+            request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;

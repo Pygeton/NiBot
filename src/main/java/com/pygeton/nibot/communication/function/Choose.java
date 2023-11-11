@@ -29,18 +29,16 @@ public class Choose implements IMessageEvent {
     public boolean onMessage(Message message) {
         rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/choose")){
-            request = new Request<>();
-            request.setAction("send_msg");
-            params = new Params();
-            params.setUser_id(message.getUser_id());
-            params.setGroup_id(message.getGroup_id());
-            params.setMessage_type(message.getMessage_type());
+            params = new Params(message);
+            String text;
             if(rawMessage.length > 1){
-                params.setMessage(choose());
+                text = choose();
             }
-            else params.setMessage("没有选项我怎么帮你选呢？");
-            params.setAuto_escape(false);
-            request.setParams(params);
+            else {
+                text = "没有选项我怎么帮你选呢？";
+            }
+            params.addTextMessageSegment(text);
+            request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;

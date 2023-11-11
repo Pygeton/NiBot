@@ -42,15 +42,9 @@ public class Mahjong implements IMessageEvent {
         this.message = message;
         rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/mj")){
-            request = new Request<>();
-            request.setAction("send_msg");
-            params = new Params();
-            params.setUser_id(message.getUser_id());
-            params.setGroup_id(message.getGroup_id());
-            params.setMessage_type(message.getMessage_type());
+            params = new Params(message);
             match();
-            request.setParams(params);
-            params.setAuto_escape(false);
+            request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;
@@ -66,7 +60,7 @@ public class Mahjong implements IMessageEvent {
                         bind(message.getUser_id(), rawMessage[2]);
                     }
                     else {
-                        params.setMessage("参数有误，请使用/help查看使用说明。");
+                        params.addTextMessageSegment("参数有误，请使用/help查看使用说明！");
                     }
                 }
                 case "rate" -> {
@@ -75,12 +69,16 @@ public class Mahjong implements IMessageEvent {
                     }
                     else if(rawMessage.length == 3){
                         //待补全
+                        params.addTextMessageSegment("目前还不支持查询他人战绩QAQ");
+                    }
+                    else {
+                        params.addTextMessageSegment("参数有误，请使用/help查看使用说明！");
                     }
                 }
             }
         }
         else {
-            params.setMessage("参数缺失，请使用/help查看使用说明！");
+            params.addTextMessageSegment("参数缺失，请使用/help查看使用说明！");
         }
     }
 
@@ -88,14 +86,14 @@ public class Mahjong implements IMessageEvent {
         if(url.contains("https://rate.000.mk/chart/?name=")){
             boolean ret = mahjongDataService.saveOrUpdateUrl(user_id,url);
             if(ret){
-                params.setMessage("公式战信息绑定成功！");
+                params.addTextMessageSegment("公式战信息绑定成功！");
             }
             else{
-                params.setMessage("公式战信息绑定失败：数据库异常");
+                params.addTextMessageSegment("公式战信息绑定失败：数据库异常");
             }
         }
         else {
-            params.setMessage("公式战信息绑定失败：URL有误");
+            params.addTextMessageSegment("公式战信息绑定失败：URL有误");
         }
     }
 
@@ -122,6 +120,7 @@ public class Mahjong implements IMessageEvent {
             e.printStackTrace();
         }
         driver.quit();
-        //params.setMessage("[CQ:image,file=file:///sdcard/Pictures/Mahjong/" + fileName + "]");
+        String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
+        params.addImageMessageSegment(path);
     }
 }

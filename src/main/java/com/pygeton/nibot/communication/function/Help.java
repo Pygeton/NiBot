@@ -23,18 +23,16 @@ public class Help implements IMessageEvent {
     public boolean onMessage(Message message) {
         String[] rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/help")){
-            request = new Request<>();
-            request.setAction("send_msg");
-            params = new Params();
-            params.setUser_id(message.getUser_id());
-            params.setGroup_id(message.getGroup_id());
-            params.setMessage_type(message.getMessage_type());
+            params = new Params(message);
+            String text;
             if(rawMessage.length > 1){
-                params.setMessage(match(Integer.parseInt(rawMessage[1])));
+                text = match(Integer.parseInt(rawMessage[1]));
             }
-            else params.setMessage(match(0));
-            params.setAuto_escape(false);
-            request.setParams(params);
+            else {
+                text = match(0);
+            }
+            params.addTextMessageSegment(text);
+            request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;
@@ -74,7 +72,7 @@ public class Help implements IMessageEvent {
                         0./help 帮助文档
                         1./luck 今日运势
                         2./choose 做选择
-                        3./mj 雀庄公式战（暂未实现）
+                        3./mj 雀庄公式战
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
                         """;
             }

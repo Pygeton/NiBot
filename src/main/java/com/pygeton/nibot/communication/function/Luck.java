@@ -13,6 +13,9 @@ import java.util.Random;
 @Component
 public class Luck implements IMessageEvent {
 
+    Request<Params> request;
+    Params params;
+
     @Override
     public int weight() {
         return 10;
@@ -25,9 +28,9 @@ public class Luck implements IMessageEvent {
             Random random = new Random();
             int luck = random.nextInt(101);
 
-            Request<Params> request = new Request<>();
+            request = new Request<>();
             request.setAction("send_msg");
-            Params params = new Params();
+            params = new Params();
             params.setUser_id(message.getUser_id());
             params.setGroup_id(message.getGroup_id());
             params.setMessage_type(message.getMessage_type());

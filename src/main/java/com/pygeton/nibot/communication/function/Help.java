@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class Help implements IMessageEvent {
 
+    Request<Params> request;
+    Params params;
+
     @Override
     public int weight() {
         return 20;
@@ -20,9 +23,9 @@ public class Help implements IMessageEvent {
     public boolean onMessage(Message message) {
         String[] rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/help")){
-            Request<Params> request = new Request<>();
+            request = new Request<>();
             request.setAction("send_msg");
-            Params params = new Params();
+            params = new Params();
             params.setUser_id(message.getUser_id());
             params.setGroup_id(message.getGroup_id());
             params.setMessage_type(message.getMessage_type());
@@ -60,7 +63,7 @@ public class Help implements IMessageEvent {
                         1.绑定公式战账号
                         /mj bind [参数]
                         参数内填写公式战的个人战绩的网页URL即可完成绑定，公式战官网为https://rate.000.mk，进入官网后通过右上角的检索可以搜索到自己的个人战绩，复制个人战绩地址栏中的的URL即可。后续无需绑定。
-                        2.查询战绩
+                        2.查询战绩（目前仅能查询自己的战绩）
                         /mj rate [参数(可选)]
                         参数内@其他群友即可查询其战绩（前提是已经绑定），不填写参数则是查询自己的战绩。
                         """;

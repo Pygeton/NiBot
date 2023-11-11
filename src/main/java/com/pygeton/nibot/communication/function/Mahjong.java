@@ -7,11 +7,27 @@ import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.service.MahjongDataServiceImpl;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Component
 public class Mahjong implements IMessageEvent {
+
+    Message message;
+    String[] rawMessage;
+    Request<Params> request;
+    Params params;
 
     @Autowired
     MahjongDataServiceImpl mahjongDataService;
@@ -23,17 +39,18 @@ public class Mahjong implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        String[] rawMessage = message.getRaw_message().split(" ");
+        this.message = message;
+        rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/mj")){
-            Request<Params> request = new Request<>();
+            request = new Request<>();
             request.setAction("send_msg");
-            Params params = new Params();
+            params = new Params();
             params.setUser_id(message.getUser_id());
             params.setGroup_id(message.getGroup_id());
             params.setMessage_type(message.getMessage_type());
-            match(message,rawMessage,params);
-            params.setAuto_escape(false);
+            match();
             request.setParams(params);
+            params.setAuto_escape(false);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;
@@ -41,19 +58,24 @@ public class Mahjong implements IMessageEvent {
         else return false;
     }
 
-    private void match(Message message,String[] rawMessage,Params params){
+    private void match(){
         if(rawMessage.length > 1){
             switch (rawMessage[1]){
                 case "bind" -> {
                     if(rawMessage.length == 3){
-                        bind(message.getUser_id(), rawMessage[2],params);
+                        bind(message.getUser_id(), rawMessage[2]);
                     }
                     else {
                         params.setMessage("参数有误，请使用/help查看使用说明。");
                     }
                 }
                 case "rate" -> {
-                    //待补全
+                    if(rawMessage.length == 2){
+                        rate(message.getUser_id());
+                    }
+                    else if(rawMessage.length == 3){
+                        //待补全
+                    }
                 }
             }
         }
@@ -62,7 +84,7 @@ public class Mahjong implements IMessageEvent {
         }
     }
 
-    private void bind(Long user_id,String url,Params params){
+    private void bind(Long user_id,String url){
         if(url.contains("https://rate.000.mk/chart/?name=")){
             boolean ret = mahjongDataService.saveOrUpdateUrl(user_id,url);
             if(ret){
@@ -72,10 +94,34 @@ public class Mahjong implements IMessageEvent {
                 params.setMessage("公式战信息绑定失败：数据库异常");
             }
         }
-        else params.setMessage("公式战信息绑定失败：URL有误");
+        else {
+            params.setMessage("公式战信息绑定失败：URL有误");
+        }
     }
 
-    private void rate(Message message,Params params){
-
+    private void rate(Long user_id){
+        String url = mahjongDataService.getUrl(user_id);
+        System.setProperty("webdriver.chrome.driver","D:/IDE-Enviroment/chromedriver-win64/chromedriver.exe");
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        WebDriver driver = new ChromeDriver(options);
+        driver.get(url);
+        try{
+            Thread.sleep(5000);
+        }
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+        String fileName = "mj-" + user_id + " " + date + ".png";
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        try {
+            FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Mahjong/" + fileName));
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        driver.quit();
+        //params.setMessage("[CQ:image,file=file:///sdcard/Pictures/Mahjong/" + fileName + "]");
     }
 }

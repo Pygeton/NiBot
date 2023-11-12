@@ -3,7 +3,7 @@ package com.pygeton.nibot.communication.websocket;
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.event.EventHandler;
-import com.pygeton.nibot.communication.thread.ReconnectTask;
+import com.pygeton.nibot.communication.task.ReconnectTask;
 import jakarta.websocket.*;
 
 import java.io.IOException;
@@ -72,7 +72,6 @@ public class Client {
     @OnError
     public void onError(Session session,Throwable throwable){
         System.out.println("连接异常：" + throwable.getMessage());
-        reconnect();
     }
 
     public static void sendMessage(String json){

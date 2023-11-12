@@ -13,9 +13,17 @@ import lombok.NoArgsConstructor;
 @TableName("`mahjong_data`")
 public class MahjongData {
 
-    @TableId(value = "user_id")
-    private Long user_id;
+    @TableId(value = "id")
+    private Long id;
 
-    @TableField(value = "url")
-    private String url;
+    @TableField(value = "name")
+    private String name;
+
+    @TableField(value = "area")
+    private Integer area;
+
+    public MahjongData(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

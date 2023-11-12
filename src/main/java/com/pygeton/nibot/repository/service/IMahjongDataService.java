@@ -2,10 +2,13 @@ package com.pygeton.nibot.repository.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pygeton.nibot.repository.entity.MahjongData;
+import org.springframework.data.relational.core.sql.In;
 
 public interface IMahjongDataService extends IService<MahjongData> {
 
-    String getUrl(Long user_id);
+    MahjongData getData(Long id);
 
-    boolean saveOrUpdateUrl(Long user_id, String url);
+    boolean saveOrUpdateData(Long id, String name);
+
+    boolean saveOrUpdateData(Long id, String name, Integer area);
 }

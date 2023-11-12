@@ -1,4 +1,4 @@
-package com.pygeton.nibot.communication.thread;
+package com.pygeton.nibot.communication.task;
 
 import com.pygeton.nibot.communication.websocket.Client;
 

@@ -6,11 +6,10 @@ import com.pygeton.nibot.communication.entity.Params;
 import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.websocket.Client;
+import com.pygeton.nibot.repository.entity.MahjongData;
 import com.pygeton.nibot.repository.service.MahjongDataServiceImpl;
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +58,11 @@ public class Mahjong implements IMessageEvent {
                     if(rawMessage.length == 3){
                         bind(message.getUser_id(), rawMessage[2]);
                     }
+                    else if(rawMessage.length == 4){
+                        bind(message.getUser_id(), rawMessage[2], Integer.valueOf(rawMessage[3]));
+                    }
                     else {
-                        params.addTextMessageSegment("参数有误，请使用/help查看使用说明！");
+                        params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");
                     }
                 }
                 case "rate" -> {
@@ -72,19 +74,22 @@ public class Mahjong implements IMessageEvent {
                         params.addTextMessageSegment("目前还不支持查询他人战绩QAQ");
                     }
                     else {
-                        params.addTextMessageSegment("参数有误，请使用/help查看使用说明！");
+                        params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");
                     }
                 }
             }
         }
         else {
-            params.addTextMessageSegment("参数缺失，请使用/help查看使用说明！");
+            params.addTextMessageSegment("参数缺失，请使用/help 3查看使用说明！");
         }
     }
 
-    private void bind(Long user_id,String url){
-        if(url.contains("https://rate.000.mk/chart/?name=")){
-            boolean ret = mahjongDataService.saveOrUpdateUrl(user_id,url);
+    private void bind(Long id,String name){
+        String url = "https://rate.000.mk/chart/?name=" + name;
+        WebDriver driver = initDriver(url);
+        boolean alert = alertCheck(driver);
+        if(!alert){
+            boolean ret = mahjongDataService.saveOrUpdateData(id, name);
             if(ret){
                 params.addTextMessageSegment("公式战信息绑定成功！");
             }
@@ -92,13 +97,51 @@ public class Mahjong implements IMessageEvent {
                 params.addTextMessageSegment("公式战信息绑定失败：数据库异常");
             }
         }
-        else {
-            params.addTextMessageSegment("公式战信息绑定失败：URL有误");
-        }
+        driver.quit();
     }
 
-    private void rate(Long user_id){
-        String url = mahjongDataService.getUrl(user_id);
+    private void bind(Long id,String name,Integer area){
+        String url = "https://rate.000.mk/chart/?name=" + name + "&area=" + area;
+        WebDriver driver = initDriver(url);
+        boolean alert = alertCheck(driver);
+        if(!alert){
+            boolean ret = mahjongDataService.saveOrUpdateData(id, name, area);
+            if(ret){
+                params.addTextMessageSegment("公式战信息绑定成功！");
+            }
+            else{
+                params.addTextMessageSegment("公式战信息绑定失败：数据库异常");
+            }
+        }
+        driver.quit();
+    }
+
+    private void rate(Long id){
+        MahjongData data = mahjongDataService.getData(id);
+        String url = "https://rate.000.mk/chart/?name=" + data.getName();
+        if(data.getArea() != null){
+            url += "&area=" + data.getArea();
+        }
+        WebDriver driver = initDriver(url);
+        boolean alert = alertCheck(driver);
+        if(!alert){
+            String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+            String fileName = "mj-" + id + " " + date + ".png";
+            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            try {
+                FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Mahjong/" + fileName));
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+            String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
+            params.addImageMessageSegment(path);
+        }
+        driver.quit();
+
+    }
+
+    private WebDriver initDriver(String url){
         System.setProperty("webdriver.chrome.driver","D:/IDE-Enviroment/chromedriver-win64/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -110,17 +153,19 @@ public class Mahjong implements IMessageEvent {
         catch (InterruptedException e){
             e.printStackTrace();
         }
-        String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
-        String fileName = "mj-" + user_id + " " + date + ".png";
-        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        return driver;
+    }
+
+    private boolean alertCheck(WebDriver driver){
         try {
-            FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Mahjong/" + fileName));
+            Alert alert = driver.switchTo().alert();
+            params.addTextMessageSegment("发生错误，可以输入/help 3查看帮助文档。\n");
+            params.addTextMessageSegment(alert.getText());
+            return true;
         }
-        catch (IOException e){
+        catch (NoAlertPresentException e){
             e.printStackTrace();
+            return false;
         }
-        driver.quit();
-        String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
-        params.addImageMessageSegment(path);
     }
 }

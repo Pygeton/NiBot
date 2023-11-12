@@ -45,7 +45,7 @@ public class Help implements IMessageEvent {
             case 1 -> {
                 return """
                         使用方法：
-                        直接输入/luck即可，后续将支持每日运势值固定。
+                        直接输入/luck即可，每日运势值固定。
                         """;
             }
             case 2 -> {

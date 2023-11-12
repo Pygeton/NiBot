@@ -18,7 +18,7 @@ public class MahjongDataServiceImpl extends ServiceImpl<MahjongDataMapper, Mahjo
 
     @Override
     public boolean saveOrUpdateData(Long id, String name) {
-        return saveOrUpdate(new MahjongData(id,name));
+        return saveOrUpdate(new MahjongData(id,name,null));
     }
 
     @Override

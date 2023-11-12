@@ -7,18 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("`mahjong_data`")
-public class MahjongData {
+@TableName("`luck_data`")
+public class LuckData {
 
     @TableId(value = "id")
     private Long id;
 
-    @TableField(value = "name")
-    private String name;
+    @TableField(value = "date")
+    private Date date;
 
-    @TableField(value = "area")
-    private Integer area;
+    @TableField(value = "luck")
+    private Integer luck;
 }

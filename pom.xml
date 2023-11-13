@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.pygeton</groupId>
     <artifactId>NiBot</artifactId>
-    <version>0.1.1-dev</version>
+    <version>0.2.3-dev</version>
     <name>NiBot</name>
     <description>NiBot</description>
     <properties>

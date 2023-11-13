@@ -16,7 +16,7 @@ public class Help implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 20;
+        return 100;
     }
 
     @Override

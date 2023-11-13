@@ -16,23 +16,22 @@ import java.util.Random;
 @Component
 public class Choose implements IMessageEvent {
 
-    String[] rawMessage;
     Request<Params> request;
     Params params;
 
     @Override
     public int weight() {
-        return 5;
+        return 10;
     }
 
     @Override
     public boolean onMessage(Message message) {
-        rawMessage = message.getRaw_message().split(" ");
+        String[] rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/choose")){
             params = new Params(message);
             String text;
             if(rawMessage.length > 1){
-                text = choose();
+                text = choose(rawMessage);
             }
             else {
                 text = "没有选项我怎么帮你选呢？";
@@ -46,7 +45,7 @@ public class Choose implements IMessageEvent {
         else return false;
     }
 
-    private String choose(){
+    private String choose(String[] rawMessage){
         List<String> list = new ArrayList<>(rawMessage.length - 1);
         list.addAll(Arrays.asList(rawMessage).subList(1, rawMessage.length));
         Random random = new Random();

@@ -23,8 +23,6 @@ import java.util.Date;
 @Component
 public class Mahjong implements IMessageEvent {
 
-    Message message;
-    String[] rawMessage;
     Request<Params> request;
     Params params;
 
@@ -33,16 +31,15 @@ public class Mahjong implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 15;
+        return 90;
     }
 
     @Override
     public boolean onMessage(Message message) {
-        this.message = message;
-        rawMessage = message.getRaw_message().split(" ");
+        String[] rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/mj")){
             params = new Params(message);
-            match();
+            match(message,rawMessage);
             request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
@@ -51,7 +48,7 @@ public class Mahjong implements IMessageEvent {
         else return false;
     }
 
-    private void match(){
+    private void match(Message message,String[] rawMessage){
         if(rawMessage.length > 1){
             switch (rawMessage[1]){
                 case "bind" -> {
@@ -117,27 +114,34 @@ public class Mahjong implements IMessageEvent {
     }
 
     private void rate(Long id){
-        MahjongData data = mahjongDataService.getData(id);
-        String url = "https://rate.000.mk/chart/?name=" + data.getName();
-        if(data.getArea() != null){
-            url += "&area=" + data.getArea();
+        MahjongData data;
+        if(mahjongDataService.getData(id) == null){
+            params.addTextMessageSegment("公式战战绩查询失败：用户未绑定");
         }
-        WebDriver driver = initDriver(url);
-        boolean alert = alertCheck(driver);
-        if(!alert){
-            String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
-            String fileName = "mj-" + id + " " + date + ".png";
-            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-            try {
-                FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Mahjong/" + fileName));
+        else {
+            data = mahjongDataService.getData(id);
+            String url = "https://rate.000.mk/chart/?name=" + data.getName();
+            if(data.getArea() != null){
+                url += "&area=" + data.getArea();
             }
-            catch (IOException e){
-                e.printStackTrace();
+            WebDriver driver = initDriver(url);
+            boolean alert = alertCheck(driver);
+            if(!alert){
+                String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+                String fileName = "mj-" + id + " " + date + ".png";
+                File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                try {
+                    FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Mahjong/" + fileName));
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+                String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
+                params.addImageMessageSegment(path);
             }
-            String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
-            params.addImageMessageSegment(path);
+            driver.quit();
         }
-        driver.quit();
+
 
     }
 

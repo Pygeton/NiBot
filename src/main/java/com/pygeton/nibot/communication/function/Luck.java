@@ -23,12 +23,13 @@ public class Luck implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 10;
+        return 99;
     }
 
     @Override
     public boolean onMessage(Message message) {
-        if(message.getRaw_message().equals("/luck")){
+        String[] rawMessage = message.getRaw_message().split(" ");
+        if(rawMessage[0].equals("/luck")){
             Random random = new Random();
             int luck = random.nextInt(101);
             boolean ret = luckDataService.saveOrUpdateLuck(message.getUser_id(),luck);

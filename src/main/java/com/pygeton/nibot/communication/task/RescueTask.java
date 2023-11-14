@@ -14,12 +14,12 @@ public class RescueTask {
     @PostConstruct
     public void init(){
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService.scheduleAtFixedRate(this::startQQ, 0, 30, TimeUnit.MINUTES);
+        scheduledExecutorService.scheduleAtFixedRate(this::start, 0, 30, TimeUnit.MINUTES);
     }
 
-    private void startQQ(){
+    private void start(){
         try {
-            String[] cmd = {"cmd.exe", "/c", "cd D:\\Software\\leidian\\LDPlayer9 && adb -s emulator-5554 shell am start -n com.tencent.mobileqq/.activity.SplashActivity"};
+            String[] cmd = {"cmd.exe", "/c", "D:/Codeworks/Java/NiBot/bat/NiBotEVM-Start.bat"};
             Runtime.getRuntime().exec(cmd);
         } catch (IOException e) {
             e.printStackTrace();

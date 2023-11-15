@@ -56,7 +56,10 @@ public class Client {
         boolean hideFlag = false;
         if(handleFlag){
             switch (message.getPost_type()){
-                case "message" -> EventHandler.traverse(message);
+                case "message" -> {
+                    message.toSegmentList();
+                    EventHandler.traverse(message);
+                }
                 case "meta_event" -> hideFlag = true;
             }
             if (!hideFlag) System.out.println(json);

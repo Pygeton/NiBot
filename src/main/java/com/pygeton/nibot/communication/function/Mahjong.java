@@ -2,8 +2,11 @@ package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
+import com.pygeton.nibot.communication.entity.MessageSegment;
 import com.pygeton.nibot.communication.entity.Params;
 import com.pygeton.nibot.communication.entity.Request;
+import com.pygeton.nibot.communication.entity.data.AtData;
+import com.pygeton.nibot.communication.entity.data.MessageData;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.entity.MahjongData;
@@ -67,8 +70,16 @@ public class Mahjong implements IMessageEvent {
                         rate(message.getUser_id());
                     }
                     else if(rawMessage.length == 3){
-                        //待补全
-                        params.addTextMessageSegment("目前还不支持查询他人战绩QAQ");
+                        if(message.getMessage_type().equals("group")){
+                            MessageData messageData = message.getSegmentList().get(1).getData();
+                            if(messageData instanceof AtData atData){
+                                rate(atData.getQq());
+                            }
+                            else {
+                                params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");
+                            }
+                        }
+                        else params.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
                     }
                     else {
                         params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.Params;
 import com.pygeton.nibot.communication.entity.Request;
+import com.pygeton.nibot.communication.entity.data.AtData;
+import com.pygeton.nibot.communication.entity.data.MessageData;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.service.LuckDataServiceImpl;
@@ -32,24 +34,42 @@ public class Luck implements IMessageEvent {
         if(rawMessage[0].equals("/luck")){
             Random random = new Random();
             int luck = random.nextInt(101);
-            boolean ret = luckDataService.saveOrUpdateLuck(message.getUser_id(),luck);
-            if(!ret){
-                luck = luckDataService.getLuck(message.getUser_id());
-            }
-            params = new Params(message);
             String text;
-            if(message.getMessage_type().equals("group")){
-                if(!message.getSender().getCard().equals("")){
-                    text = message.getSender().getCard() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+            params = new Params(message);
+            if(rawMessage.length == 1){
+                boolean ret = luckDataService.saveOrUpdateLuck(message.getUser_id(),luck);
+                if(!ret){
+                    luck = luckDataService.getLuck(message.getUser_id());
                 }
-                else {
-                    text = message.getSender().getNickname() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+                if(message.getMessage_type().equals("group")){
+                    if(!message.getSender().getCard().equals("")){
+                        text = message.getSender().getCard() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+                    }
+                    else {
+                        text = message.getSender().getNickname() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+                    }
                 }
+                else{
+                    text = message.getUser_id() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+                }
+                params.addTextMessageSegment(text);
             }
-            else{
-                text = message.getUser_id() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+            else if(rawMessage.length == 2){
+                if(message.getMessage_type().equals("group")){
+                    MessageData messageData = message.getSegmentList().get(1).getData();
+                    if(messageData instanceof AtData atData){
+                        boolean ret = luckDataService.saveOrUpdateLuck(atData.getQq(), luck);
+                        if(!ret){
+                            luck = luckDataService.getLuck(atData.getQq());
+                        }
+                        text = atData.getQq() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+                        params.addTextMessageSegment(text);
+                    }
+                    else params.addTextMessageSegment("参数有误，请使用/help 1查看使用说明！");
+                }
+                else params.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
             }
-            params.addTextMessageSegment(text);
+            else params.addTextMessageSegment("参数有误，请使用/help 1查看使用说明！");
             request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));

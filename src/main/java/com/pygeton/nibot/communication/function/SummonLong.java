@@ -2,11 +2,15 @@ package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.Params;
 import com.pygeton.nibot.communication.entity.Request;
+import com.pygeton.nibot.communication.entity.Response;
 import com.pygeton.nibot.communication.entity.data.ImageData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
+import com.pygeton.nibot.communication.entity.data.ReplyData;
+import com.pygeton.nibot.communication.entity.params.GetMsgParams;
+import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
+import com.pygeton.nibot.communication.event.IResponseHandler;
 import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.entity.LongData;
 import com.pygeton.nibot.repository.service.LongDataServiceImpl;
@@ -16,10 +20,9 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 
 @Component
-public class SummonLong implements IMessageEvent {
+public class SummonLong implements IMessageEvent, IResponseHandler {
 
-    Request<Params> request;
-    Params params;
+    SendMsgParams sendMsgParams;
 
     @Autowired
     LongDataServiceImpl longDataService;
@@ -32,67 +35,78 @@ public class SummonLong implements IMessageEvent {
     @Override
     public boolean onMessage(Message message) {
         String[] rawMessage = message.getRaw_message().split(" ");
-        if(rawMessage[0].equals("/long")){
-            params = new Params(message);
-            try {
-                match(message,rawMessage);
-            }
-            catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            request = new Request<>("send_msg",params);
-            System.out.println(JSONObject.toJSONString(request));
-            Client.sendMessage(JSONObject.toJSONString(request));
+        if(rawMessage[0].contains("/long")){
+            sendMsgParams = new SendMsgParams(message);
+            match(message,rawMessage);
             return true;
         }
         else return false;
     }
 
-    private void match(Message message,String[] rawMessage) throws InterruptedException {
+    @Override
+    public void handle(Response response) {
+        response.toSegmentList();
+        MessageData messageData = response.getSegmentList().get(0).getData();
+        boolean ret = false;
+        if(messageData instanceof ImageData imageData){
+            ret = longDataService.add(imageData.getUrl());
+        }
+        if(ret){
+            sendMsgParams.addTextMessageSegment("添加龙图到召唤池成功！");
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("添加失败：数据库异常");
+        }
+        Request<SendMsgParams> request = new Request<>("send_msg", sendMsgParams);
+        System.out.println(JSONObject.toJSONString(request));
+        Client.sendMessage(JSONObject.toJSONString(request));
+    }
+
+    private void match(Message message, String[] rawMessage) {
         switch (rawMessage.length){
             case 1 -> {
-                System.out.println("case 1");
-                Random random = new Random();
-                int num = random.nextInt((int) longDataService.count());
-                LongData data = longDataService.getById(num + 1);
-                params.addImageMessageSegment(data.getUrl());
+                if(rawMessage[0].equals("/long")) getLong();
             }
             case 2 -> {
-                params.setMessage_type("group");
-                params.setGroup_id(251697087L);
-                params.addTextMessageSegment("收到龙图添加请求，请进行审核。");
-                request = new Request<>("send_msg",params);
-                System.out.println(JSONObject.toJSONString(request));
-                Client.sendMessage(JSONObject.toJSONString(request));
-                Thread.sleep(3000L);
-                params.clearMessage();
-                params.setMessage(message.getSegmentList());
-                request = new Request<>("send_msg",params);
-                System.out.println(JSONObject.toJSONString(request));
-                Client.sendMessage(JSONObject.toJSONString(request));
-                Thread.sleep(3000L);
-                params = new Params(message);
-                params.addTextMessageSegment("添加请求已受理，审核通过后就可以召唤你提供的龙图啦QAQ");
-            }
-            case 3 -> {
-                System.out.println("case 3");
-                if(params.getGroup_id() == 251697087L){
-                    System.out.println("case 3 admin");
-                    if(rawMessage[2].contains("true")){
-                        MessageData messageData = message.getSegmentList().get(1).getData();
-                        if(messageData instanceof ImageData imageData){
-                            boolean ret = longDataService.add(imageData.getUrl());
-                            if(ret){
-                                params.addTextMessageSegment("龙图已加入召唤池！");
+                if(rawMessage[1].equals("add")){
+                    MessageData messageData = message.getSegmentList().get(0).getData();
+                    if(messageData instanceof ReplyData replyData){
+                        if(message.getMessage_type().equals("group")){
+                            if(message.getGroup_id() == 251697087L){
+                                addLong(replyData);
                             }
-                            else {
-                                params.addTextMessageSegment("添加龙图失败：数据库异常");
-                            }
+                            else forward(replyData);
                         }
+                        else forward(replyData);
                     }
+                    else sendMsgParams.addTextMessageSegment("需要对龙图进行回复才能使用此功能哦，详见/help 4。");
                 }
             }
-            default -> params.addTextMessageSegment("参数有误，请输入/help 4查看帮助文档。");
+            default -> sendMsgParams.addTextMessageSegment("参数有误，请输入/help 4查看帮助文档。");
         }
     }
+
+    private void getLong(){
+        Random random = new Random();
+        int num = random.nextInt((int) longDataService.count());
+        LongData data = longDataService.getById(num + 1);
+        sendMsgParams.addImageMessageSegment(data.getUrl());
+        Request<SendMsgParams> request = new Request<>("send_msg", sendMsgParams);
+        System.out.println(JSONObject.toJSONString(request));
+        Client.sendMessage(JSONObject.toJSONString(request));
+    }
+
+    private void addLong(ReplyData replyData){
+        GetMsgParams getMsgParams = new GetMsgParams(replyData.getId());
+        Request<GetMsgParams> request = new Request<>("get_msg", getMsgParams);
+        System.out.println(JSONObject.toJSONString(request));
+        Client.setResponding();
+        Client.setResponseHandler(this);
+        Client.sendMessage(JSONObject.toJSONString(request));
+    }
+
+    private void forward(ReplyData replyData){
+
+    }
+
 }

@@ -2,7 +2,7 @@ package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.Params;
+import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.websocket.Client;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Help implements IMessageEvent {
 
-    Request<Params> request;
-    Params params;
+    Request<SendMsgParams> request;
+    SendMsgParams sendMsgParams;
 
     @Override
     public int weight() {
@@ -23,7 +23,7 @@ public class Help implements IMessageEvent {
     public boolean onMessage(Message message) {
         String[] rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/help")){
-            params = new Params(message);
+            sendMsgParams = new SendMsgParams(message);
             String text;
             if(rawMessage.length > 1){
                 text = match(message,Integer.parseInt(rawMessage[1]));
@@ -31,8 +31,8 @@ public class Help implements IMessageEvent {
             else {
                 text = match(message,0);
             }
-            params.addTextMessageSegment(text);
-            request = new Request<>("send_msg", params);
+            sendMsgParams.addTextMessageSegment(text);
+            request = new Request<>("send_msg", sendMsgParams);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;
@@ -69,7 +69,7 @@ public class Help implements IMessageEvent {
             }
             case 4 -> {
                 if(message.getGroup_id() != null){
-                    if(message.getGroup_id() == 251697087)
+                    if(message.getGroup_id() == 251697087L)
                     {
                         return """
                         使用方法：
@@ -77,11 +77,9 @@ public class Help implements IMessageEvent {
                         /long
                         可以召唤一张随机的龙图.jpg
                         2.添加龙图
-                        /long add [参数]
-                        参数内为你想要添加的龙图，注意图片必须和命令在同一条消息内，审核通过后你贡献的龙图就会出现在随机池里！
-                        3.审核龙图(审核群限定)
-                        /long add [参数] true
-                        其他群发出的添加请求会被转发到审核群，当认定审核通过时，复制原消息在后面追加true即可正式将龙图加入随机池。
+                        [图片]+回复：/long add
+                        发送一张你想要添加的龙图，然后对龙图回复并输入上述指令，审核通过后你贡献的龙图就会出现在随机池里！
+                        【审核群限定】其他群发出的龙图添加请求会被转发到此群，若认定通过审核，直接回复该龙图并输入上述指令即可将此龙图加入随机召唤池。同理，在本群直接发起添加操作无需审核，视为直接通过。
                         """;
                     }
                     else {
@@ -91,8 +89,8 @@ public class Help implements IMessageEvent {
                         /long
                         可以召唤一张随机的龙图.jpg
                         2.添加龙图
-                        /long add [参数]
-                        参数内为你想要添加的龙图，注意图片必须和命令在同一条消息内，审核通过后你贡献的龙图就会出现在随机池里！
+                        [图片]+回复：/long add
+                        发送一张你想要添加的龙图，然后对龙图回复并输入上述指令，审核通过后你贡献的龙图就会出现在随机池里！
                         """;
                     }
                 }
@@ -103,8 +101,8 @@ public class Help implements IMessageEvent {
                         /long
                         可以召唤一张随机的龙图.jpg
                         2.添加龙图
-                        /long add [参数]
-                        参数内为你想要添加的龙图，注意图片必须和命令在同一条消息内，审核通过后你贡献的龙图就会出现在随机池里！
+                        [图片]+回复：/long add
+                        发送一张你想要添加的龙图，然后对龙图回复并输入上述指令，审核通过后你贡献的龙图就会出现在随机池里！
                         """;
                 }
             }

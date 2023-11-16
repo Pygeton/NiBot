@@ -2,7 +2,9 @@ package com.pygeton.nibot.communication.websocket;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
+import com.pygeton.nibot.communication.entity.Response;
 import com.pygeton.nibot.communication.event.EventHandler;
+import com.pygeton.nibot.communication.event.IResponseHandler;
 import com.pygeton.nibot.communication.task.ReconnectTask;
 import jakarta.websocket.*;
 
@@ -14,7 +16,9 @@ public class Client {
 
     private Session session;
     private static Client INSTANCE;
+    private static IResponseHandler responseHandler;
     private volatile static boolean connecting = false;
+    private volatile static boolean responding = false;
 
     public Client(String url) throws DeploymentException, IOException {
         session = ContainerProvider.getWebSocketContainer().connectToServer(this, URI.create(url));
@@ -51,18 +55,31 @@ public class Client {
 
     @OnMessage
     public void onMessage(String json){
-        Message message = JSONObject.parseObject(json,Message.class);
-        boolean handleFlag = message.getPost_type() != null;
-        boolean hideFlag = false;
-        if(handleFlag){
-            switch (message.getPost_type()){
-                case "message" -> {
-                    message.toSegmentList();
-                    EventHandler.traverse(message);
+        if(responding){
+            Response response = JSONObject.parseObject(json,Response.class);
+            boolean handleRspFlag = response.getStatus() != null;
+            if(handleRspFlag){
+                if(responseHandler != null && response.getStatus().equals("ok")){
+                    System.out.println(response);
+                    responseHandler.handle(response);
+                    responding = false;
                 }
-                case "meta_event" -> hideFlag = true;
             }
-            if (!hideFlag) System.out.println(json);
+        }
+        else {
+            Message message = JSONObject.parseObject(json,Message.class);
+            boolean handleMsgFlag = message.getPost_type() != null;
+            boolean hideFlag = false;
+            if(handleMsgFlag){
+                switch (message.getPost_type()){
+                    case "message" -> {
+                        message.toSegmentList();
+                        EventHandler.traverse(message);
+                    }
+                    case "meta_event" -> hideFlag = true;
+                }
+                if (!hideFlag) System.out.println(json);
+            }
         }
     }
 
@@ -80,4 +97,13 @@ public class Client {
     public static void sendMessage(String json){
         Client.INSTANCE.session.getAsyncRemote().sendText(json);
     }
+
+    public static void setResponseHandler(IResponseHandler handler){
+        responseHandler = handler;
+    }
+
+    public static void setResponding(){
+        responding = true;
+    }
+
 }

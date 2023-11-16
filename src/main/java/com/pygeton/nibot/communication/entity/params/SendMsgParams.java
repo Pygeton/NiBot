@@ -1,5 +1,7 @@
-package com.pygeton.nibot.communication.entity;
+package com.pygeton.nibot.communication.entity.params;
 
+import com.pygeton.nibot.communication.entity.Message;
+import com.pygeton.nibot.communication.entity.MessageSegment;
 import com.pygeton.nibot.communication.entity.data.*;
 import lombok.Data;
 
@@ -7,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Params {
+public class SendMsgParams {
 
     private String message_type;
     private Long user_id;
@@ -15,7 +17,7 @@ public class Params {
     private List<MessageSegment> message = new ArrayList<>();
     private Boolean auto_escape = false;
 
-    public Params(Message message){
+    public SendMsgParams(Message message){
         this.message_type = message.getMessage_type();
         this.user_id = message.getUser_id();
         this.group_id = message.getGroup_id();

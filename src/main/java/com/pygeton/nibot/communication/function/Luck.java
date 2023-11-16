@@ -2,7 +2,7 @@ package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.Params;
+import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.entity.data.AtData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
@@ -17,8 +17,8 @@ import java.util.Random;
 @Component
 public class Luck implements IMessageEvent {
 
-    Request<Params> request;
-    Params params;
+    Request<SendMsgParams> request;
+    SendMsgParams sendMsgParams;
 
     @Autowired
     private LuckDataServiceImpl luckDataService;
@@ -35,7 +35,7 @@ public class Luck implements IMessageEvent {
             Random random = new Random();
             int luck = random.nextInt(101);
             String text;
-            params = new Params(message);
+            sendMsgParams = new SendMsgParams(message);
             if(rawMessage.length == 1){
                 boolean ret = luckDataService.saveOrUpdateLuck(message.getUser_id(),luck);
                 if(!ret){
@@ -52,7 +52,7 @@ public class Luck implements IMessageEvent {
                 else{
                     text = message.getUser_id() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
                 }
-                params.addTextMessageSegment(text);
+                sendMsgParams.addTextMessageSegment(text);
             }
             else if(rawMessage.length == 2){
                 if(message.getMessage_type().equals("group")){
@@ -63,14 +63,14 @@ public class Luck implements IMessageEvent {
                             luck = luckDataService.getLuck(atData.getQq());
                         }
                         text = atData.getQq() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
-                        params.addTextMessageSegment(text);
+                        sendMsgParams.addTextMessageSegment(text);
                     }
-                    else params.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
+                    else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
                 }
-                else params.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
+                else sendMsgParams.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
             }
-            else params.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
-            request = new Request<>("send_msg", params);
+            else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
+            request = new Request<>("send_msg", sendMsgParams);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;

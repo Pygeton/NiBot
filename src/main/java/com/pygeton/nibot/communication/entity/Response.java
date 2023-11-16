@@ -10,27 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Message {
+public class Response {
 
-    private Long time;
-    private String self_id;
-    private String post_type;
-    private String message_type;
-    private String meta_event_type;
-    private String sub_type;
-    private Long message_id;
-    private Long group_id;
-    private Long target_id;
-    private Long peer_id;
-    private Long user_id;
-    private String message;
+    private String status;
+    private Integer retcode;
+    private String msg;
+    private String wording;
+    private String data;
     private List<MessageSegment> segmentList = new ArrayList<>();
-    private String raw_message;
-    private Integer font;
-    private Sender sender;
+    private String echo;
 
     public void toSegmentList(){
-        JSONArray jsonArray = JSON.parseArray(message);
+        JSONObject dataObject = JSON.parseObject(data);
+        JSONArray jsonArray = dataObject.getJSONArray("message");
         for (int i = 0; i < jsonArray.size(); i++){
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             String type = jsonObject.getString("type");

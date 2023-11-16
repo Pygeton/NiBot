@@ -2,8 +2,7 @@ package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.MessageSegment;
-import com.pygeton.nibot.communication.entity.Params;
+import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.entity.data.AtData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
@@ -26,8 +25,8 @@ import java.util.Date;
 @Component
 public class Mahjong implements IMessageEvent {
 
-    Request<Params> request;
-    Params params;
+    Request<SendMsgParams> request;
+    SendMsgParams sendMsgParams;
 
     @Autowired
     MahjongDataServiceImpl mahjongDataService;
@@ -41,9 +40,9 @@ public class Mahjong implements IMessageEvent {
     public boolean onMessage(Message message) {
         String[] rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/mj")){
-            params = new Params(message);
+            sendMsgParams = new SendMsgParams(message);
             match(message,rawMessage);
-            request = new Request<>("send_msg", params);
+            request = new Request<>("send_msg", sendMsgParams);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));
             return true;
@@ -62,7 +61,7 @@ public class Mahjong implements IMessageEvent {
                         bind(message.getUser_id(), rawMessage[2], Integer.valueOf(rawMessage[3]));
                     }
                     else {
-                        params.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
+                        sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
                     }
                 }
                 case "rate" -> {
@@ -76,19 +75,19 @@ public class Mahjong implements IMessageEvent {
                                 rate(atData.getQq());
                             }
                             else {
-                                params.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
+                                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
                             }
                         }
-                        else params.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
+                        else sendMsgParams.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
                     }
                     else {
-                        params.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
+                        sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
                     }
                 }
             }
         }
         else {
-            params.addTextMessageSegment("参数缺失，请输入/help 3查看帮助文档。");
+            sendMsgParams.addTextMessageSegment("参数缺失，请输入/help 3查看帮助文档。");
         }
     }
 
@@ -99,10 +98,10 @@ public class Mahjong implements IMessageEvent {
         if(!alert){
             boolean ret = mahjongDataService.saveOrUpdateData(id, name);
             if(ret){
-                params.addTextMessageSegment("公式战信息绑定成功！");
+                sendMsgParams.addTextMessageSegment("公式战信息绑定成功！");
             }
             else{
-                params.addTextMessageSegment("公式战信息绑定失败：数据库异常");
+                sendMsgParams.addTextMessageSegment("公式战信息绑定失败：数据库异常");
             }
         }
         driver.quit();
@@ -115,10 +114,10 @@ public class Mahjong implements IMessageEvent {
         if(!alert){
             boolean ret = mahjongDataService.saveOrUpdateData(id, name, area);
             if(ret){
-                params.addTextMessageSegment("公式战信息绑定成功！");
+                sendMsgParams.addTextMessageSegment("公式战信息绑定成功！");
             }
             else{
-                params.addTextMessageSegment("公式战信息绑定失败：数据库异常");
+                sendMsgParams.addTextMessageSegment("公式战信息绑定失败：数据库异常");
             }
         }
         driver.quit();
@@ -127,7 +126,7 @@ public class Mahjong implements IMessageEvent {
     private void rate(Long id){
         MahjongData data;
         if(mahjongDataService.getData(id) == null){
-            params.addTextMessageSegment("公式战战绩查询失败：用户未绑定");
+            sendMsgParams.addTextMessageSegment("公式战战绩查询失败：用户未绑定");
         }
         else {
             data = mahjongDataService.getData(id);
@@ -148,7 +147,7 @@ public class Mahjong implements IMessageEvent {
                     e.printStackTrace();
                 }
                 String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
-                params.addImageMessageSegment(path);
+                sendMsgParams.addImageMessageSegment(path);
             }
             driver.quit();
         }
@@ -174,8 +173,8 @@ public class Mahjong implements IMessageEvent {
     private boolean alertCheck(WebDriver driver){
         try {
             Alert alert = driver.switchTo().alert();
-            params.addTextMessageSegment("发生错误，请输入/help 3查看帮助文档。\n");
-            params.addTextMessageSegment(alert.getText());
+            sendMsgParams.addTextMessageSegment("发生错误，请输入/help 3查看帮助文档。\n");
+            sendMsgParams.addTextMessageSegment(alert.getText());
             return true;
         }
         catch (NoAlertPresentException e){

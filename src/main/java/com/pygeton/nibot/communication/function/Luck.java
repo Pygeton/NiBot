@@ -65,11 +65,11 @@ public class Luck implements IMessageEvent {
                         text = atData.getQq() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
                         params.addTextMessageSegment(text);
                     }
-                    else params.addTextMessageSegment("参数有误，请使用/help 1查看使用说明！");
+                    else params.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
                 }
                 else params.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
             }
-            else params.addTextMessageSegment("参数有误，请使用/help 1查看使用说明！");
+            else params.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
             request = new Request<>("send_msg", params);
             System.out.println(JSONObject.toJSONString(request));
             Client.sendMessage(JSONObject.toJSONString(request));

@@ -1,6 +1,5 @@
 package com.pygeton.nibot.repository.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pygeton.nibot.repository.entity.LuckData;
 import com.pygeton.nibot.repository.mapper.LuckDataMapper;
@@ -14,16 +13,13 @@ public class LuckDataServiceImpl extends ServiceImpl<LuckDataMapper, LuckData> i
 
     @Override
     public int getLuck(Long id) {
-        QueryWrapper<LuckData> wrapper = new QueryWrapper<>();
-        wrapper.eq("id",id);
-        return getOne(wrapper).getLuck();
+        LuckData data = getById(id);
+        return data.getLuck();
     }
 
     @Override
     public boolean saveOrUpdateLuck(Long id, Integer luck) {
-        QueryWrapper<LuckData> wrapper = new QueryWrapper<>();
-        wrapper.eq("id",id);
-        LuckData data = getOne(wrapper);
+        LuckData data = getById(id);
         Date curDate = new Date(new java.util.Date().getTime());
         if(data != null){
             Date dbDate = data.getDate();

@@ -1,6 +1,5 @@
 package com.pygeton.nibot.repository.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pygeton.nibot.repository.entity.MahjongData;
 import com.pygeton.nibot.repository.mapper.MahjongDataMapper;
@@ -11,9 +10,7 @@ public class MahjongDataServiceImpl extends ServiceImpl<MahjongDataMapper, Mahjo
 
     @Override
     public MahjongData getData(Long id) {
-        QueryWrapper<MahjongData> wrapper = new QueryWrapper<>();
-        wrapper.eq("id",id);
-        return getOne(wrapper);
+        return getById(id);
     }
 
     @Override

@@ -26,10 +26,10 @@ public class Help implements IMessageEvent {
             params = new Params(message);
             String text;
             if(rawMessage.length > 1){
-                text = match(Integer.parseInt(rawMessage[1]));
+                text = match(message,Integer.parseInt(rawMessage[1]));
             }
             else {
-                text = match(0);
+                text = match(message,0);
             }
             params.addTextMessageSegment(text);
             request = new Request<>("send_msg", params);
@@ -40,7 +40,7 @@ public class Help implements IMessageEvent {
         else return false;
     }
 
-    private String match(int param){
+    private String match(Message message,int param){
         switch (param){
             case 1 -> {
                 return """
@@ -67,6 +67,50 @@ public class Help implements IMessageEvent {
                         参数内@其他群友即可查询其战绩（前提是已经绑定），不填写参数则是查询自己的战绩。
                         """;
             }
+            case 4 -> {
+                if(message.getGroup_id() != null){
+                    if(message.getGroup_id() == 251697087)
+                    {
+                        return """
+                        使用方法：
+                        1.召唤随机龙图
+                        /long
+                        可以召唤一张随机的龙图.jpg
+                        2.添加龙图
+                        /long add [参数]
+                        参数内为你想要添加的龙图，注意图片必须和命令在同一条消息内，审核通过后你贡献的龙图就会出现在随机池里！
+                        3.审核龙图(审核群限定)
+                        /long add [参数] true
+                        其他群发出的添加请求会被转发到审核群，当认定审核通过时，复制原消息在后面追加true即可正式将龙图加入随机池。
+                        """;
+                    }
+                    else {
+                        return """
+                        使用方法：
+                        1.召唤随机龙图
+                        /long
+                        可以召唤一张随机的龙图.jpg
+                        2.添加龙图
+                        /long add [参数]
+                        参数内为你想要添加的龙图，注意图片必须和命令在同一条消息内，审核通过后你贡献的龙图就会出现在随机池里！
+                        """;
+                    }
+                }
+                else {
+                    return """
+                        使用方法：
+                        1.召唤随机龙图
+                        /long
+                        可以召唤一张随机的龙图.jpg
+                        2.添加龙图
+                        /long add [参数]
+                        参数内为你想要添加的龙图，注意图片必须和命令在同一条消息内，审核通过后你贡献的龙图就会出现在随机池里！
+                        """;
+                }
+            }
+            case 5 -> {
+                return "这个功能还在开发中，再等等捏QAQ";
+            }
             default -> {
                 return """
                         NiBot现在支持的功能如下：
@@ -74,6 +118,8 @@ public class Help implements IMessageEvent {
                         1./luck 今日运势
                         2./choose 做选择
                         3./mj 雀庄公式战
+                        4./long 召唤龙图（暂未实现）
+                        5./sleep 精致睡眠（暂未实现）
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
                         """;
             }

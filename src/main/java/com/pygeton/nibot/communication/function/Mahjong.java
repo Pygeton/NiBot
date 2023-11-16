@@ -62,7 +62,7 @@ public class Mahjong implements IMessageEvent {
                         bind(message.getUser_id(), rawMessage[2], Integer.valueOf(rawMessage[3]));
                     }
                     else {
-                        params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");
+                        params.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
                     }
                 }
                 case "rate" -> {
@@ -76,19 +76,19 @@ public class Mahjong implements IMessageEvent {
                                 rate(atData.getQq());
                             }
                             else {
-                                params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");
+                                params.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
                             }
                         }
                         else params.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
                     }
                     else {
-                        params.addTextMessageSegment("参数有误，请使用/help 3查看使用说明！");
+                        params.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
                     }
                 }
             }
         }
         else {
-            params.addTextMessageSegment("参数缺失，请使用/help 3查看使用说明！");
+            params.addTextMessageSegment("参数缺失，请输入/help 3查看帮助文档。");
         }
     }
 
@@ -174,7 +174,7 @@ public class Mahjong implements IMessageEvent {
     private boolean alertCheck(WebDriver driver){
         try {
             Alert alert = driver.switchTo().alert();
-            params.addTextMessageSegment("发生错误，可以输入/help 3查看帮助文档。\n");
+            params.addTextMessageSegment("发生错误，请输入/help 3查看帮助文档。\n");
             params.addTextMessageSegment(alert.getText());
             return true;
         }

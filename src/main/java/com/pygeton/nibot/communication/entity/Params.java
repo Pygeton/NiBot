@@ -56,4 +56,8 @@ public class Params {
         MessageSegment segment = new MessageSegment("reply",data);
         message.add(segment);
     }
+
+    public void clearMessage(){
+        message = new ArrayList<>();
+    }
 }

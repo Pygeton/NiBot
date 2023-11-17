@@ -1,18 +1,12 @@
 package com.pygeton.nibot.communication.function;
 
-import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
-import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.event.IMessageEvent;
-import com.pygeton.nibot.communication.websocket.Client;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Help implements IMessageEvent {
-
-    Request<SendMsgParams> request;
-    SendMsgParams sendMsgParams;
+public class Help extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
@@ -32,9 +26,7 @@ public class Help implements IMessageEvent {
                 text = match(message,0);
             }
             sendMsgParams.addTextMessageSegment(text);
-            request = new Request<>("send_msg", sendMsgParams);
-            System.out.println(JSONObject.toJSONString(request));
-            Client.sendMessage(JSONObject.toJSONString(request));
+            sendMessage();
             return true;
         }
         else return false;
@@ -116,7 +108,7 @@ public class Help implements IMessageEvent {
                         1./luck 今日运势
                         2./choose 做选择
                         3./mj 雀庄公式战
-                        4./long 召唤龙图（暂未实现）
+                        4./long 召唤龙图
                         5./sleep 精致睡眠（暂未实现）
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
                         """;

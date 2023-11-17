@@ -62,7 +62,7 @@ public class Client {
                 if(responseHandler != null && response.getStatus().equals("ok")){
                     System.out.println(response);
                     responseHandler.handle(response);
-                    responding = false;
+                    setResponding(false);
                 }
             }
         }
@@ -102,8 +102,8 @@ public class Client {
         responseHandler = handler;
     }
 
-    public static void setResponding(){
-        responding = true;
+    public static void setResponding(boolean status){
+        responding = status;
     }
 
 }

@@ -1,11 +1,8 @@
 package com.pygeton.nibot.communication.function;
 
-import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
-import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.event.IMessageEvent;
-import com.pygeton.nibot.communication.websocket.Client;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,10 +11,7 @@ import java.util.List;
 import java.util.Random;
 
 @Component
-public class Choose implements IMessageEvent {
-
-    Request<SendMsgParams> request;
-    SendMsgParams sendMsgParams;
+public class Choose extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
@@ -37,9 +31,7 @@ public class Choose implements IMessageEvent {
                 text = "没有选项我怎么帮你选呢？";
             }
             sendMsgParams.addTextMessageSegment(text);
-            request = new Request<>("send_msg", sendMsgParams);
-            System.out.println(JSONObject.toJSONString(request));
-            Client.sendMessage(JSONObject.toJSONString(request));
+            sendMessage();
             return true;
         }
         else return false;

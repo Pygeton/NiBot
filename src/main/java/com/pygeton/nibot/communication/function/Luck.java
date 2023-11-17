@@ -1,13 +1,10 @@
 package com.pygeton.nibot.communication.function;
 
-import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.params.SendMsgParams;
-import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.entity.data.AtData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
+import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
-import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.service.LuckDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,10 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 
 @Component
-public class Luck implements IMessageEvent {
-
-    Request<SendMsgParams> request;
-    SendMsgParams sendMsgParams;
+public class Luck extends Function implements IMessageEvent {
 
     @Autowired
     private LuckDataServiceImpl luckDataService;
@@ -70,9 +64,7 @@ public class Luck implements IMessageEvent {
                 else sendMsgParams.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
             }
             else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
-            request = new Request<>("send_msg", sendMsgParams);
-            System.out.println(JSONObject.toJSONString(request));
-            Client.sendMessage(JSONObject.toJSONString(request));
+            sendMessage();
             return true;
         }
         else return false;

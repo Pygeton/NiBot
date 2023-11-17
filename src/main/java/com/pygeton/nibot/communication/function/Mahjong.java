@@ -1,13 +1,10 @@
 package com.pygeton.nibot.communication.function;
 
-import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.params.SendMsgParams;
-import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.entity.data.AtData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
+import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
-import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.entity.MahjongData;
 import com.pygeton.nibot.repository.service.MahjongDataServiceImpl;
 import org.apache.commons.io.FileUtils;
@@ -23,10 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Component
-public class Mahjong implements IMessageEvent {
-
-    Request<SendMsgParams> request;
-    SendMsgParams sendMsgParams;
+public class Mahjong extends Function implements IMessageEvent {
 
     @Autowired
     MahjongDataServiceImpl mahjongDataService;
@@ -42,9 +36,7 @@ public class Mahjong implements IMessageEvent {
         if(rawMessage[0].equals("/mj")){
             sendMsgParams = new SendMsgParams(message);
             match(message,rawMessage);
-            request = new Request<>("send_msg", sendMsgParams);
-            System.out.println(JSONObject.toJSONString(request));
-            Client.sendMessage(JSONObject.toJSONString(request));
+            sendMessage();
             return true;
         }
         else return false;

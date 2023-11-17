@@ -4,11 +4,13 @@ import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.MessageSegment;
 import com.pygeton.nibot.communication.entity.data.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class SendMsgParams {
 
     private String message_type;
@@ -21,6 +23,14 @@ public class SendMsgParams {
         this.message_type = message.getMessage_type();
         this.user_id = message.getUser_id();
         this.group_id = message.getGroup_id();
+    }
+
+    public SendMsgParams(String message_type, Long id){
+        this.message_type = message_type;
+        if(message_type.equals("private")){
+            this.user_id = id;
+        }
+        else this.group_id = id;
     }
 
     public void addTextMessageSegment(String text){

@@ -1,8 +1,6 @@
 package com.pygeton.nibot.communication.function;
 
-import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.Request;
 import com.pygeton.nibot.communication.entity.Response;
 import com.pygeton.nibot.communication.entity.data.ImageData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
@@ -11,7 +9,6 @@ import com.pygeton.nibot.communication.entity.params.GetMsgParams;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.event.IResponseHandler;
-import com.pygeton.nibot.communication.websocket.Client;
 import com.pygeton.nibot.repository.entity.LongData;
 import com.pygeton.nibot.repository.service.LongDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 
 @Component
-public class SummonLong implements IMessageEvent, IResponseHandler {
-
-    SendMsgParams sendMsgParams;
+public class SummonLong extends Function implements IMessageEvent, IResponseHandler {
 
     @Autowired
     LongDataServiceImpl longDataService;
@@ -43,25 +38,6 @@ public class SummonLong implements IMessageEvent, IResponseHandler {
         else return false;
     }
 
-    @Override
-    public void handle(Response response) {
-        response.toSegmentList();
-        MessageData messageData = response.getSegmentList().get(0).getData();
-        boolean ret = false;
-        if(messageData instanceof ImageData imageData){
-            ret = longDataService.add(imageData.getUrl());
-        }
-        if(ret){
-            sendMsgParams.addTextMessageSegment("添加龙图到召唤池成功！");
-        }
-        else {
-            sendMsgParams.addTextMessageSegment("添加失败：数据库异常");
-        }
-        Request<SendMsgParams> request = new Request<>("send_msg", sendMsgParams);
-        System.out.println(JSONObject.toJSONString(request));
-        Client.sendMessage(JSONObject.toJSONString(request));
-    }
-
     private void match(Message message, String[] rawMessage) {
         switch (rawMessage.length){
             case 1 -> {
@@ -79,10 +55,16 @@ public class SummonLong implements IMessageEvent, IResponseHandler {
                         }
                         else forward(replyData);
                     }
-                    else sendMsgParams.addTextMessageSegment("需要对龙图进行回复才能使用此功能哦，详见/help 4。");
+                    else {
+                        sendMsgParams.addTextMessageSegment("需要对龙图进行回复才能使用此功能哦，详见/help 4。");
+                        sendMessage();
+                    }
                 }
             }
-            default -> sendMsgParams.addTextMessageSegment("参数有误，请输入/help 4查看帮助文档。");
+            default -> {
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 4查看帮助文档。");
+                sendMessage();
+            }
         }
     }
 
@@ -91,22 +73,51 @@ public class SummonLong implements IMessageEvent, IResponseHandler {
         int num = random.nextInt((int) longDataService.count());
         LongData data = longDataService.getById(num + 1);
         sendMsgParams.addImageMessageSegment(data.getUrl());
-        Request<SendMsgParams> request = new Request<>("send_msg", sendMsgParams);
-        System.out.println(JSONObject.toJSONString(request));
-        Client.sendMessage(JSONObject.toJSONString(request));
+        sendMessage();
     }
 
     private void addLong(ReplyData replyData){
-        GetMsgParams getMsgParams = new GetMsgParams(replyData.getId());
-        Request<GetMsgParams> request = new Request<>("get_msg", getMsgParams);
-        System.out.println(JSONObject.toJSONString(request));
-        Client.setResponding();
-        Client.setResponseHandler(this);
-        Client.sendMessage(JSONObject.toJSONString(request));
+        getMsgParams = new GetMsgParams(replyData.getId());
+        handleParam = 1;
+        getMessage(this);
     }
 
     private void forward(ReplyData replyData){
+        getMsgParams = new GetMsgParams(replyData.getId());
+        handleParam = 2;
+        getMessage(this);
+    }
 
+    @Override
+    public void handle(Response response) {
+        System.out.println(handleParam);
+        response.toSegmentList();
+        MessageData messageData = response.getSegmentList().get(0).getData();
+        if(handleParam == 1){
+            boolean ret = false;
+            if(messageData instanceof ImageData imageData){
+                ret = longDataService.add(imageData.getUrl());
+            }
+            if(ret){
+                sendMsgParams.addTextMessageSegment("添加龙图到召唤池成功！");
+            }
+            else {
+                sendMsgParams.addTextMessageSegment("添加失败：数据库异常");
+            }
+            sendMessage();
+        }
+        else if(handleParam == 2){
+            sendMsgParams.addTextMessageSegment("龙图添加请求发送成功，审核通过后你的龙图就会出现在召唤池里！");
+            sendMessage();
+            sendMsgParams = new SendMsgParams("group",251697087L);
+            sendMsgParams.addTextMessageSegment("收到龙图添加请求，请进行审核。");
+            sendMessage();
+            sendMsgParams = new SendMsgParams("group",251697087L);
+            if(messageData instanceof ImageData imageData){
+                sendMsgParams.addImageMessageSegment(imageData.getUrl());
+            }
+            sendMessage();
+        }
     }
 
 }

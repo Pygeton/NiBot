@@ -120,4 +120,9 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
         }
     }
 
+    @Override
+    public void timeout() {
+        sendMsgParams.addTextMessageSegment("操作失败：响应超时");
+        sendMessage();
+    }
 }

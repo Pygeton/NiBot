@@ -10,6 +10,10 @@ import jakarta.websocket.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @ClientEndpoint
 public class Client {
@@ -56,15 +60,33 @@ public class Client {
     @OnMessage
     public void onMessage(String json){
         if(responding){
-            Response response = JSONObject.parseObject(json,Response.class);
-            boolean handleRspFlag = response.getStatus() != null;
-            if(handleRspFlag){
-                if(responseHandler != null && response.getStatus().equals("ok")){
-                    System.out.println(response);
-                    responseHandler.handle(response);
-                    setResponding(false);
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
+            Runnable task = () -> {
+                responseHandler.timeout();
+                setResponding(false);
+            };
+
+            ScheduledFuture<?> future = executor.schedule(task, 5, TimeUnit.SECONDS);
+
+            try {
+                Response response = JSONObject.parseObject(json,Response.class);
+                boolean handleRspFlag = response.getStatus() != null;
+                if(handleRspFlag){
+                    if(responseHandler != null && response.getStatus().equals("ok")){
+                        System.out.println(response);
+                        responseHandler.handle(response);
+                        setResponding(false);
+                        future.cancel(true);
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                executor.shutdown();
             }
+
+
         }
         else {
             Message message = JSONObject.parseObject(json,Message.class);

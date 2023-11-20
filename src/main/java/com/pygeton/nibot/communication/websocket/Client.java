@@ -85,8 +85,6 @@ public class Client {
             }finally {
                 executor.shutdown();
             }
-
-
         }
         else {
             Message message = JSONObject.parseObject(json,Message.class);

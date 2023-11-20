@@ -24,7 +24,7 @@ public class Luck extends Function implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        String[] rawMessage = message.getRaw_message().split(" ");
+        rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/luck")){
             Random random = new Random();
             int luck = random.nextInt(101);

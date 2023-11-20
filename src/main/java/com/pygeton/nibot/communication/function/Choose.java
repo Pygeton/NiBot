@@ -20,12 +20,12 @@ public class Choose extends Function implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        String[] rawMessage = message.getRaw_message().split(" ");
+        rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/choose")){
             sendMsgParams = new SendMsgParams(message);
             String text;
             if(rawMessage.length > 1){
-                text = choose(rawMessage);
+                text = choose();
             }
             else {
                 text = "没有选项我怎么帮你选呢？";
@@ -37,7 +37,7 @@ public class Choose extends Function implements IMessageEvent {
         else return false;
     }
 
-    private String choose(String[] rawMessage){
+    private String choose(){
         List<String> list = new ArrayList<>(rawMessage.length - 1);
         list.addAll(Arrays.asList(rawMessage).subList(1, rawMessage.length));
         Random random = new Random();

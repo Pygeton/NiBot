@@ -15,7 +15,7 @@ public class Help extends Function implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        String[] rawMessage = message.getRaw_message().split(" ");
+        rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/help")){
             sendMsgParams = new SendMsgParams(message);
             String text;
@@ -99,7 +99,24 @@ public class Help extends Function implements IMessageEvent {
                 }
             }
             case 5 -> {
-                return "这个功能还在开发中，再等等捏QAQ";
+                return """
+                        使用方法：
+                        /sleep [参数]
+                        参数内填写你想要睡眠的时长，单位为时（例如：/sleep 8 = 禁言8小时），发送指令后镍酱就会不让你说话直到你睡醒为止！
+                        如果你提前睡醒想说话，需要私聊其他管理员（
+                        """;
+            }
+            case 6 -> {
+                return """
+                        使用方法：
+                        1.[图片]+回复：/mirror [参数]
+                        参数：
+                        p 左右镜像
+                        v 上下镜像
+                        发送一张你想要镜像翻转的图片，然后对此图片回复并输入上述指令，参数内填写你想要的翻转方式，就可以得到一张翻转后的图片！
+                        2.[文字]+回复：/mirror
+                        发送一串你想要镜像翻转的文字，然后对此消息回复并输入上述指令，就能够得到一条此消息的回文串！
+                        """;
             }
             default -> {
                 return """
@@ -109,8 +126,10 @@ public class Help extends Function implements IMessageEvent {
                         2./choose 做选择
                         3./mj 雀庄公式战
                         4./long 召唤龙图
-                        5./sleep 精致睡眠（暂未实现）
+                        5./sleep 精致睡眠
+                        6./mirror 镜像翻转（暂未实现）
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
+                        例如：输入/help 1，可以查看今日运势的功能详情。
                         """;
             }
         }

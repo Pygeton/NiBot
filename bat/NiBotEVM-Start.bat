@@ -1,4 +1,5 @@
 @echo off
+net start MySQL80
 cd /d D:\Software\leidian\LDPlayer9
 adb start-server
 adb -s emulator-5554 forward tcp:9099 tcp:5800

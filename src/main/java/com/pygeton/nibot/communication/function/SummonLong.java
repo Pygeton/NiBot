@@ -29,16 +29,16 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
 
     @Override
     public boolean onMessage(Message message) {
-        String[] rawMessage = message.getRaw_message().split(" ");
+        rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].contains("/long")){
             sendMsgParams = new SendMsgParams(message);
-            match(message,rawMessage);
+            match(message);
             return true;
         }
         else return false;
     }
 
-    private void match(Message message, String[] rawMessage) {
+    private void match(Message message) {
         switch (rawMessage.length){
             case 1 -> {
                 if(rawMessage[0].equals("/long")) getLong();

@@ -32,7 +32,7 @@ public class Mahjong extends Function implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        rawMessage = message.getRaw_message().split(" ");
+        setRawMessage(message);
         if(rawMessage[0].equals("/mj")){
             sendMsgParams = new SendMsgParams(message);
             match(message);

@@ -20,10 +20,10 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
     public boolean onMessage(Message message) {
         rawMessage = message.getRaw_message().split(" ");
         if(rawMessage[0].equals("/sleep")){
+            sendMsgParams = new SendMsgParams(message);
             if(rawMessage.length == 2){
-                sendMsgParams = new SendMsgParams(message);
                 if(message.getSender().getRole().equals("owner") || message.getSender().getRole().equals("admin")){
-                    sendMsgParams.addTextMessageSegment("狗管理自己睡去，衮");
+                    sendMsgParams.addTextMessageSegment("狗管理自己睡去，衮！");
                     sendMessage();
                 }
                 else {
@@ -32,6 +32,10 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
                     setGroupBan(this);
                 }
             }
+            else {
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 5查看帮助文档。");
+                sendMessage();
+            }
             return true;
         }
         else return false;
@@ -39,13 +43,16 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
 
     @Override
     public void handle(Response response) {
+        isHandled = true;
         sendMsgParams.addTextMessageSegment("精致睡眠" + rawMessage[1] + "小时，晚安~" );
         sendMessage();
     }
 
     @Override
     public void timeout() {
-        sendMsgParams.addTextMessageSegment("操作失败：响应超时");
-        sendMessage();
+        if(!isHandled){
+            sendMsgParams.addTextMessageSegment("操作失败：响应超时");
+            sendMessage();
+        }
     }
 }

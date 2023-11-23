@@ -60,6 +60,7 @@ public class Client {
     @OnMessage
     public void onMessage(String json){
         if(responding){
+            //超时响应机制可能存在问题导致消息重叠，需要修复
             ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
             Runnable task = () -> {

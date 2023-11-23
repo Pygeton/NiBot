@@ -29,7 +29,7 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
 
     @Override
     public boolean onMessage(Message message) {
-        rawMessage = message.getRaw_message().split(" ");
+        setRawMessage(message);
         if(rawMessage[0].contains("/long")){
             sendMsgParams = new SendMsgParams(message);
             match(message);
@@ -48,7 +48,7 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
                     MessageData messageData = message.getSegmentList().get(0).getData();
                     if(messageData instanceof ReplyData replyData){
                         if(message.getMessage_type().equals("group")){
-                            if(message.getGroup_id() == 251697087L){
+                            if(message.getGroup_id() == 251697087L || message.getGroup_id() == 653948081L){
                                 addLong(replyData);
                             }
                             else forward(replyData);
@@ -90,6 +90,7 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
 
     @Override
     public void handle(Response response) {
+        isHandled = true;
         System.out.println(handleParam);
         response.toSegmentList();
         MessageData messageData = response.getSegmentList().get(0).getData();
@@ -109,10 +110,10 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
         else if(handleParam == 2){
             sendMsgParams.addTextMessageSegment("龙图添加请求发送成功，审核通过后你的龙图就会出现在召唤池里！");
             sendMessage();
-            sendMsgParams = new SendMsgParams("group",251697087L);
+            sendMsgParams = new SendMsgParams("group",653948081L);
             sendMsgParams.addTextMessageSegment("收到龙图添加请求，请进行审核。");
             sendMessage();
-            sendMsgParams = new SendMsgParams("group",251697087L);
+            sendMsgParams = new SendMsgParams("group",653948081L);
             if(messageData instanceof ImageData imageData){
                 sendMsgParams.addImageMessageSegment(imageData.getUrl());
             }
@@ -122,7 +123,9 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
 
     @Override
     public void timeout() {
-        sendMsgParams.addTextMessageSegment("操作失败：响应超时");
-        sendMessage();
+        if(!isHandled){
+            sendMsgParams.addTextMessageSegment("操作失败：响应超时");
+            sendMessage();
+        }
     }
 }

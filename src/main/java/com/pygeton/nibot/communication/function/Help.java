@@ -15,7 +15,7 @@ public class Help extends Function implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        rawMessage = message.getRaw_message().split(" ");
+        setRawMessage(message);
         if(rawMessage[0].equals("/help")){
             sendMsgParams = new SendMsgParams(message);
             String text;
@@ -107,16 +107,7 @@ public class Help extends Function implements IMessageEvent {
                         """;
             }
             case 6 -> {
-                return """
-                        使用方法：
-                        1.[图片]+回复：/mirror [参数]
-                        参数：
-                        p 左右镜像
-                        v 上下镜像
-                        发送一张你想要镜像翻转的图片，然后对此图片回复并输入上述指令，参数内填写你想要的翻转方式，就可以得到一张翻转后的图片！
-                        2.[文字]+回复：/mirror
-                        发送一串你想要镜像翻转的文字，然后对此消息回复并输入上述指令，就能够得到一条此消息的回文串！
-                        """;
+                return "此功能暂未实现，敬请期待。";
             }
             default -> {
                 return """
@@ -127,7 +118,7 @@ public class Help extends Function implements IMessageEvent {
                         3./mj 雀庄公式战
                         4./long 召唤龙图
                         5./sleep 精致睡眠
-                        6./mirror 镜像翻转（暂未实现）
+                        6./mai 舞萌DX（暂未实现）
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
                         例如：输入/help 1，可以查看今日运势的功能详情。
                         """;

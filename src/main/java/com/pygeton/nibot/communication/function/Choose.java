@@ -20,7 +20,7 @@ public class Choose extends Function implements IMessageEvent {
 
     @Override
     public boolean onMessage(Message message) {
-        rawMessage = message.getRaw_message().split(" ");
+        setRawMessage(message);
         if(rawMessage[0].equals("/choose")){
             sendMsgParams = new SendMsgParams(message);
             String text;

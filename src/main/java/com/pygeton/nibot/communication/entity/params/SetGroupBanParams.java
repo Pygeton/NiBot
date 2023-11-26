@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class SetGroupBanParams {
 
-    private Long group_id;
-    private Long user_id;
+    private Long groupId;
+    private Long userId;
     private Long duration;
 }

@@ -27,7 +27,7 @@ public class Mahjong extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 90;
+        return 50;
     }
 
     @Override
@@ -47,10 +47,10 @@ public class Mahjong extends Function implements IMessageEvent {
             switch (rawMessage[1]){
                 case "bind" -> {
                     if(rawMessage.length == 3){
-                        bind(message.getUser_id(), rawMessage[2]);
+                        bind(message.getUserId(), rawMessage[2]);
                     }
                     else if(rawMessage.length == 4){
-                        bind(message.getUser_id(), rawMessage[2], Integer.valueOf(rawMessage[3]));
+                        bind(message.getUserId(), rawMessage[2], Integer.valueOf(rawMessage[3]));
                     }
                     else {
                         sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
@@ -58,10 +58,10 @@ public class Mahjong extends Function implements IMessageEvent {
                 }
                 case "rate" -> {
                     if(rawMessage.length == 2){
-                        rate(message.getUser_id());
+                        rate(message.getUserId());
                     }
                     else if(rawMessage.length == 3){
-                        if(message.getMessage_type().equals("group")){
+                        if(message.getMessageType().equals("group")){
                             MessageData messageData = message.getSegmentList().get(1).getData();
                             if(messageData instanceof AtData atData){
                                 rate(atData.getQq());

@@ -15,7 +15,7 @@ public class Choose extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 10;
+        return 40;
     }
 
     @Override

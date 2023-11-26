@@ -1,6 +1,5 @@
 package com.pygeton.nibot.repository.entity;
 
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,20 +12,20 @@ import lombok.NoArgsConstructor;
 public class MaimaiChartData {
 
     private Integer id;
-    private Integer official_id;
-    private String song_title_kana;
-    private String song_type;
-    private String chart_basic_rating;
-    private Float chart_basic_constant;
-    private String chart_advanced_rating;
-    private Float chart_advanced_constant;
-    private String chart_expert_rating;
-    private Float chart_expert_constant;
-    private String chart_master_rating;
-    private Float chart_master_constant;
-    private String chart_remaster_rating;
-    private Float chart_remaster_constant;
-    private JSONArray chart_data_list;
-    private JSONArray chart_status_list;
-    private Boolean is_new;
+    private Integer officialId;
+    private String songTitleKana;
+    private String songType;
+    private String chartBasicRating;
+    private Float chartBasicConstant;
+    private String chartAdvancedRating;
+    private Float chartAdvancedConstant;
+    private String chartExpertRating;
+    private Float chartExpertConstant;
+    private String chartMasterRating;
+    private Float chartMasterConstant;
+    private String chartRemasterRating;
+    private Float chartRemasterConstant;
+    private String chartDataList;
+    private String chartStatusList;
+    private Boolean isNew;
 }

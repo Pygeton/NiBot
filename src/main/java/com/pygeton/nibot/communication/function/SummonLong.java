@@ -24,7 +24,7 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
 
     @Override
     public int weight() {
-        return 80;
+        return 90;
     }
 
     @Override
@@ -47,8 +47,8 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
                 if(rawMessage[1].equals("add")){
                     MessageData messageData = message.getSegmentList().get(0).getData();
                     if(messageData instanceof ReplyData replyData){
-                        if(message.getMessage_type().equals("group")){
-                            if(message.getGroup_id() == 251697087L || message.getGroup_id() == 653948081L){
+                        if(message.getMessageType().equals("group")){
+                            if(message.getGroupId() == 251697087L || message.getGroupId() == 653948081L){
                                 addLong(replyData);
                             }
                             else forward(replyData);

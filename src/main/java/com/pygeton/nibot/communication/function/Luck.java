@@ -31,11 +31,11 @@ public class Luck extends Function implements IMessageEvent {
             String text;
             sendMsgParams = new SendMsgParams(message);
             if(rawMessage.length == 1){
-                boolean ret = luckDataService.saveOrUpdateLuck(message.getUser_id(),luck);
+                boolean ret = luckDataService.saveOrUpdateLuck(message.getUserId(),luck);
                 if(!ret){
-                    luck = luckDataService.getLuck(message.getUser_id());
+                    luck = luckDataService.getLuck(message.getUserId());
                 }
-                if(message.getMessage_type().equals("group")){
+                if(message.getMessageType().equals("group")){
                     if(!message.getSender().getCard().equals("")){
                         text = message.getSender().getCard() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
                     }
@@ -44,12 +44,12 @@ public class Luck extends Function implements IMessageEvent {
                     }
                 }
                 else{
-                    text = message.getUser_id() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
+                    text = message.getUserId() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
                 }
                 sendMsgParams.addTextMessageSegment(text);
             }
             else if(rawMessage.length == 2){
-                if(message.getMessage_type().equals("group")){
+                if(message.getMessageType().equals("group")){
                     MessageData messageData = message.getSegmentList().get(1).getData();
                     if(messageData instanceof AtData atData){
                         boolean ret = luckDataService.saveOrUpdateLuck(atData.getQq(), luck);

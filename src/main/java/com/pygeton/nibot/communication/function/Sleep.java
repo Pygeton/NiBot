@@ -18,7 +18,7 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
 
     @Override
     public boolean onMessage(Message message) {
-        rawMessage = message.getRaw_message().split(" ");
+        rawMessage = message.getRawMessage().split(" ");
         if(rawMessage[0].equals("/sleep")){
             sendMsgParams = new SendMsgParams(message);
             if(rawMessage.length == 2){
@@ -28,7 +28,7 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
                 }
                 else {
                     long time = Long.parseLong(rawMessage[1]) * 3600;
-                    setGroupBanParams = new SetGroupBanParams(message.getGroup_id(), message.getUser_id(), time);
+                    setGroupBanParams = new SetGroupBanParams(message.getGroupId(), message.getUserId(), time);
                     setGroupBan(this);
                 }
             }

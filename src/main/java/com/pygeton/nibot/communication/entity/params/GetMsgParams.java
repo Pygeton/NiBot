@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class GetMsgParams {
 
-    private Integer message_id;
+    private Integer messageId;
 }

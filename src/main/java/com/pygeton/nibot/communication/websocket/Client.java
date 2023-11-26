@@ -89,10 +89,10 @@ public class Client {
         }
         else {
             Message message = JSONObject.parseObject(json,Message.class);
-            boolean handleMsgFlag = message.getPost_type() != null;
+            boolean handleMsgFlag = message.getPostType() != null;
             boolean hideFlag = false;
             if(handleMsgFlag){
-                switch (message.getPost_type()){
+                switch (message.getPostType()){
                     case "message" -> {
                         message.toSegmentList();
                         EventHandler.traverse(message);

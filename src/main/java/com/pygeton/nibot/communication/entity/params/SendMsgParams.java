@@ -13,24 +13,24 @@ import java.util.List;
 @NoArgsConstructor
 public class SendMsgParams {
 
-    private String message_type;
-    private Long user_id;
-    private Long group_id;
+    private String messageType;
+    private Long userId;
+    private Long groupId;
     private List<MessageSegment> message = new ArrayList<>();
-    private Boolean auto_escape = false;
+    private Boolean autoEscape = false;
 
     public SendMsgParams(Message message){
-        this.message_type = message.getMessage_type();
-        this.user_id = message.getUser_id();
-        this.group_id = message.getGroup_id();
+        this.messageType = message.getMessageType();
+        this.userId = message.getUserId();
+        this.groupId = message.getGroupId();
     }
 
-    public SendMsgParams(String message_type, Long id){
-        this.message_type = message_type;
-        if(message_type.equals("private")){
-            this.user_id = id;
+    public SendMsgParams(String messageType, Long id){
+        this.messageType = messageType;
+        if(messageType.equals("private")){
+            this.userId = id;
         }
-        else this.group_id = id;
+        else this.groupId = id;
     }
 
     public void addTextMessageSegment(String text){

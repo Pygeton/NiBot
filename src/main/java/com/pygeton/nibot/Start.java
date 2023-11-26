@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class Start implements CommandLineRunner {
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if(!Client.connect("ws://127.0.0.1:9099")){
             Client.reconnect();
         }

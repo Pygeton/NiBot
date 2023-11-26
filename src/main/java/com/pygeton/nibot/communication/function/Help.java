@@ -60,8 +60,8 @@ public class Help extends Function implements IMessageEvent {
                         """;
             }
             case 4 -> {
-                if(message.getGroup_id() != null){
-                    if(message.getGroup_id() == 251697087L)
+                if(message.getGroupId() != null){
+                    if(message.getGroupId() == 251697087L)
                     {
                         return """
                         使用方法：
@@ -107,7 +107,25 @@ public class Help extends Function implements IMessageEvent {
                         """;
             }
             case 6 -> {
-                return "此功能暂未实现，敬请期待。";
+                return """
+                        【此模块还在开发中，功能和指令可能随时变动】
+                        使用方法：
+                        1.查询Best50
+                        /mai b50
+                        可以获得一张带有你的b50信息的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                        2.查看歌曲谱面信息
+                        /mai info [参数]
+                        参数内填写歌曲的谱面id，可以查看这个谱面和对应歌曲的详细信息。
+                        3.查询歌曲
+                        /mai search [参数]
+                        参数内填写歌曲名的关键字，可以通过模糊匹配返回一个带有歌曲名的id列表，后续操作参见功能【2】。将来可能支持别名功能。
+                        4.查看分数线
+                        /mai line [参数1] [参数2]
+                        参数1内填写谱面id，参数2内填写你要达到的目标分数线，即可查看达到此目标的容错率信息。
+                        5.查看推荐曲目
+                        /mai rec
+                        可以获得针对你当前b50构成进行推荐的推分曲目建议。
+                        """;
             }
             default -> {
                 return """

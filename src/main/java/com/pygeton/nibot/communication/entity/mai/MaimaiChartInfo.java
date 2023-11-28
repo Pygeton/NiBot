@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChartInfo {
+public class MaimaiChartInfo {
 
     private String title;
     private Integer songId;

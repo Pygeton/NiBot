@@ -2,7 +2,7 @@ package com.pygeton.nibot.communication.function;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.mai.ChartInfo;
+import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
@@ -104,34 +104,31 @@ public class Maimai extends Function implements IMessageEvent {
             sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
         }
         else {
-            List<ChartInfo> b35List = new ArrayList<>();
-            List<ChartInfo> b15List = new ArrayList<>();
+            String nickname = map.get("userdata").get(0).getString("nickname");
+            int rating = map.get("userdata").get(0).getIntValue("rating");
+            List<MaimaiChartInfo> b35List = new ArrayList<>();
+            List<MaimaiChartInfo> b15List = new ArrayList<>();
             for(JSONObject object : map.get("sd")){
-                b35List.add(object.toJavaObject(ChartInfo.class));
+                b35List.add(object.toJavaObject(MaimaiChartInfo.class));
             }
             for(JSONObject object : map.get("dx")){
-                b15List.add(object.toJavaObject(ChartInfo.class));
+                b15List.add(object.toJavaObject(MaimaiChartInfo.class));
             }
-            int ra = 0;
-            StringBuilder builder = new StringBuilder(userId + "的B50分数列表如下：\n");
+            StringBuilder builder = new StringBuilder(nickname + "【Rating:" + rating + "】的B50分数列表如下：\n");
             builder.append("------------B35------------\n");
-            ra += appendChartInfo(builder,b35List);
+            appendChartInfo(builder,b35List);
             builder.append("------------B15------------\n");
-            ra += appendChartInfo(builder,b15List);
-            builder.append("-----------------------------\n");
-            builder.append("【Rating:").append(ra).append("】");
+            appendChartInfo(builder,b15List);
             sendMsgParams.addTextMessageSegment(builder.toString());
         }
         sendMessage();
     }
 
-    private int appendChartInfo(StringBuilder builder,List<ChartInfo> list){
-        int ra = 0, i = 1;
-        for(ChartInfo chartInfo : list){
-            builder.append(i).append(". ").append(chartInfo.getTitle()).append("(").append(chartInfo.getType()).append(") ").append(chartInfo.getLevelLabel()).append("(").append(chartInfo.getDs()).append(") ").append(String.format("%.4f",chartInfo.getAchievements())).append("% ra:").append(chartInfo.getRa()).append("\n");
-            ra += chartInfo.getRa();
+    private void appendChartInfo(StringBuilder builder,List<MaimaiChartInfo> list){
+        int i = 1;
+        for(MaimaiChartInfo chartInfo : list){
+            builder.append(i).append(". ").append(chartInfo.getTitle()).append("(").append(chartInfo.getType()).append(") ").append(chartInfo.getLevelLabel()).append("(").append(chartInfo.getDs()).append(") ").append(String.format("%.4f", chartInfo.getAchievements())).append("% ra:").append(chartInfo.getRa()).append("\n");
             i++;
         }
-        return ra;
     }
 }

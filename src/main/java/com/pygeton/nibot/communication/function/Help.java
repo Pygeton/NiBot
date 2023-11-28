@@ -127,6 +127,14 @@ public class Help extends Function implements IMessageEvent {
                         可以获得针对你当前b50构成进行推荐的推分曲目建议。（大饼，不一定做的出来）
                         """;
             }
+            case 7 -> {
+                return """
+                        使用方法：
+                        目前仅支持查询B30+R10：
+                        /chuni b30
+                        可以查询你的b30+r10数据，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                        """;
+            }
             default -> {
                 return """
                         NiBot现在支持的功能如下：
@@ -137,6 +145,7 @@ public class Help extends Function implements IMessageEvent {
                         4./long 召唤龙图
                         5./sleep 精致睡眠
                         6./mai 舞萌DX
+                        7./chuni 中二节奏
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
                         例如：输入/help 1，可以查看今日运势的功能详情。
                         """;

@@ -1,12 +1,19 @@
 package com.pygeton.nibot.communication.function;
 
+import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
+import com.pygeton.nibot.communication.entity.mai.ChartInfo;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
+import com.pygeton.nibot.communication.service.MaimaiHttpService;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiSongDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class Maimai extends Function implements IMessageEvent {
@@ -16,6 +23,9 @@ public class Maimai extends Function implements IMessageEvent {
 
     @Autowired
     MaimaiChartDataServiceImpl maimaiChartDataService;
+
+    @Autowired
+    MaimaiHttpService maimaiHttpService;
 
     @Override
     public int weight() {
@@ -47,8 +57,8 @@ public class Maimai extends Function implements IMessageEvent {
         }
     }
 
-    private void initDatabase(Long id){
-        if(id == 1944539440L){
+    private void initDatabase(Long userId){
+        if(userId == 1944539440L){
             switch (rawMessage[2]){
                 case "song" -> {
                     boolean ret = maimaiSongDataService.init();
@@ -85,7 +95,43 @@ public class Maimai extends Function implements IMessageEvent {
         sendMessage();
     }
 
-    private void generateB50(Long id){
+    private void generateB50(Long userId){
+        Map<String, List<JSONObject>> map = maimaiHttpService.getB50(userId);
+        if(map.containsKey("400")){
+            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 6。");
+        }
+        else if(map.containsKey("403")){
+            sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
+        }
+        else {
+            List<ChartInfo> b35List = new ArrayList<>();
+            List<ChartInfo> b15List = new ArrayList<>();
+            for(JSONObject object : map.get("sd")){
+                b35List.add(object.toJavaObject(ChartInfo.class));
+            }
+            for(JSONObject object : map.get("dx")){
+                b15List.add(object.toJavaObject(ChartInfo.class));
+            }
+            int ra = 0;
+            StringBuilder builder = new StringBuilder(userId + "的B50分数列表如下：\n");
+            builder.append("------------B35------------\n");
+            ra += appendChartInfo(builder,b35List);
+            builder.append("------------B15------------\n");
+            ra += appendChartInfo(builder,b15List);
+            builder.append("-----------------------------\n");
+            builder.append("【Rating:").append(ra).append("】");
+            sendMsgParams.addTextMessageSegment(builder.toString());
+        }
+        sendMessage();
+    }
 
+    private int appendChartInfo(StringBuilder builder,List<ChartInfo> list){
+        int ra = 0, i = 1;
+        for(ChartInfo chartInfo : list){
+            builder.append(i).append(". ").append(chartInfo.getTitle()).append("(").append(chartInfo.getType()).append(") ").append(chartInfo.getLevelLabel()).append("(").append(chartInfo.getDs()).append(") ").append(String.format("%.4f",chartInfo.getAchievements())).append("% ra:").append(chartInfo.getRa()).append("\n");
+            ra += chartInfo.getRa();
+            i++;
+        }
+        return ra;
     }
 }

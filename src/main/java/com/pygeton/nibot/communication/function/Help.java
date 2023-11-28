@@ -112,19 +112,19 @@ public class Help extends Function implements IMessageEvent {
                         使用方法：
                         1.查询Best50
                         /mai b50
-                        可以获得一张带有你的b50信息的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
-                        2.查看歌曲谱面信息
+                        可以获得一张带有你的b50信息的图片(目前暂时仅支持纯文本)，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                        2.查看歌曲谱面信息（暂未实现）
                         /mai info [参数]
                         参数内填写歌曲的谱面id，可以查看这个谱面和对应歌曲的详细信息。
-                        3.查询歌曲
+                        3.查询歌曲（暂未实现）
                         /mai search [参数]
                         参数内填写歌曲名的关键字，可以通过模糊匹配返回一个带有歌曲名的id列表，后续操作参见功能【2】。将来可能支持别名功能。
-                        4.查看分数线
+                        4.查看分数线（暂未实现）
                         /mai line [参数1] [参数2]
                         参数1内填写谱面id，参数2内填写你要达到的目标分数线，即可查看达到此目标的容错率信息。
-                        5.查看推荐曲目
+                        5.查看推荐曲目（暂未实现）
                         /mai rec
-                        可以获得针对你当前b50构成进行推荐的推分曲目建议。
+                        可以获得针对你当前b50构成进行推荐的推分曲目建议。（大饼，不一定做的出来）
                         """;
             }
             default -> {
@@ -136,7 +136,7 @@ public class Help extends Function implements IMessageEvent {
                         3./mj 雀庄公式战
                         4./long 召唤龙图
                         5./sleep 精致睡眠
-                        6./mai 舞萌DX（暂未实现）
+                        6./mai 舞萌DX
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
                         例如：输入/help 1，可以查看今日运势的功能详情。
                         """;

@@ -11,16 +11,21 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
 
 @Component
 public class Mahjong extends Function implements IMessageEvent {
+
+    private enum Mode { BIND, RATE }
 
     @Autowired
     MahjongDataServiceImpl mahjongDataService;
@@ -85,7 +90,7 @@ public class Mahjong extends Function implements IMessageEvent {
 
     private void bind(Long id,String name){
         String url = "https://rate.000.mk/chart/?name=" + name;
-        WebDriver driver = initDriver(url);
+        WebDriver driver = initDriver(url,Mode.BIND);
         boolean alert = alertCheck(driver);
         if(!alert){
             boolean ret = mahjongDataService.saveOrUpdateData(id, name);
@@ -101,7 +106,7 @@ public class Mahjong extends Function implements IMessageEvent {
 
     private void bind(Long id,String name,Integer area){
         String url = "https://rate.000.mk/chart/?name=" + name + "&area=" + area;
-        WebDriver driver = initDriver(url);
+        WebDriver driver = initDriver(url,Mode.BIND);
         boolean alert = alertCheck(driver);
         if(!alert){
             boolean ret = mahjongDataService.saveOrUpdateData(id, name, area);
@@ -126,7 +131,7 @@ public class Mahjong extends Function implements IMessageEvent {
             if(data.getArea() != null){
                 url += "&area=" + data.getArea();
             }
-            WebDriver driver = initDriver(url);
+            WebDriver driver = initDriver(url,Mode.RATE);
             boolean alert = alertCheck(driver);
             if(!alert){
                 String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
@@ -147,17 +152,15 @@ public class Mahjong extends Function implements IMessageEvent {
 
     }
 
-    private WebDriver initDriver(String url){
+    private WebDriver initDriver(String url, Mode mode){
         System.setProperty("webdriver.chrome.driver","D:/IDE-Enviroment/chromedriver-win64/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         WebDriver driver = new ChromeDriver(options);
         driver.get(url);
-        try{
-            Thread.sleep(5000);
-        }
-        catch (InterruptedException e){
-            e.printStackTrace();
+        if(mode == Mode.RATE){
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("image_loaded")));
         }
         return driver;
     }

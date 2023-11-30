@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class MaimaiHttpService {
@@ -46,13 +43,32 @@ public class MaimaiHttpService {
             }
         }
         catch (HttpClientErrorException e){
-            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+            if(e.getStatusCode() == HttpStatus.BAD_REQUEST){
                 map.put("400",null);
             }
-            else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
+            else if(e.getStatusCode() == HttpStatus.FORBIDDEN){
                 map.put("403",null);
             }
         }
         return map;
+    }
+
+    public List<JSONObject> getMusicData(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/maimaidxprober/music_data", HttpMethod.GET, entity, String.class);
+            if(response.getStatusCode() == HttpStatus.OK){
+                return Objects.requireNonNull(JSON.parseArray(response.getBody())).toJavaList(JSONObject.class);
+            }
+            else return null;
+        }
+        catch (HttpClientErrorException e){
+            if(e.getStatusCode() == HttpStatus.NOT_MODIFIED){
+                System.out.println("304 ERROR");
+            }
+            return null;
+        }
     }
 }

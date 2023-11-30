@@ -12,13 +12,12 @@ import lombok.NoArgsConstructor;
 public class MaimaiSongData {
 
     private Integer id;
-    private String songTitleKana;
-    private String songTitle;
-    private String songArtist;
-    private Integer songBpm;
+    private String titleKana;
+    private String title;
+    private String artist;
+    private Integer bpm;
     private String coverUrl;
-    private String version;
-    private String dxVersion;
-    private String songGenre;
+    private String genre;
     private String remark;
+    private String aliasList;
 }

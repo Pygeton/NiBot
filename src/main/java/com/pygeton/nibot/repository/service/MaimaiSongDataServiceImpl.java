@@ -1,5 +1,7 @@
 package com.pygeton.nibot.repository.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
@@ -38,15 +40,13 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
                     int columnIndex = cell.getColumnIndex();
                     switch (columnIndex){
                         case 0 -> data.setId((int)cell.getNumericCellValue());
-                        case 1 -> data.setSongTitleKana(cell.getStringCellValue());
-                        case 2 -> data.setSongTitle(cell.getStringCellValue());
-                        case 3 -> data.setSongArtist(cell.getStringCellValue());
-                        case 4 -> data.setSongBpm(Integer.valueOf(cell.getStringCellValue()));
+                        case 1 -> data.setTitleKana(cell.getStringCellValue());
+                        case 2 -> data.setTitle(cell.getStringCellValue());
+                        case 3 -> data.setArtist(cell.getStringCellValue());
+                        case 4 -> data.setBpm(Integer.valueOf(cell.getStringCellValue()));
                         case 5 -> data.setCoverUrl(cell.getStringCellValue());
-                        case 6 -> data.setVersion(cell.getStringCellValue());
                         case 7 -> data.setRemark(cell.getStringCellValue());
-                        case 8 -> data.setSongGenre(cell.getStringCellValue());
-                        case 9 -> data.setDxVersion(cell.getStringCellValue());
+                        case 8 -> data.setGenre(cell.getStringCellValue());
                     }
                 }
                 save(data);
@@ -72,14 +72,14 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
                         continue;
                     }
                     else if(chartData.getOfficialId() >= 10000){
-                        coverUrl = "/mai/" + chartData.getOfficialId() + ".png";
+                        coverUrl = chartData.getOfficialId() + ".png";
                     }
                     else{
-                        coverUrl = "/mai/" + String.format("%05d",chartData.getOfficialId()) + ".png";
+                        coverUrl = String.format("%05d",chartData.getOfficialId()) + ".png";
                     }
                     UpdateWrapper<MaimaiSongData> wrapper = new UpdateWrapper<>();
                     wrapper.set("cover_url",coverUrl);
-                    wrapper.eq("song_title_kana",chartData.getSongTitleKana());
+                    wrapper.eq("title_kana",chartData.getTitleKana());
                     update(wrapper);
                 }
             }
@@ -89,5 +89,32 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public boolean updateFromJson(List<JSONObject> list) {
+        try {
+            for (JSONObject object : list){
+                JSONObject basicInfo = object.getJSONObject("basic_info");
+                System.out.println(basicInfo);
+                UpdateWrapper<MaimaiSongData> wrapper = new UpdateWrapper<>();
+                wrapper.eq("title",object.getString("title"));
+                wrapper.set("bpm",basicInfo.getIntValue("bpm"));
+                wrapper.set("genre",basicInfo.getString("genre"));
+                update(wrapper);
+            }
+            return true;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public MaimaiSongData getSongData(String titleKana) {
+        QueryWrapper<MaimaiSongData> wrapper = new QueryWrapper<>();
+        wrapper.eq("title_kana",titleKana);
+        return getOne(wrapper);
     }
 }

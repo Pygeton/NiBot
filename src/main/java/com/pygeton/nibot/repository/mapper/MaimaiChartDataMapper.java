@@ -8,6 +8,12 @@ import java.util.List;
 
 public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
 
-    @Select("SELECT song_title_kana,official_id FROM maimai_chart_data")
-    List<MaimaiChartData> selectTitleAndOfficialId();
+    @Select("SELECT title_kana,official_id FROM maimai_chart_data")
+    List<MaimaiChartData> getTitleAndOfficialId();
+
+    @Select("SELECT title_kana FROM maimai_song_data WHERE title = #{title}")
+    String getTitleKanaFromSongData(String title);
+
+    @Select("SELECT title_kana FROM maimai_chart_data WHERE official_id = #{officialId}")
+    String getTitleKanaByOfficialId(int officialId);
 }

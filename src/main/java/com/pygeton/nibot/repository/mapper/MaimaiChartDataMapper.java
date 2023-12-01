@@ -16,4 +16,7 @@ public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
 
     @Select("SELECT title_kana FROM maimai_chart_data WHERE official_id = #{officialId}")
     String getTitleKanaByOfficialId(int officialId);
+
+    @Select("SELECT official_id FROM maimai_chart_data WHERE title_kana = #{titleKana}")
+    List<Integer> getOfficialIdByTitleKana(String titleKana);
 }

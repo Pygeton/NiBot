@@ -6,6 +6,7 @@ import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.entity.MaimaiSongData;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IMaimaiSongDataService extends IService<MaimaiSongData> {
 
@@ -16,4 +17,6 @@ public interface IMaimaiSongDataService extends IService<MaimaiSongData> {
     boolean updateFromJson(List<JSONObject> list);
 
     MaimaiSongData getSongData(String titleKana);
+
+    Map<String,String> getTitleMap(String keyword);
 }

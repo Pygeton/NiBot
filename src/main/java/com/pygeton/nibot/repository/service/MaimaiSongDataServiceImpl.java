@@ -14,9 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper, MaimaiSongData> implements IMaimaiSongDataService{
@@ -117,4 +115,17 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
         wrapper.eq("title_kana",titleKana);
         return getOne(wrapper);
     }
+
+    @Override
+    public Map<String, String> getTitleMap(String keyword) {
+        Map<String,String> map = new HashMap<>();
+        QueryWrapper<MaimaiSongData> wrapper = new QueryWrapper<>();
+        wrapper.like("LOWER(title)",keyword.toLowerCase()).or().like("LOWER(alias_list)",keyword.toLowerCase());
+        List<MaimaiSongData> list = list(wrapper);
+        for (MaimaiSongData data : list){
+            map.put(data.getTitleKana(),data.getTitle());
+        }
+        return map;
+    }
+
 }

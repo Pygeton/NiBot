@@ -119,4 +119,9 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
         wrapper.eq("official_id",officialId);
         return getOne(wrapper);
     }
+
+    @Override
+    public List<Integer> getOfficialId(String titleKana) {
+        return baseMapper.getOfficialIdByTitleKana(titleKana);
+    }
 }

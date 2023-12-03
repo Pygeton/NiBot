@@ -56,13 +56,13 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
                         else forward(replyData);
                     }
                     else {
-                        sendMsgParams.addTextMessageSegment("需要对龙图进行回复才能使用此功能哦，详见/help 4。");
+                        sendMsgParams.addTextMessageSegment("需要对龙图进行回复才能使用此功能哦，详见/help 4>_<");
                         sendMessage();
                     }
                 }
             }
             default -> {
-                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 4查看帮助文档。");
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 4查看帮助文档>_<");
                 sendMessage();
             }
         }

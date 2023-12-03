@@ -38,7 +38,7 @@ public class Help extends Function implements IMessageEvent {
                 return """
                         使用方法：
                         /luck [参数(可选)]
-                        直接输入/luck即可查询自己的今日运势，在参数内@群友就可以查询他的今日运势，每日运势值固定。
+                        直接输入/luck即可查询自己的今日运势，在参数内@群友就可以查询ta的今日运势，每日运势值固定。
                         """;
             }
             case 2 -> {
@@ -61,7 +61,7 @@ public class Help extends Function implements IMessageEvent {
             }
             case 4 -> {
                 if(message.getGroupId() != null){
-                    if(message.getGroupId() == 251697087L)
+                    if(message.getGroupId() == 653948081L)
                     {
                         return """
                         使用方法：
@@ -107,29 +107,75 @@ public class Help extends Function implements IMessageEvent {
                         """;
             }
             case 6 -> {
-                return """
+                if(rawMessage.length == 2){
+                    return """
                         【此模块还在开发中，功能和指令可能随时变动】
-                        使用方法：
+                        以下是支持的功能列表：
                         1.查询Best50
-                        /mai b50
-                        可以获得一张带有你的b50信息的图片(目前暂时仅支持纯文本)，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
                         2.查看歌曲谱面信息
-                        /mai info [参数1] [参数2(可选)]
-                        参数1内填写歌曲的谱面id，参数2内填写谱面的类型(绿/黄/红/紫/白)可以查看这个谱面和对应歌曲的详细信息，如果不填写参数2将获取歌曲的基本信息。
-                        如：发送”/mai info 10363 紫“可以获取牛奶DX紫谱的详细信息。
                         3.查询歌曲
-                        /mai search [参数]
-                        参数内填写歌曲名的关键字(可以是歌曲名字的一部分，不区分大小写，或者是歌曲的别名，前提是这个别名在数据库中)，可以通过模糊匹配返回一个带有歌曲名的谱面id列表，后续操作参见功能【2】。
-                        4.为歌曲添加别名（暂未实现）
-                        /mai add [参数1] [参数2]
-                        参数1内填写歌曲的谱面id（如果这首歌同时有标谱和dx谱，两个谱面id皆可），参数2内填写你想要为此歌曲添加的别名，即可为这首歌添加一个别名以方便查找。
-                        5.查看分数线（暂未实现）
-                        /mai line [参数1] [参数2]
-                        参数1内填写谱面id，参数2内填写你要达到的目标分数线，即可查看达到此目标的容错率信息。
-                        6.查看推荐曲目（暂未实现）
-                        /mai rec
-                        可以获得针对你当前b50构成进行推荐的推分曲目建议。（大饼，不一定做的出来）
+                        4.为歌曲添加别名
+                        5.随机歌曲（暂未实现）
+                        6.查看分数线（暂未实现）
+                        可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
+                        例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
+                }
+                else if(rawMessage.length == 3){
+                    switch (Integer.parseInt(rawMessage[2])){
+                        case 1 -> {
+                            return """
+                                    使用方法：
+                                    /mai b50
+                                    可以获得一张带有你的b50信息的图片(目前暂时仅支持纯文本)，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    """;
+                        }
+                        case 2 -> {
+                            return """
+                                    使用方法：
+                                    /mai info [参数1] [参数2(可选)]
+                                    参数1内填写歌曲的谱面id，参数2内填写谱面的难度(绿/黄/红/紫/白)可以查看这个谱面和对应歌曲的详细信息，如果不填写参数2将获取歌曲的基本信息。
+                                    如：发送”/mai info 10363 紫“可以获取牛奶DX紫谱的详细信息。
+                                    """;
+                        }
+                        case 3 -> {
+                            return """
+                                    使用方法：
+                                    /mai search [参数]
+                                    参数内填写歌曲名的关键字(不区分大小写，可以是歌曲名字的一部分或者是歌曲的别名，前提是这个别名在数据库中)，可以通过模糊匹配返回一个带有歌曲名的谱面id列表。
+                                    """;
+                        }
+                        case 4 -> {
+                            return """
+                                    使用方法：
+                                    /mai add [参数1] [参数2]
+                                    参数1内填写歌曲的谱面id（如果这首歌同时有标谱和dx谱，两个谱面id皆可），参数2内填写你想要为此歌曲添加的别名，即可为这首歌添加一个别名以方便查找。
+                                    """;
+                        }
+                        case 5 -> {
+                            return """
+                                    使用方法：
+                                    /mai random [参数(可选)]
+                                    随机一首歌曲，可以填写参数进行条件限制，也可以不填写完全随机。
+                                    可选参数为一个正则表达式，可以按需求填写如下的关键字：
+                                    [类型(标准/SD/DX)/版本][难度][等级/定数]
+                                    如：发送“/mai random 标准紫14”，可以随机一首Master难度的14标准谱面；发送“/mai random 辉红13.9”，可以随机一首辉代的谱面。
+                                    """;
+                        }
+                        case 6 -> {
+                            return """
+                                    使用方法：
+                                    /mai line [参数1] [参数2] [参数3(可选)]
+                                    参数1内填写谱面id，参数2内填写谱面的难度(绿/黄/红/紫/白)，参数3内选填你要达到的目标分数线，即可查看达到此目标的容错率信息。
+                                    若不填写目标分数线，则会显示该歌曲的所有种类note的误差列表。
+                                    """;
+                        }
+                        default -> {
+                            return "目前还没有这个功能哦=_=";
+                        }
+                    }
+                }
+                else return "参数过多识别不了啦！>_<";
             }
             case 7 -> {
                 return """
@@ -142,7 +188,6 @@ public class Help extends Function implements IMessageEvent {
             default -> {
                 return """
                         NiBot现在支持的功能如下：
-                        0./help 帮助文档
                         1./luck 今日运势
                         2./choose 做选择
                         3./mj 雀庄公式战
@@ -150,8 +195,8 @@ public class Help extends Function implements IMessageEvent {
                         5./sleep 精致睡眠
                         6./mai 舞萌DX
                         7./chuni 中二节奏
-                        可以通过输入”/help [序号]“查看某项功能的具体使用方法QAQ
-                        例如：输入/help 1，可以查看今日运势的功能详情。
+                        可以通过输入”/help [序号]“查看某项功能的具体使用方法或是细分的功能列表QAQ
+                        例如：输入/help 1，可以查看“今日运势”的功能详情。
                         """;
             }
         }

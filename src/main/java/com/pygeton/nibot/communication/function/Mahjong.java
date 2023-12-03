@@ -58,7 +58,7 @@ public class Mahjong extends Function implements IMessageEvent {
                         bind(message.getUserId(), rawMessage[2], Integer.valueOf(rawMessage[3]));
                     }
                     else {
-                        sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
+                        sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档>_<");
                     }
                 }
                 case "rate" -> {
@@ -72,19 +72,19 @@ public class Mahjong extends Function implements IMessageEvent {
                                 rate(atData.getQq());
                             }
                             else {
-                                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
+                                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档>_<");
                             }
                         }
                         else sendMsgParams.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
                     }
                     else {
-                        sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档。");
+                        sendMsgParams.addTextMessageSegment("参数有误，请输入/help 3查看帮助文档>_<");
                     }
                 }
             }
         }
         else {
-            sendMsgParams.addTextMessageSegment("参数缺失，请输入/help 3查看帮助文档。");
+            sendMsgParams.addTextMessageSegment("参数缺失，请输入/help 3查看帮助文档>_<");
         }
     }
 
@@ -168,7 +168,7 @@ public class Mahjong extends Function implements IMessageEvent {
     private boolean alertCheck(WebDriver driver){
         try {
             Alert alert = driver.switchTo().alert();
-            sendMsgParams.addTextMessageSegment("发生错误，请输入/help 3查看帮助文档。\n");
+            sendMsgParams.addTextMessageSegment("发生错误，请输入/help 3查看帮助文档>_<\n");
             sendMsgParams.addTextMessageSegment(alert.getText());
             return true;
         }

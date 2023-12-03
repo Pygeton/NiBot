@@ -34,7 +34,7 @@ public class Chunithm extends Function implements IMessageEvent {
                 return true;
             }
             else {
-                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档。");
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
                 sendMessage();
                 return false;
             }
@@ -51,7 +51,7 @@ public class Chunithm extends Function implements IMessageEvent {
     private void generateB30AndR10(Long userId){
         Map<String, List<JSONObject>> map = chunithmHttpService.getB30AndR10(userId);
         if(map.containsKey("400")){
-            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 7。");
+            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 7>_<");
         }
         else if(map.containsKey("403")){
             sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");

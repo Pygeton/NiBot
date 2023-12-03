@@ -28,7 +28,7 @@ public class Choose extends Function implements IMessageEvent {
                 text = choose();
             }
             else {
-                text = "没有选项我怎么帮你选呢？";
+                text = "没有选项我怎么帮你选呢？=_=";
             }
             sendMsgParams.addTextMessageSegment(text);
             sendMessage();

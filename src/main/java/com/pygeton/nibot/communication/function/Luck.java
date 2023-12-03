@@ -59,11 +59,11 @@ public class Luck extends Function implements IMessageEvent {
                         text = atData.getQq() + "的今日运势为：" + luck + " 【" + getLuckText(luck) + "】";
                         sendMsgParams.addTextMessageSegment(text);
                     }
-                    else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
+                    else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档>_<");
                 }
                 else sendMsgParams.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
             }
-            else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档。");
+            else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 1查看帮助文档>_<");
             sendMessage();
             return true;
         }

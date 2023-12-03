@@ -23,7 +23,7 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
             sendMsgParams = new SendMsgParams(message);
             if(rawMessage.length == 2){
                 if(message.getSender().getRole().equals("owner") || message.getSender().getRole().equals("admin")){
-                    sendMsgParams.addTextMessageSegment("狗管理自己睡去，衮！");
+                    sendMsgParams.addTextMessageSegment("狗管理自己睡去，衮！#_#");
                     sendMessage();
                 }
                 else {
@@ -33,7 +33,7 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
                 }
             }
             else {
-                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 5查看帮助文档。");
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 5查看帮助文档>_<");
                 sendMessage();
             }
             return true;

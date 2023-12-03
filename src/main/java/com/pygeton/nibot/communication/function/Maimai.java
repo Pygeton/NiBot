@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
+import com.pygeton.nibot.communication.entity.mai.MaimaiDifficulty;
+import com.pygeton.nibot.communication.entity.mai.MaimaiNoteInfo;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
@@ -63,6 +65,7 @@ public class Maimai extends Function implements IMessageEvent {
             case "info" -> getSongInfo();
             case "search" -> searchSong();
             case "add" -> addAilaForSong();
+            case "line" -> calculateScoreLine();
         }
     }
 
@@ -147,7 +150,7 @@ public class Maimai extends Function implements IMessageEvent {
     private void generateB50(Long userId){
         Map<String, List<JSONObject>> map = maimaiHttpService.getB50(userId);
         if(map.containsKey("400")){
-            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 6。");
+            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 6>_<");
         }
         else if(map.containsKey("403")){
             sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
@@ -176,7 +179,7 @@ public class Maimai extends Function implements IMessageEvent {
     private void appendChartInfo(StringBuilder builder,List<MaimaiChartInfo> list){
         int i = 1;
         for(MaimaiChartInfo chartInfo : list){
-            builder.append(i).append(". ").append(chartInfo.getTitle()).append("(").append(chartInfo.getType()).append(") ").append(chartInfo.getLevelLabel()).append("(").append(chartInfo.getDs()).append(") ").append(String.format("%.4f", chartInfo.getAchievements())).append("% ra:").append(chartInfo.getRa()).append("\n");
+            builder.append(i).append(".").append(chartInfo.getTitle()).append("(").append(chartInfo.getType()).append(") ").append(chartInfo.getLevelLabel()).append("(").append(chartInfo.getDs()).append(") ").append(String.format("%.4f", chartInfo.getAchievements())).append("% ra:").append(chartInfo.getRa()).append("\n");
             i++;
         }
     }
@@ -213,76 +216,40 @@ public class Maimai extends Function implements IMessageEvent {
                 sendMsgParams.addTextMessageSegment("这不是一个合法歌曲id哦");
             }
             else {
-                String level = "Unknown";
-                int levelIndex;
-                switch (rawMessage[3]){
-                    case "绿" -> {
-                        level = "Basic";
-                        levelIndex = 0;
-                    }
-                    case "黄" -> {
-                        level = "Advanced";
-                        levelIndex = 1;
-                    }
-                    case "红" -> {
-                        level = "Expert";
-                        levelIndex = 2;
-                    }
-                    case "紫" -> {
-                        level = "Master";
-                        levelIndex = 3;
-                    }
-                    case "白" -> {
-                        level = "Re:Master";
-                        levelIndex = 4;
-                    }
-                    default -> levelIndex = -1;
-                }
-                if(levelIndex == -1){
-                    sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档。");
+                MaimaiDifficulty difficulty = new MaimaiDifficulty(rawMessage[3]);
+                if(difficulty.getIndex() == -1){
+                    sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
                 }
                 else {
                     MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
                     MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
                     if(chartData == null || songData == null){
                         sendMsgParams.addTextMessageSegment("找不到此歌曲呢=_=");
-                    } else if(levelIndex == 4 && chartData.getRemasterLevel() == null){
+                    } else if(difficulty.getIndex() == 4 && chartData.getRemasterLevel() == null){
                         sendMsgParams.addTextMessageSegment("这首歌没有Re:Master难度的谱面哦");
                     } else {
                         sendMsgParams.addImageMessageSegment("file:///sdcard/Pictures/Maimai/" + songData.getCoverUrl());
-                        JSONArray dataList = JSON.parseArray(chartData.getDataList());
-                        JSONObject data = dataList.getJSONObject(levelIndex);
-                        JSONArray notes = data.getJSONArray("notes");
-                        int tap = notes.getIntValue(0);
-                        int hold = notes.getIntValue(1);
-                        int slide = notes.getIntValue(2);
-                        int breaks = notes.getIntValue(3);
-                        int combo = tap + hold + slide + breaks;
-                        int touch = 0;
-                        if (notes.size() > 4) {
-                            touch = notes.getIntValue(4);
-                            combo += touch;
-                        }
+                        MaimaiNoteInfo noteInfo = new MaimaiNoteInfo(chartData.getDataList(),difficulty.getIndex());
                         StringBuilder builder = new StringBuilder("\n");
                         builder.append(officialId).append(".").append(songData.getTitle()).append("(").append(chartData.getType()).append(")\n");
-                        builder.append("难度:").append(level).append("\n");
+                        builder.append("难度:").append(difficulty.getDifficulty()).append("\n");
                         builder.append("定数:");
-                        switch (levelIndex){
+                        switch (difficulty.getIndex()){
                             case 0 -> builder.append(chartData.getBasicConstant()).append("\n");
                             case 1 -> builder.append(chartData.getAdvancedConstant()).append("\n");
                             case 2 -> builder.append(chartData.getExpertConstant()).append("\n");
                             case 3 -> builder.append(chartData.getMasterConstant()).append("\n");
                             case 4 -> builder.append(chartData.getRemasterConstant()).append("\n");
                         }
-                        builder.append("物量:").append(combo).append("\n");
-                        builder.append("Tap:").append(tap).append("\n");
-                        builder.append("Hold:").append(hold).append("\n");
-                        builder.append("Slide:").append(slide).append("\n");
-                        builder.append("Break:").append(breaks).append("\n");
-                        if (notes.size() > 4) {
-                            builder.append("Touch:").append(touch).append("\n");
+                        builder.append("物量:").append(noteInfo.getFullCombo()).append("\n");
+                        builder.append("Tap:").append(noteInfo.getTap()).append("\n");
+                        builder.append("Hold:").append(noteInfo.getHold()).append("\n");
+                        builder.append("Slide:").append(noteInfo.getSlide()).append("\n");
+                        builder.append("Break:").append(noteInfo.getBreaks()).append("\n");
+                        if (noteInfo.getTouch() > 0) {
+                            builder.append("Touch:").append(noteInfo.getTouch()).append("\n");
                         }
-                        builder.append("谱师:").append(data.getString("charter")).append("\n");
+                        builder.append("谱师:").append(JSON.parseArray(chartData.getDataList()).getJSONObject(difficulty.getIndex()).getString("charter")).append("\n");
                         appendSongInfo(builder, chartData, songData);
                         sendMsgParams.addTextMessageSegment(builder.toString());
                     }
@@ -290,7 +257,7 @@ public class Maimai extends Function implements IMessageEvent {
             }
         }
         else {
-            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档。");
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
         }
         sendMessage();
     }
@@ -324,14 +291,15 @@ public class Maimai extends Function implements IMessageEvent {
                 titleMap.forEach((titleKana,title) -> {
                     List<Integer> idList = maimaiChartDataService.getOfficialId(titleKana);
                     String id;
-                    if(!idList.contains(null)){
+                    if(!idList.contains(null) && !idList.contains(0)){
                         if(idList.size() == 1){
                             id = idList.get(0).toString();
+                            resultMap.put(id,title);
                         }
-                        else {
+                        else if(idList.size() == 2){
                             id = idList.get(0).toString() + "/" + idList.get(1).toString();
+                            resultMap.put(id,title);
                         }
-                        resultMap.put(id,title);
                     }
                 });
                 int count = resultMap.size();
@@ -341,7 +309,7 @@ public class Maimai extends Function implements IMessageEvent {
             }
         }
         else {
-            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档。");
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
         }
         sendMessage();
     }
@@ -350,7 +318,7 @@ public class Maimai extends Function implements IMessageEvent {
         if(rawMessage.length == 4){
             MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(Integer.parseInt(rawMessage[2])));
             if(songData == null){
-                sendMsgParams.addTextMessageSegment("此谱面id没有对应的歌曲哦");
+                sendMsgParams.addTextMessageSegment("此谱面id没有对应的歌曲哦>_<");
             }
             else {
                 String aliasList = songData.getAliasList();
@@ -369,13 +337,47 @@ public class Maimai extends Function implements IMessageEvent {
                         sendMsgParams.addTextMessageSegment("别名添加成功！");
                     }
                     else {
-                        sendMsgParams.addTextMessageSegment("别名添加失败，可能是数据库内部发生了异常。");
+                        sendMsgParams.addTextMessageSegment("别名添加失败，可能是数据库内部发生了异常>_<");
                     }
                 }
             }
         }
         else {
-            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档。");
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+        }
+        sendMessage();
+    }
+
+    private void calculateScoreLine(){
+        if(rawMessage.length == 4 || rawMessage.length == 5){
+            int officialId = Integer.parseInt(rawMessage[2]);
+            MaimaiDifficulty difficulty = new MaimaiDifficulty(rawMessage[3]);
+            if(rawMessage.length == 5){
+                double target = Double.parseDouble(rawMessage[4]);
+            }
+            try {
+                MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
+                MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
+                MaimaiNoteInfo noteInfo = new MaimaiNoteInfo(chartData.getDataList(),difficulty.getIndex());
+                noteInfo.calculateDeduction();
+                StringBuilder builder = new StringBuilder().append(officialId).append(".").append(songData.getTitle());
+                builder.append("(").append(chartData.getType()).append(")的").append(difficulty.getDifficulty()).append("难度的误差列表如下：\n");
+                builder.append("种类/Great/Good/Miss\n");
+                builder.append("Tap/Touch:").append(String.format("%.4f", noteInfo.getDeductions()[0][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[0][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[0][2])).append("%\n");
+                builder.append("Hold:").append(String.format("%.4f", noteInfo.getDeductions()[1][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[1][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[1][2])).append("%\n");
+                builder.append("Slide:").append(String.format("%.4f", noteInfo.getDeductions()[2][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[2][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[2][2])).append("%\n");
+                builder.append("Break:").append(String.format("%.4f", noteInfo.getDeductions()[3][0])).append("%(50落)/").append(String.format("%.4f", noteInfo.getDeductions()[3][1])).append("%(100落)/");
+                builder.append(String.format("%.4f", noteInfo.getDeductions()[4][0])).append("%(Great-1)/").append(String.format("%.4f", noteInfo.getDeductions()[4][1])).append("%(Great-2)/").append(String.format("%.4f", noteInfo.getDeductions()[4][2])).append("%(Great-3)/");
+                builder.append(String.format("%.4f", noteInfo.getDeductions()[5][0])).append("%(Good)/").append(String.format("%.4f", noteInfo.getDeductions()[6][0])).append("%(Miss)");
+                sendMsgParams.addTextMessageSegment(builder.toString());
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
         }
         sendMessage();
     }

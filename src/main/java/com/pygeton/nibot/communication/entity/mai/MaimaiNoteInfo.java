@@ -11,8 +11,8 @@ public class MaimaiNoteInfo {
     private Integer tap;
     private Integer hold;
     private Integer slide;
-    private Integer breaks;
     private Integer touch;
+    private Integer breaks;
     private Double[][] deductions = new Double[7][3];//误差表，下标0-2代表tap-slide，下标3-6代表break
 
     public MaimaiNoteInfo(String json,int diffIndex){
@@ -22,18 +22,14 @@ public class MaimaiNoteInfo {
         tap = notes.getIntValue(0);
         hold = notes.getIntValue(1);
         slide = notes.getIntValue(2);
-        breaks = notes.getIntValue(3);
-        touch = 0;
-        if (notes.size() > 4) {
-            touch = notes.getIntValue(4);
+        if(notes.size() == 4){
+            touch = 0;
+            breaks = notes.getIntValue(3);
         }
-    }
-
-    public int getFullCombo(){
-        return tap + hold + slide + touch + breaks;
-    }
-
-    public void calculateDeduction(){
+        else{
+            touch = notes.getIntValue(3);
+            breaks = notes.getIntValue(4);
+        }
         double standardScore = tap * 500 + hold * 1000 + slide * 1500 + breaks * 2500 + touch * 500;
         double extraScore = breaks * 100;
         double standardDeduction = 500 / standardScore * 100;
@@ -58,5 +54,25 @@ public class MaimaiNoteInfo {
         deductions[5][0] = standardDeduction * 3 + extraDeduction * 0.7;
         //绝赞miss
         deductions[6][0] = standardDeduction * 5 + extraDeduction;
+    }
+
+    public int getFullCombo(){
+        return tap + hold + slide + touch + breaks;
+    }
+
+    public double getFaultTolerance(double target){
+        double reduce = 101 - target;
+        return reduce / deductions[0][0];
+    }
+
+    public double getBreak50Equivalence(){
+        return deductions[3][0] / deductions[0][0];
+    }
+
+    public double[] getBreakGreatEquivalenceBound(){
+        double[] bound = new double[2];
+        bound[0] = deductions[4][0] / deductions[0][0];
+        bound[1] = deductions[4][2] / deductions[0][0];
+        return bound;
     }
 }

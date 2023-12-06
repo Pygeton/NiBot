@@ -352,23 +352,30 @@ public class Maimai extends Function implements IMessageEvent {
         if(rawMessage.length == 4 || rawMessage.length == 5){
             int officialId = Integer.parseInt(rawMessage[2]);
             MaimaiDifficulty difficulty = new MaimaiDifficulty(rawMessage[3]);
-            if(rawMessage.length == 5){
-                double target = Double.parseDouble(rawMessage[4]);
-            }
             try {
                 MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
                 MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
                 MaimaiNoteInfo noteInfo = new MaimaiNoteInfo(chartData.getDataList(),difficulty.getIndex());
-                noteInfo.calculateDeduction();
+                //后续可能考虑图形化
                 StringBuilder builder = new StringBuilder().append(officialId).append(".").append(songData.getTitle());
                 builder.append("(").append(chartData.getType()).append(")的").append(difficulty.getDifficulty()).append("难度的误差列表如下：\n");
                 builder.append("种类/Great/Good/Miss\n");
                 builder.append("Tap/Touch:").append(String.format("%.4f", noteInfo.getDeductions()[0][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[0][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[0][2])).append("%\n");
                 builder.append("Hold:").append(String.format("%.4f", noteInfo.getDeductions()[1][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[1][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[1][2])).append("%\n");
                 builder.append("Slide:").append(String.format("%.4f", noteInfo.getDeductions()[2][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[2][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[2][2])).append("%\n");
-                builder.append("Break:").append(String.format("%.4f", noteInfo.getDeductions()[3][0])).append("%(50落)/").append(String.format("%.4f", noteInfo.getDeductions()[3][1])).append("%(100落)/");
-                builder.append(String.format("%.4f", noteInfo.getDeductions()[4][0])).append("%(Great-1)/").append(String.format("%.4f", noteInfo.getDeductions()[4][1])).append("%(Great-2)/").append(String.format("%.4f", noteInfo.getDeductions()[4][2])).append("%(Great-3)/");
-                builder.append(String.format("%.4f", noteInfo.getDeductions()[5][0])).append("%(Good)/").append(String.format("%.4f", noteInfo.getDeductions()[6][0])).append("%(Miss)");
+                builder.append("=====================\n");
+                builder.append("Break(Perfect):").append(String.format("%.4f", noteInfo.getDeductions()[3][0])).append("%(50落)/").append(String.format("%.4f", noteInfo.getDeductions()[3][1])).append("%(100落)\n");
+                builder.append("Break(Great):").append(String.format("%.4f", noteInfo.getDeductions()[4][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[4][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[4][2])).append("%\n");
+                builder.append("Break(Good):").append(String.format("%.4f", noteInfo.getDeductions()[5][0])).append("%\n");
+                builder.append("Break(Miss):").append(String.format("%.4f", noteInfo.getDeductions()[6][0])).append("%\n");
+                if(rawMessage.length == 5){
+                    double target = Double.parseDouble(rawMessage[4]);
+                    double[] bound = noteInfo.getBreakGreatEquivalenceBound();
+                    builder.append("=====================\n");
+                    builder.append("达到目标").append(target).append("%允许的最大Tap Great数量为").append((int) Math.floor(noteInfo.getFaultTolerance(target))).append("个\n");
+                    builder.append("Break 50落等价于").append(String.format("%.2f",noteInfo.getBreak50Equivalence())).append("个Tap Great\n");
+                    builder.append("Break Great相当于").append(String.format("%.2f",bound[0])).append("~").append(String.format("%.2f",bound[1])).append("个Tap Great");
+                }
                 sendMsgParams.addTextMessageSegment(builder.toString());
             }
             catch (Exception e){

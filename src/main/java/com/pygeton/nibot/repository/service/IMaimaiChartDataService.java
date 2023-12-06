@@ -14,6 +14,7 @@ public interface IMaimaiChartDataService extends IService<MaimaiChartData> {
 
     boolean updateFromJson(List<JSONObject> list);
 
+    //考虑替换成联表查询
     String getTitleKana(int officialId);
 
     MaimaiChartData getChartData(int officialId);

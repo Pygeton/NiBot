@@ -40,8 +40,16 @@ public class Choose extends Function implements IMessageEvent {
     private String choose(){
         List<String> list = new ArrayList<>(rawMessage.length - 1);
         list.addAll(Arrays.asList(rawMessage).subList(1, rawMessage.length));
-        Random random = new Random();
-        int num = random.nextInt(list.size());
-        return list.get(num);
+        boolean clearFlag = true;
+        String str = null;
+        while (clearFlag){
+            Random random = new Random();
+            int num = random.nextInt(list.size());
+            str = list.get(num);
+            if(!str.equals("")){
+                clearFlag = false;
+            }
+        }
+        return str;
     }
 }

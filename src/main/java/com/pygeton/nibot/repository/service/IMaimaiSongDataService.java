@@ -16,6 +16,7 @@ public interface IMaimaiSongDataService extends IService<MaimaiSongData> {
 
     boolean updateFromJson(List<JSONObject> list);
 
+    //考虑替换成联表查询
     MaimaiSongData getSongData(String titleKana);
 
     Map<String,String> getTitleMap(String keyword);

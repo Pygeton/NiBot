@@ -188,7 +188,7 @@ public class Maimai extends Function implements IMessageEvent {
         if(rawMessage.length == 3){
             int officialId = Integer.parseInt(rawMessage[2]);
             if(officialId <= 0){
-                sendMsgParams.addTextMessageSegment("这不是一个合法歌曲id哦");
+                sendMsgParams.addTextMessageSegment("这不是一个合法歌曲id哦>_<");
             }
             else {
                 MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
@@ -213,7 +213,7 @@ public class Maimai extends Function implements IMessageEvent {
         else if(rawMessage.length == 4){
             int officialId = Integer.parseInt(rawMessage[2]);
             if(officialId <= 0){
-                sendMsgParams.addTextMessageSegment("这不是一个合法歌曲id哦");
+                sendMsgParams.addTextMessageSegment("这不是一个合法歌曲id哦>_<");
             }
             else {
                 MaimaiDifficulty difficulty = new MaimaiDifficulty(rawMessage[3]);
@@ -225,7 +225,7 @@ public class Maimai extends Function implements IMessageEvent {
                     MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
                     if(chartData == null || songData == null){
                         sendMsgParams.addTextMessageSegment("找不到此歌曲呢=_=");
-                    } else if(difficulty.getIndex() == 4 && chartData.getRemasterLevel() == null){
+                    } else if (difficulty.getIndex() == 4 && chartData.getRemasterLevel() == null){
                         sendMsgParams.addTextMessageSegment("这首歌没有Re:Master难度的谱面哦");
                     } else {
                         sendMsgParams.addImageMessageSegment("file:///sdcard/Pictures/Maimai/" + songData.getCoverUrl());
@@ -250,7 +250,7 @@ public class Maimai extends Function implements IMessageEvent {
                             builder.append("Touch:").append(noteInfo.getTouch()).append("\n");
                         }
                         builder.append("谱师:").append(JSON.parseArray(chartData.getDataList()).getJSONObject(difficulty.getIndex()).getString("charter")).append("\n");
-                        appendSongInfo(builder, chartData, songData);
+                        appendSongInfo(builder,chartData,songData);
                         sendMsgParams.addTextMessageSegment(builder.toString());
                     }
                 }

@@ -154,6 +154,7 @@ public class Help extends Function implements IMessageEvent {
                         }
                         case 5 -> {
                             return """
+                                    【此功能暂未实现】
                                     使用方法：
                                     /mai random [参数(可选)]
                                     随机一首歌曲，可以填写参数进行条件限制，也可以不填写完全随机。
@@ -178,12 +179,61 @@ public class Help extends Function implements IMessageEvent {
                 else return "参数过多识别不了啦！>_<";
             }
             case 7 -> {
-                return """
-                        使用方法：
-                        目前仅支持查询B30+R10：
-                        /chuni b30
-                        可以查询你的b30+r10数据，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                if(rawMessage.length == 2){
+                    return """
+                        【此模块还在开发中，功能和指令可能随时变动】
+                        以下是支持的功能列表：
+                        1.查询B30+R10
+                        2.查看歌曲谱面信息
+                        3.查询歌曲
+                        4.为歌曲添加别名
+                        以下功能暂未实现：
+                        5.随机歌曲
+                        6.OVERPOWER相关
+                        可以输入“/help 7 [序号]”查看某项功能的具体使用方法QAQ
+                        例如：输入/help 7 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
+                }
+                else if(rawMessage.length == 3){
+                    switch (Integer.parseInt(rawMessage[2])){
+                        case 1 -> {
+                            return """
+                                    使用方法：
+                                    /chu b30
+                                    可以查询你的b30+r10数据，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    """;
+                        }
+                        case 2 -> {
+                            return """
+                                    使用方法：
+                                    /chu info [参数1] [参数2(可选)]
+                                    参数1内填写歌曲的谱面id，参数2内填写谱面的难度(绿/黄/红/紫/黑)可以查看这个谱面和对应歌曲的详细信息，如果不填写参数2将获取歌曲的基本信息。
+                                    同时支持查看日服已实装但是国服未实装的歌曲信息，但是未实装歌曲没有谱面详细信息。
+                                    对于WORLD'S END谱面，无需输入参数2，只需输入歌曲id即可。
+                                    如：发送”/chu info 2035 紫“可以获取特大紫谱的详细信息，发送“/chu info 2336”可以获取盟月的歌曲信息，发送“/chu info 8124”可以获取火山WE谱面的详细信息。
+                                    """;
+                        }
+                        case 3 -> {
+                            return """
+                                    使用方法：
+                                    /chu search [参数]
+                                    参数内填写歌曲名的关键字(不区分大小写，可以是歌曲名字的一部分或者是歌曲的别名，前提是这个别名在数据库中)，可以通过模糊匹配返回一个带有歌曲名的谱面id列表。
+                                    搜索结果可能包括国服未实装的歌曲，以(*)作标记。
+                                    """;
+                        }
+                        case 4 -> {
+                            return """
+                                    使用方法：
+                                    /chu add [参数1] [参数2]
+                                    参数1内填写歌曲的谱面id，参数2内填写你想要为此歌曲添加的别名，即可为这首歌添加一个别名以方便查找。
+                                    """;
+                        }
+                        default -> {
+                            return "目前还没有这个功能哦=_=";
+                        }
+                    }
+                }
+                else return "参数过多识别不了啦！>_<";
             }
             default -> {
                 return """
@@ -194,7 +244,7 @@ public class Help extends Function implements IMessageEvent {
                         4./long 召唤龙图
                         5./sleep 精致睡眠
                         6./mai 舞萌DX
-                        7./chuni 中二节奏
+                        7./chu 中二节奏
                         可以通过输入”/help [序号]“查看某项功能的具体使用方法或是细分的功能列表QAQ
                         例如：输入/help 1，可以查看“今日运势”的功能详情。
                         """;

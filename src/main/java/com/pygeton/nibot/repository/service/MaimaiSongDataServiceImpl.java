@@ -118,7 +118,7 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
 
     @Override
     public Map<String, String> getTitleMap(String keyword) {
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         QueryWrapper<MaimaiSongData> wrapper = new QueryWrapper<>();
         wrapper.like("LOWER(title)",keyword.toLowerCase()).or().like("LOWER(alias_list)",keyword.toLowerCase());
         List<MaimaiSongData> list = list(wrapper);

@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ChunithmHttpService {
@@ -21,6 +18,40 @@ public class ChunithmHttpService {
 
     public ChunithmHttpService(RestTemplateBuilder builder){
         this.restTemplate = builder.build();
+    }
+
+    public List<JSONObject> getMusicDataFromSega(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange("https://chunithm.sega.jp/storage/json/music.json", HttpMethod.GET, entity, String.class);
+            if(response.getStatusCode() == HttpStatus.OK){
+                return Objects.requireNonNull(JSON.parseArray(response.getBody())).toJavaList(JSONObject.class);
+            }
+            else return null;
+        }
+        catch (HttpClientErrorException e){
+            System.out.println(e.getStatusCode());
+            return null;
+        }
+    }
+
+    public List<JSONObject> getMusicDataFromDivingFish(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/chunithmprober/music_data", HttpMethod.GET, entity, String.class);
+            if(response.getStatusCode() == HttpStatus.OK){
+                return Objects.requireNonNull(JSON.parseArray(response.getBody())).toJavaList(JSONObject.class);
+            }
+            else return null;
+        }
+        catch (HttpClientErrorException e){
+            System.out.println(e.getStatusCode());
+            return null;
+        }
     }
 
     public Map<String, List<JSONObject>> getB30AndR10(Long userId){

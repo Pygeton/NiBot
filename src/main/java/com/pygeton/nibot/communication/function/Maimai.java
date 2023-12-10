@@ -100,36 +100,34 @@ public class Maimai extends Function implements IMessageEvent {
 
     private void updateDatabase(Long userId){
         if(userId == 1944539440L){
-            boolean allDone = true;
-            boolean chartRet = maimaiChartDataService.updateFromJson(maimaiHttpService.getMusicData());
-            if(chartRet){
-                sendMsgParams.addTextMessageSegment("谱面数据库更新完成！\n");
-            }
-            else {
-                allDone = false;
-                sendMsgParams.addTextMessageSegment("谱面数据库更新失败...\n");
-            }
-            boolean songRet = maimaiSongDataService.updateFromJson(maimaiHttpService.getMusicData());
-            if(songRet){
-                sendMsgParams.addTextMessageSegment("歌曲数据库更新完成！\n");
-            }
-            else {
-                allDone = false;
-                sendMsgParams.addTextMessageSegment("歌曲数据库更新失败...\n");
-            }
-            boolean coverRet = maimaiSongDataService.updateCoverUrl(maimaiChartDataService.getTitleAndOfficialIdList());
-            if(coverRet){
-                sendMsgParams.addTextMessageSegment("歌曲封面地址更新完成！\n");
-            }
-            else {
-                allDone = false;
-                sendMsgParams.addTextMessageSegment("歌曲封面地址更新失败...\n");
-            }
-            if(allDone){
-                sendMsgParams.addTextMessageSegment("本次数据库更新全部执行完毕！");
-            }
-            else {
-                sendMsgParams.addTextMessageSegment("部分数据库更新操作发生了错误，请检查日志。");
+            switch (rawMessage[2]){
+                case "chart" -> {
+                    boolean chartRet = maimaiChartDataService.updateFromJson(maimaiHttpService.getMusicData());
+                    if(chartRet){
+                        sendMsgParams.addTextMessageSegment("谱面数据库更新完成！\n");
+                    }
+                    else {
+                        sendMsgParams.addTextMessageSegment("谱面数据库更新失败...\n");
+                    }
+                }
+                case "song" -> {
+                    boolean songRet = maimaiSongDataService.updateFromJson(maimaiHttpService.getMusicData());
+                    if(songRet){
+                        sendMsgParams.addTextMessageSegment("歌曲数据库更新完成！\n");
+                    }
+                    else {
+                        sendMsgParams.addTextMessageSegment("歌曲数据库更新失败...\n");
+                    }
+                }
+                case "cover" -> {
+                    boolean coverRet = maimaiSongDataService.updateCoverUrl(maimaiChartDataService.getTitleAndOfficialIdList());
+                    if(coverRet){
+                        sendMsgParams.addTextMessageSegment("歌曲封面地址更新完成！\n");
+                    }
+                    else {
+                        sendMsgParams.addTextMessageSegment("歌曲封面地址更新失败...\n");
+                    }
+                }
             }
         }
         else {
@@ -192,7 +190,7 @@ public class Maimai extends Function implements IMessageEvent {
             }
             else {
                 MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
-                MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
+                MaimaiSongData songData = maimaiSongDataService.getSongData(officialId);
                 if(chartData == null || songData == null){
                     sendMsgParams.addTextMessageSegment("找不到此歌曲呢=_=");
                 }
@@ -222,7 +220,7 @@ public class Maimai extends Function implements IMessageEvent {
                 }
                 else {
                     MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
-                    MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
+                    MaimaiSongData songData = maimaiSongDataService.getSongData(officialId);
                     if(chartData == null || songData == null){
                         sendMsgParams.addTextMessageSegment("找不到此歌曲呢=_=");
                     } else if (difficulty.getIndex() == 4 && chartData.getRemasterLevel() == null){
@@ -290,16 +288,20 @@ public class Maimai extends Function implements IMessageEvent {
             else {
                 titleMap.forEach((titleKana,title) -> {
                     List<Integer> idList = maimaiChartDataService.getOfficialId(titleKana);
-                    String id;
-                    if(!idList.contains(null) && !idList.contains(0)){
-                        if(idList.size() == 1){
-                            id = idList.get(0).toString();
-                            resultMap.put(id,title);
+                    String officialId;
+                    List<Integer> validIdList = new ArrayList<>();
+                    for(Integer id : idList){
+                        if(id != 0){
+                            validIdList.add(id);
                         }
-                        else if(idList.size() == 2){
-                            id = idList.get(0).toString() + "/" + idList.get(1).toString();
-                            resultMap.put(id,title);
-                        }
+                    }
+                    if(validIdList.size() == 1){
+                        officialId = validIdList.get(0).toString();
+                        resultMap.put(officialId,title);
+                    }
+                    else if(validIdList.size() == 2){
+                        officialId = validIdList.get(0).toString() + "/" + idList.get(1).toString();
+                        resultMap.put(officialId,title);
                     }
                 });
                 int count = resultMap.size();
@@ -316,7 +318,7 @@ public class Maimai extends Function implements IMessageEvent {
 
     private void addAilaForSong(){
         if(rawMessage.length == 4){
-            MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(Integer.parseInt(rawMessage[2])));
+            MaimaiSongData songData = maimaiSongDataService.getSongData(Integer.parseInt(rawMessage[2]));
             if(songData == null){
                 sendMsgParams.addTextMessageSegment("此谱面id没有对应的歌曲哦>_<");
             }
@@ -354,7 +356,7 @@ public class Maimai extends Function implements IMessageEvent {
             MaimaiDifficulty difficulty = new MaimaiDifficulty(rawMessage[3]);
             try {
                 MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
-                MaimaiSongData songData = maimaiSongDataService.getSongData(maimaiChartDataService.getTitleKana(officialId));
+                MaimaiSongData songData = maimaiSongDataService.getSongData(officialId);
                 MaimaiNoteInfo noteInfo = new MaimaiNoteInfo(chartData.getDataList(),difficulty.getIndex());
                 //后续可能考虑图形化
                 StringBuilder builder = new StringBuilder().append(officialId).append(".").append(songData.getTitle());

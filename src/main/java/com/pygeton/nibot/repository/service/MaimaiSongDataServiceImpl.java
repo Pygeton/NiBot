@@ -110,10 +110,8 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
     }
 
     @Override
-    public MaimaiSongData getSongData(String titleKana) {
-        QueryWrapper<MaimaiSongData> wrapper = new QueryWrapper<>();
-        wrapper.eq("title_kana",titleKana);
-        return getOne(wrapper);
+    public MaimaiSongData getSongData(int officialId) {
+        return baseMapper.getSongDataByOfficialId(officialId);
     }
 
     @Override

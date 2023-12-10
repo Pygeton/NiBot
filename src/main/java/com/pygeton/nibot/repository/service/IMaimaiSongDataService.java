@@ -18,5 +18,6 @@ public interface IMaimaiSongDataService extends IService<MaimaiSongData> {
 
     MaimaiSongData getSongData(int officialId);
 
+    //考虑替换为联表查询
     Map<String,String> getTitleMap(String keyword);
 }

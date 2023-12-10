@@ -359,17 +359,17 @@ public class Maimai extends Function implements IMessageEvent {
                 MaimaiSongData songData = maimaiSongDataService.getSongData(officialId);
                 MaimaiNoteInfo noteInfo = new MaimaiNoteInfo(chartData.getDataList(),difficulty.getIndex());
                 //后续可能考虑图形化
-                StringBuilder builder = new StringBuilder().append(officialId).append(".").append(songData.getTitle());
+                StringBuilder builder = new StringBuilder(rawMessage[2]).append(".").append(songData.getTitle());
                 builder.append("(").append(chartData.getType()).append(")的").append(difficulty.getDifficulty()).append("难度的误差列表如下：\n");
                 builder.append("种类/Great/Good/Miss\n");
-                builder.append("Tap/Touch:").append(String.format("%.4f", noteInfo.getDeductions()[0][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[0][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[0][2])).append("%\n");
-                builder.append("Hold:").append(String.format("%.4f", noteInfo.getDeductions()[1][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[1][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[1][2])).append("%\n");
-                builder.append("Slide:").append(String.format("%.4f", noteInfo.getDeductions()[2][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[2][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[2][2])).append("%\n");
+                builder.append("Tap/Touch:").append(String.format("%.4f", -noteInfo.getDeductions()[0][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[0][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[0][2])).append("%\n");
+                builder.append("Hold:").append(String.format("%.4f", -noteInfo.getDeductions()[1][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[1][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[1][2])).append("%\n");
+                builder.append("Slide:").append(String.format("%.4f", -noteInfo.getDeductions()[2][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[2][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[2][2])).append("%\n");
                 builder.append("=====================\n");
-                builder.append("Break(Perfect):").append(String.format("%.4f", noteInfo.getDeductions()[3][0])).append("%(50落)/").append(String.format("%.4f", noteInfo.getDeductions()[3][1])).append("%(100落)\n");
-                builder.append("Break(Great):").append(String.format("%.4f", noteInfo.getDeductions()[4][0])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[4][1])).append("%/").append(String.format("%.4f", noteInfo.getDeductions()[4][2])).append("%\n");
-                builder.append("Break(Good):").append(String.format("%.4f", noteInfo.getDeductions()[5][0])).append("%\n");
-                builder.append("Break(Miss):").append(String.format("%.4f", noteInfo.getDeductions()[6][0])).append("%\n");
+                builder.append("Break(Perfect):").append(String.format("%.4f", -noteInfo.getDeductions()[3][0])).append("%(50落)/").append(String.format("%.4f", -noteInfo.getDeductions()[3][1])).append("%(100落)\n");
+                builder.append("Break(Great):").append(String.format("%.4f", -noteInfo.getDeductions()[4][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[4][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[4][2])).append("%\n");
+                builder.append("Break(Good):").append(String.format("%.4f", -noteInfo.getDeductions()[5][0])).append("%\n");
+                builder.append("Break(Miss):").append(String.format("%.4f", -noteInfo.getDeductions()[6][0])).append("%\n");
                 if(rawMessage.length == 5){
                     double target = Double.parseDouble(rawMessage[4]);
                     double[] bound = noteInfo.getBreakGreatEquivalenceBound();
@@ -380,9 +380,13 @@ public class Maimai extends Function implements IMessageEvent {
                 }
                 sendMsgParams.addTextMessageSegment(builder.toString());
             }
-            catch (Exception e){
+            catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
                 sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+            }
+            catch (NullPointerException e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("歌曲id有误，可能是歌曲不存在或国服未实装，无法获取数据进行计算>_<");
             }
         }
         else {

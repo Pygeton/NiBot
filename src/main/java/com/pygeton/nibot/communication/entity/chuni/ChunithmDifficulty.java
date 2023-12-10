@@ -30,6 +30,10 @@ public class ChunithmDifficulty {
                 setDifficulty("Ultima");
                 setIndex(4);
             }
+            case "WE" -> {
+                setDifficulty("World's End");
+                setIndex(5);
+            }
             default -> {
                 setDifficulty("Unknown");
                 setIndex(-1);

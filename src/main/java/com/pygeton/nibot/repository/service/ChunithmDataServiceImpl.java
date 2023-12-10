@@ -143,11 +143,11 @@ public class ChunithmDataServiceImpl extends ServiceImpl<ChunithmDataMapper, Chu
         for (ChunithmData data : list){
             Integer id = data.getOfficialId();
             String title = data.getTitle();
-            if(!data.getIsEnabled()){
-                title += "(*)";
-            }
             if(id / 1000 == 8){
                 title += "[" + data.getWeType() + "]";
+            }
+            if(!data.getIsEnabled()){
+                title += "(*)";
             }
             map.put(id,title);
         }

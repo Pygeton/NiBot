@@ -14,10 +14,7 @@ import com.pygeton.nibot.repository.service.ChunithmDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 @Component
 public class Chunithm extends Function implements IMessageEvent {
@@ -60,6 +57,7 @@ public class Chunithm extends Function implements IMessageEvent {
             case "info" -> getSongInfo();
             case "search" -> searchSong();
             case "add" -> addAilaForSong();
+            case "line" -> calculateScoreLine();
         }
     }
 
@@ -297,7 +295,66 @@ public class Chunithm extends Function implements IMessageEvent {
             }
         }
         else {
-            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
+        }
+        sendMessage();
+    }
+
+    private void calculateScoreLine(){
+        if(rawMessage.length == 4 || rawMessage.length == 5){
+            int officialId = Integer.parseInt(rawMessage[2]);
+            ChunithmDifficulty difficulty;
+            try {
+                if(rawMessage.length == 4 && officialId / 1000 == 8) {
+                    difficulty = new ChunithmDifficulty("WE");
+                }
+                else {
+                    difficulty = new ChunithmDifficulty(rawMessage[3]);
+                }
+                ChunithmData data = chunithmDataService.getChunithmData(officialId);
+                JSONArray dataList = JSON.parseArray(data.getDataList());
+                int combo = dataList.getJSONObject(difficulty.getIndex()).getIntValue("combo");
+                double justiceCritical = 1010000.0 / combo;//JC分值
+                double justice = justiceCritical * 100 / 101;//J分值
+                double attack = justiceCritical * 50 / 101;//A分值
+                double justiceDeduction = justiceCritical - justice;//J扣分值
+                double attackDeduction = justiceCritical - attack;//A扣分值
+                //后续可能考虑图形化
+                StringBuilder builder = new StringBuilder(rawMessage[2]).append(".").append(data.getTitle());
+                builder.append("的").append(difficulty.getDifficulty()).append("难度的误差列表如下：\n");
+                builder.append("种类/分值\n");
+                builder.append("Justice(小J):").append(String.format("%.4f",-justiceDeduction)).append("\n");
+                builder.append("Attack(绿):").append(String.format("%.4f",-attackDeduction)).append("\n");
+                builder.append("Miss(灰):").append(String.format("%.4f",-justiceCritical)).append("\n");
+                if(rawMessage.length == 5){
+                    double target;
+                    switch (rawMessage[4].toLowerCase(Locale.ROOT)){
+                        case "ss" -> target = 1000000;
+                        case "ss+" -> target = 1005000;
+                        case "sss" -> target = 1007500;
+                        case "sss+" -> target = 1009000;
+                        default -> target = Double.parseDouble(rawMessage[4]);
+                    }
+                    double reduce = 1010000 - target;
+                    builder.append("=====================\n");
+                    builder.append("达到目标").append((int) target).append("允许的误差为：\n");
+                    builder.append("最大Justice(小J)数量为").append((int) Math.floor(reduce / justiceDeduction)).append("个\n");
+                    builder.append("最大Attack(绿)数量为").append((int) Math.floor(reduce / attackDeduction)).append("个\n");
+                    builder.append("最大Miss(灰)数量为").append((int) Math.floor(reduce / justiceCritical)).append("个");
+                }
+                sendMsgParams.addTextMessageSegment(builder.toString());
+            }
+            catch (IndexOutOfBoundsException e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
+            }
+            catch (NullPointerException e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("歌曲id有误，可能是歌曲不存在或国服未实装，无法获取数据进行计算>_<");
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
         }
         sendMessage();
     }

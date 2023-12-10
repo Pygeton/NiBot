@@ -115,8 +115,7 @@ public class Help extends Function implements IMessageEvent {
                         2.查看歌曲谱面信息
                         3.查询歌曲
                         4.为歌曲添加别名
-                        5.随机歌曲（暂未实现）
-                        6.查看分数线
+                        5.误差分析和分数线计算
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -154,6 +153,14 @@ public class Help extends Function implements IMessageEvent {
                         }
                         case 5 -> {
                             return """
+                                    使用方法：
+                                    /mai line [参数1] [参数2] [参数3(可选)]
+                                    参数1内填写谱面id，参数2内填写谱面的难度(绿/黄/红/紫/白),即可查看该谱面的所有种类note的误差列表。
+                                    若在参数3内填写你要达到的目标分数线，还可以查看达到此目标的容错相关计算信息。
+                                    """;
+                        }
+                        case 6 -> {
+                            return """
                                     【此功能暂未实现】
                                     使用方法：
                                     /mai random [参数(可选)]
@@ -161,14 +168,6 @@ public class Help extends Function implements IMessageEvent {
                                     可选参数为一个正则表达式，可以按需求填写如下的关键字：
                                     [类型(标准/SD/DX)/版本][难度][等级/定数]
                                     如：发送“/mai random 标准紫14”，可以随机一首Master难度的14标准谱面；发送“/mai random 辉红13.9”，可以随机一首辉代的谱面。
-                                    """;
-                        }
-                        case 6 -> {
-                            return """
-                                    使用方法：
-                                    /mai line [参数1] [参数2] [参数3(可选)]
-                                    参数1内填写谱面id，参数2内填写谱面的难度(绿/黄/红/紫/白),即可查看该歌曲的所有种类note的误差列表。
-                                    若在参数3内填写你要达到的目标分数线，还可以查看达到此目标的容错相关计算信息。
                                     """;
                         }
                         default -> {
@@ -187,11 +186,9 @@ public class Help extends Function implements IMessageEvent {
                         2.查看歌曲谱面信息
                         3.查询歌曲
                         4.为歌曲添加别名
-                        以下功能暂未实现：
-                        5.随机歌曲
-                        6.OVERPOWER相关
+                        5.误差分析和分数线计算
                         可以输入“/help 7 [序号]”查看某项功能的具体使用方法QAQ
-                        例如：输入/help 7 2，可以查看“查看歌曲谱面信息”的功能详情。
+                        例如：输入/help 7 5，可以查看“误差分析和分数线计算”的功能详情。
                         """;
                 }
                 else if(rawMessage.length == 3){
@@ -226,6 +223,15 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /chu add [参数1] [参数2]
                                     参数1内填写歌曲的谱面id，参数2内填写你想要为此歌曲添加的别名，即可为这首歌添加一个别名以方便查找。
+                                    """;
+                        }
+                        case 5 -> {
+                            return """
+                                    使用方法：
+                                    /chu line [参数1] [参数2] [参数3(可选)]
+                                    参数1内填写谱面id，参数2内填写谱面的难度(绿/黄/红/紫/黑),即可查看该谱面的误差列表。
+                                    若在参数3内填写你要达到的目标分数线或是目标评级(支持ss-sss+)，还可以查看达到此目标的容错相关计算信息。
+                                    注意：此功能无法对国服未实装的歌曲进行误差计算。
                                     """;
                         }
                         default -> {

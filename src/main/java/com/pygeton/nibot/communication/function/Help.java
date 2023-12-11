@@ -134,7 +134,7 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /mai info [参数1] [参数2(可选)]
                                     参数1内填写歌曲的谱面id，参数2内填写谱面的难度(绿/黄/红/紫/白)可以查看这个谱面和对应歌曲的详细信息，如果不填写参数2将获取歌曲的基本信息。
-                                    如：发送”/mai info 10363 紫“可以获取牛奶DX紫谱的详细信息。
+                                    如：发送“/mai info 10363 紫”可以获取牛奶DX紫谱的详细信息。
                                     """;
                         }
                         case 3 -> {
@@ -207,7 +207,7 @@ public class Help extends Function implements IMessageEvent {
                                     参数1内填写歌曲的谱面id，参数2内填写谱面的难度(绿/黄/红/紫/黑)可以查看这个谱面和对应歌曲的详细信息，如果不填写参数2将获取歌曲的基本信息。
                                     同时支持查看日服已实装但是国服未实装的歌曲信息，但是未实装歌曲没有谱面详细信息。
                                     对于WORLD'S END谱面，无需输入参数2，只需输入歌曲id即可。
-                                    如：发送”/chu info 2035 紫“可以获取特大紫谱的详细信息，发送“/chu info 2336”可以获取盟月的歌曲信息，发送“/chu info 8124”可以获取火山WE谱面的详细信息。
+                                    如：发送“/chu info 2035 紫”可以获取特大紫谱的详细信息，发送“/chu info 2336”可以获取盟月的歌曲信息，发送“/chu info 8124”可以获取火山WE谱面的详细信息。
                                     """;
                         }
                         case 3 -> {
@@ -228,9 +228,10 @@ public class Help extends Function implements IMessageEvent {
                         case 5 -> {
                             return """
                                     使用方法：
-                                    /chu line [参数1] [参数2] [参数3(可选)]
+                                    /chu line [参数1] [参数2] [参数3(可选)] [参数4(可选)]
                                     参数1内填写谱面id，参数2内填写谱面的难度(绿/黄/红/紫/黑),即可查看该谱面的误差列表。
                                     若在参数3内填写你要达到的目标分数线或是目标评级(支持ss-sss+)，还可以查看达到此目标的容错相关计算信息。
+                                    若在参数4内填写你的预期Justice(小J)数量，还可以查看在你预期的Justice误差下，达到目标的Attack和Miss容错数量。(如果不填此参数默认预期Justice数量为0)
                                     注意：此功能无法对国服未实装的歌曲进行误差计算。
                                     """;
                         }
@@ -251,7 +252,7 @@ public class Help extends Function implements IMessageEvent {
                         5./sleep 精致睡眠
                         6./mai 舞萌DX
                         7./chu 中二节奏
-                        可以通过输入”/help [序号]“查看某项功能的具体使用方法或是细分的功能列表QAQ
+                        可以通过输入“/help [序号]”查看某项功能的具体使用方法或是细分的功能列表QAQ
                         例如：输入/help 1，可以查看“今日运势”的功能详情。
                         """;
             }

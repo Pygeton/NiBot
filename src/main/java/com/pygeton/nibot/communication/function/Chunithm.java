@@ -301,7 +301,7 @@ public class Chunithm extends Function implements IMessageEvent {
     }
 
     private void calculateScoreLine(){
-        if(rawMessage.length == 4 || rawMessage.length == 5){
+        if(rawMessage.length >= 4 && rawMessage.length <= 6){
             int officialId = Integer.parseInt(rawMessage[2]);
             ChunithmDifficulty difficulty;
             try {
@@ -326,7 +326,7 @@ public class Chunithm extends Function implements IMessageEvent {
                 builder.append("Justice(小J):").append(String.format("%.4f",-justiceDeduction)).append("\n");
                 builder.append("Attack(绿):").append(String.format("%.4f",-attackDeduction)).append("\n");
                 builder.append("Miss(灰):").append(String.format("%.4f",-justiceCritical)).append("\n");
-                if(rawMessage.length == 5){
+                if(rawMessage.length >= 5){
                     double target;
                     switch (rawMessage[4].toLowerCase(Locale.ROOT)){
                         case "ss" -> target = 1000000;
@@ -337,8 +337,15 @@ public class Chunithm extends Function implements IMessageEvent {
                     }
                     double reduce = 1010000 - target;
                     builder.append("=====================\n");
-                    builder.append("达到目标").append((int) target).append("允许的误差为：\n");
-                    builder.append("最大Justice(小J)数量为").append((int) Math.floor(reduce / justiceDeduction)).append("个\n");
+                    if(rawMessage.length == 5){
+                        builder.append("达到目标").append((int) target).append("允许的误差为：\n");
+                        builder.append("最大Justice(小J)数量为").append((int) Math.floor(reduce / justiceDeduction)).append("个\n");
+                    }
+                    else {
+                        int justiceExpectation = Integer.parseInt(rawMessage[5]);
+                        reduce = reduce - justiceDeduction * justiceExpectation;
+                        builder.append("在预期Justice(小J)个数为").append(justiceExpectation).append("的条件下，达到目标").append((int) target).append("允许的误差为：\n");
+                    }
                     builder.append("最大Attack(绿)数量为").append((int) Math.floor(reduce / attackDeduction)).append("个\n");
                     builder.append("最大Miss(灰)数量为").append((int) Math.floor(reduce / justiceCritical)).append("个");
                 }

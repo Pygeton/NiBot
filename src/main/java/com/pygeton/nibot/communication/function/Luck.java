@@ -19,7 +19,7 @@ public class Luck extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 99;
+        return 100;
     }
 
     @Override

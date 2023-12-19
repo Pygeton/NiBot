@@ -33,7 +33,7 @@ public class Maimai extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 70;
+        return 90;
     }
 
     @Override

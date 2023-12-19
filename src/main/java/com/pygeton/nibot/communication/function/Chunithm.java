@@ -27,7 +27,7 @@ public class Chunithm extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 50;
+        return 95;
     }
 
     @Override
@@ -331,25 +331,49 @@ public class Chunithm extends Function implements IMessageEvent {
                     switch (rawMessage[4].toLowerCase(Locale.ROOT)){
                         case "ss" -> target = 1000000;
                         case "ss+" -> target = 1005000;
-                        case "sss" -> target = 1007500;
-                        case "sss+" -> target = 1009000;
-                        default -> target = Double.parseDouble(rawMessage[4]);
+                        case "sss","鸟" -> target = 1007500;
+                        case "sss+","鸟加" -> target = 1009000;
+                        default -> {
+                            target = Double.parseDouble(rawMessage[4]);
+                            if(target >= 1000 && target <= 1010){
+                                target *= 1000;
+                            }
+                            else if(target >= 10000 && target <= 10100){
+                                target *= 100;
+                            }
+                        }
                     }
                     double reduce = 1010000 - target;
-                    builder.append("=====================\n");
-                    if(rawMessage.length == 5){
-                        builder.append("达到目标").append((int) target).append("允许的误差为：\n");
-                        builder.append("最大Justice(小J)数量为").append((int) Math.floor(reduce / justiceDeduction)).append("个\n");
+                    if(reduce < 0 || reduce > 1010000){
+                        sendMsgParams.addTextMessageSegment("目标分数不合法，你玩过这游戏吗？=_=");
                     }
                     else {
-                        int justiceExpectation = Integer.parseInt(rawMessage[5]);
-                        reduce = reduce - justiceDeduction * justiceExpectation;
-                        builder.append("在预期Justice(小J)个数为").append(justiceExpectation).append("的条件下，达到目标").append((int) target).append("允许的误差为：\n");
+                        double attackTolerance = Math.floor(reduce / attackDeduction);
+                        double missTolerance = Math.floor(reduce / justiceCritical);
+                        builder.append("=====================\n");
+                        if(attackTolerance > combo){
+                            builder.append("目标分数过低，已经不具备计算价值，仅显示误差列表>_<");
+                        }
+                        else {
+                            if(rawMessage.length == 5){
+                                double attackReduce = reduce - attackTolerance * attackDeduction;
+                                double missReduce = reduce - missTolerance * justiceCritical;
+                                builder.append("达到目标").append((int) target).append("允许的误差为：\n");
+                                builder.append("最大Attack+Justice(绿+小J)数量为").append((int) attackTolerance).append(" + ").append((int) Math.floor(attackReduce / justiceDeduction)).append("个\n");
+                                builder.append("最大Miss+Justice(灰+小J)数量为").append((int) missTolerance).append(" + ").append((int) Math.floor(missReduce / justiceDeduction)).append("个\n");
+                                builder.append("在AJ条件下，最大Justice(小J)数量为").append((int) Math.floor(reduce / justiceDeduction)).append("个");
+                            }
+                            else {
+                                int justiceExpectation = Integer.parseInt(rawMessage[5]);
+                                reduce = reduce - justiceDeduction * justiceExpectation;
+                                builder.append("在预期Justice(小J)个数为").append(justiceExpectation).append("的条件下，达到目标").append((int) target).append("允许的误差为：\n");
+                                builder.append("最大Attack(绿)数量为").append((int) Math.floor(reduce / attackDeduction)).append("个\n");
+                                builder.append("最大Miss(灰)数量为").append((int) Math.floor(reduce / justiceCritical)).append("个");
+                            }
+                        }
+                        sendMsgParams.addTextMessageSegment(builder.toString());
                     }
-                    builder.append("最大Attack(绿)数量为").append((int) Math.floor(reduce / attackDeduction)).append("个\n");
-                    builder.append("最大Miss(灰)数量为").append((int) Math.floor(reduce / justiceCritical)).append("个");
                 }
-                sendMsgParams.addTextMessageSegment(builder.toString());
             }
             catch (IndexOutOfBoundsException e){
                 e.printStackTrace();

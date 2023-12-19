@@ -24,7 +24,7 @@ public class SummonLong extends Function implements IMessageEvent, IResponseHand
 
     @Override
     public int weight() {
-        return 90;
+        return 98;
     }
 
     @Override

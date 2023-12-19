@@ -13,7 +13,7 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
 
     @Override
     public int weight() {
-        return 95;
+        return 99;
     }
 
     @Override

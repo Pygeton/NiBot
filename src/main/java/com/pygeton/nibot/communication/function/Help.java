@@ -10,7 +10,7 @@ public class Help extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 100;
+        return 101;
     }
 
     @Override
@@ -111,11 +111,11 @@ public class Help extends Function implements IMessageEvent {
                     return """
                         【此模块还在开发中，功能和指令可能随时变动】
                         以下是支持的功能列表：
-                        1.查询Best50
-                        2.查看歌曲谱面信息
-                        3.查询歌曲
-                        4.为歌曲添加别名
-                        5.误差分析和分数线计算
+                        1.b50 查询Best50
+                        2.info 查看歌曲谱面信息
+                        3.search 查询歌曲
+                        4.add 为歌曲添加别名
+                        5.line 误差分析和分数线计算
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -161,13 +161,7 @@ public class Help extends Function implements IMessageEvent {
                         }
                         case 6 -> {
                             return """
-                                    【此功能暂未实现】
-                                    使用方法：
-                                    /mai random [参数(可选)]
-                                    随机一首歌曲，可以填写参数进行条件限制，也可以不填写完全随机。
-                                    可选参数为一个正则表达式，可以按需求填写如下的关键字：
-                                    [类型(标准/SD/DX)/版本][难度][等级/定数]
-                                    如：发送“/mai random 标准紫14”，可以随机一首Master难度的14标准谱面；发送“/mai random 辉红13.9”，可以随机一首辉代的谱面。
+                                    此功能暂未实现哦=_=
                                     """;
                         }
                         default -> {
@@ -182,11 +176,11 @@ public class Help extends Function implements IMessageEvent {
                     return """
                         【此模块还在开发中，功能和指令可能随时变动】
                         以下是支持的功能列表：
-                        1.查询B30+R10
-                        2.查看歌曲谱面信息
-                        3.查询歌曲
-                        4.为歌曲添加别名
-                        5.误差分析和分数线计算
+                        1.b30 查询B30+R10
+                        2.info 查看歌曲谱面信息
+                        3.search 查询歌曲
+                        4.add 为歌曲添加别名
+                        5.line 误差分析和分数线计算
                         可以输入“/help 7 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 7 5，可以查看“误差分析和分数线计算”的功能详情。
                         """;
@@ -230,8 +224,9 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /chu line [参数1] [参数2] [参数3(可选)] [参数4(可选)]
                                     参数1内填写谱面id，参数2内填写谱面的难度(绿/黄/红/紫/黑),即可查看该谱面的误差列表。
-                                    若在参数3内填写你要达到的目标分数线或是目标评级(支持ss-sss+)，还可以查看达到此目标的容错相关计算信息。
+                                    若在参数3内填写你要达到的目标分数线(支持100以上的简写)或是目标评级(支持ss-sss+/鸟/鸟加)，还可以查看达到此目标的容错相关计算信息。
                                     若在参数4内填写你的预期Justice(小J)数量，还可以查看在你预期的Justice误差下，达到目标的Attack和Miss容错数量。(如果不填此参数默认预期Justice数量为0)
+                                    如：输入“/chu line 981 紫 sss”可以查看小恶魔紫谱的达到1007500分数线的容错计算，输入“/chu line 1035 紫 1006”可以查看赤壁大炎上的达到1006000分数线的容错计算。
                                     注意：此功能无法对国服未实装的歌曲进行误差计算。
                                     """;
                         }

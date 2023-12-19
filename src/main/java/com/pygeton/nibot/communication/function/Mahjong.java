@@ -32,7 +32,7 @@ public class Mahjong extends Function implements IMessageEvent {
 
     @Override
     public int weight() {
-        return 50;
+        return 70;
     }
 
     @Override

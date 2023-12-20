@@ -7,6 +7,7 @@ import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
 import com.pygeton.nibot.communication.entity.mai.MaimaiDifficulty;
 import com.pygeton.nibot.communication.entity.mai.MaimaiNoteInfo;
+import com.pygeton.nibot.communication.entity.mai.MaimaiVersion;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 @Component
 public class Maimai extends Function implements IMessageEvent {
@@ -66,6 +68,7 @@ public class Maimai extends Function implements IMessageEvent {
             case "search" -> searchSong();
             case "add" -> addAilaForSong();
             case "line" -> calculateScoreLine();
+            case "plate" -> getPlateProgress(message.getUserId());
         }
     }
 
@@ -393,5 +396,165 @@ public class Maimai extends Function implements IMessageEvent {
             sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
         }
         sendMessage();
+    }
+
+    //此功能存在严重问题（舞牌歌曲匹配不正确）
+    @SuppressWarnings("unchecked")
+    private void getPlateProgress(Long userId){
+        if(rawMessage.length == 3){
+            MaimaiVersion version = new MaimaiVersion(rawMessage[2].charAt(0));
+            if(version.getIndex() == -1){
+                sendMsgParams.addTextMessageSegment("输入的版本名不存在，请注意输入>_<");
+            }
+            else if(version.getIndex() == 12){
+                sendMsgParams.addTextMessageSegment("这个版本的牌子还在施工中，敬请期待=_=");
+            }
+            else if(rawMessage[2].equals("真将")){
+                sendMsgParams.addTextMessageSegment("输入的牌子类型不存在，请注意输入>_<");
+            }
+            else {
+                List<JSONObject> records = maimaiHttpService.getPlayerRecords(userId);
+                List<MaimaiChartData> chartDataList = maimaiChartDataService.getChartDataList(version.getVersion());
+                int total = chartDataList.size();
+                Map<String, List<?>> result;
+                switch (rawMessage[2].charAt(1)){
+                    case '极' -> result = analyzePlateRecords(chartDataList,records,"fc", value -> value.equals("fc") || value.equals("fcp") || value.equals("ap") || value.equals("app"));
+                    case '将' -> result = analyzePlateRecords(chartDataList,records,"rate", value -> value.equals("sss") || value.equals("sssp"));
+                    case '神' -> result = analyzePlateRecords(chartDataList,records,"fc", value -> value.equals("ap") || value.equals("app"));
+                    case '舞' -> result = analyzePlateRecords(chartDataList,records,"fs", value -> value.equals("fsd") || value.equals("fsdp"));
+                    default -> {
+                        sendMsgParams.addTextMessageSegment("输入的牌子类型不存在，请注意输入>_<");
+                        sendMessage();
+                        return;
+                    }
+                }
+                List<MaimaiChartData> incompleteMasterList = (List<MaimaiChartData>) result.get("master");
+                List<MaimaiChartData> incompleteReMasterList = (List<MaimaiChartData>) result.get("remaster");
+                List<Integer> countList = (List<Integer>) result.get("count");
+                //后续可能考虑图形化
+                StringBuilder builder = new StringBuilder();
+                builder.append("你的").append(rawMessage[2]).append("进度如下:\n");
+                builder.append("Basic:").append(countList.get(0)).append("/").append(total).append("\n");
+                builder.append("Advanced:").append(countList.get(1)).append("/").append(total).append("\n");
+                builder.append("Expert:").append(countList.get(2)).append("/").append(total).append("\n");
+                builder.append("Master:").append(countList.get(3)).append("/").append(total).append("\n");
+                if(version.getVersion().equals("ALL")){
+                    builder.append("Re:Master:").append(countList.get(4)).append("/").append(countList.get(5)).append("\n");
+                    builder.append("=====================\n");
+                    if(incompleteReMasterList.size() > 0){
+                        incompleteReMasterList.sort((o1, o2) -> o2.getRemasterLevel().compareTo(o1.getRemasterLevel()));
+                        builder.append("尚未完成的较高难度的Re:Master难度歌曲还有:\n");
+                        for(MaimaiChartData chartData : incompleteReMasterList){
+                            if(chartData.getRemasterLevel().compareTo("13") >= 0){
+                                builder.append("(").append(chartData.getRemasterLevel()).append(")").append(maimaiSongDataService.getSongData(chartData.getOfficialId()).getTitle()).append("\n");
+                            }
+                        }
+                    }
+                    else {
+                        boolean isGet = true;
+                        for(Integer count : countList){
+                            if (count != total) {
+                                isGet = false;
+                                break;
+                            }
+                        }
+                        if(isGet){
+                            builder.append("你已经").append(rawMessage[2]).append("确认啦，加油清谱吧 (☆^O^☆) ");
+                        }
+                        else {
+                            builder.append("你已经成功取得").append(rawMessage[2]).append("啦，太棒啦Ｏ(≧▽≦)Ｏ");
+                        }
+                    }
+                }
+                else {
+                    builder.append("=====================\n");
+                    if(incompleteMasterList.size() > 0){
+                        incompleteMasterList.sort((o1, o2) -> o2.getMasterLevel().compareTo(o1.getMasterLevel()));
+                        builder.append("尚未完成的Master难度歌曲还有(至多显示难度较高的前20首):\n");
+                        int i = 0;
+                        for(MaimaiChartData chartData : incompleteMasterList){
+                            builder.append("(").append(chartData.getMasterLevel()).append(")").append(maimaiSongDataService.getSongData(chartData.getOfficialId()).getTitle()).append("\n");
+                            i++;
+                            if(i >= 20) break;
+                        }
+                    }
+                    else {
+                        boolean isGet = true;
+                        for(Integer count : countList){
+                            if (count != total) {
+                                isGet = false;
+                                break;
+                            }
+                        }
+                        if(isGet){
+                            builder.append("你已经").append(rawMessage[2]).append("确认啦，加油清谱吧 (☆^O^☆) ");
+                        }
+                        else {
+                            builder.append("你已经成功取得").append(rawMessage[2]).append("啦，太棒啦Ｏ(≧▽≦)Ｏ");
+                        }
+                    }
+                }
+                sendMsgParams.addTextMessageSegment(builder.toString());
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+        }
+        sendMessage();
+    }
+
+    private Map<String, List<?>> analyzePlateRecords(List<MaimaiChartData> chartDataList, List<JSONObject> records, String key, Predicate<String> isComplete){
+        List<MaimaiChartData> incompleteMasterList = new ArrayList<>(chartDataList);
+        List<MaimaiChartData> incompleteReMasterList = new ArrayList<>(chartDataList);
+        List<Integer> countList = new ArrayList<>();
+        int basCount = 0;
+        int advCount = 0;
+        int expCount = 0;
+        int masCount = 0;
+        int reMasCount = 0;
+        int reMasTotal = 0;
+        for(MaimaiChartData chartData : chartDataList){
+            for(JSONObject record : records){
+                if(chartData.getOfficialId().equals(record.getIntValue("song_id"))){
+                    String value = record.getString(key);
+                    boolean complete = isComplete.test(value);
+                    switch (record.getString("level_label")){
+                        case "Basic" -> {
+                            if (complete) basCount++;
+                        }
+                        case "Advanced" -> {
+                            if (complete) advCount++;
+                        }
+                        case "Expert" -> {
+                            if (complete) expCount++;
+                        }
+                        case "Master" -> {
+                            if (complete) {
+                                masCount++;
+                                incompleteMasterList.remove(chartData);
+                            }
+                        }
+                        case "Re:MASTER" -> {
+                            if (complete) {
+                                reMasCount++;
+                                incompleteReMasterList.remove(chartData);
+                            }
+                            reMasTotal++;
+                        }
+                    }
+                }
+            }
+        }
+        countList.add(basCount);
+        countList.add(advCount);
+        countList.add(expCount);
+        countList.add(masCount);
+        countList.add(reMasCount);
+        countList.add(reMasTotal);
+        Map<String, List<?>> result = new HashMap<>();
+        result.put("count",countList);
+        result.put("master",incompleteMasterList);
+        result.put("remaster",incompleteReMasterList);
+        return result;
     }
 }

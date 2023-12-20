@@ -119,4 +119,33 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
     public List<Integer> getOfficialId(String titleKana) {
         return baseMapper.getOfficialIdByTitleKana(titleKana);
     }
+
+    @Override
+    public List<MaimaiChartData> getChartDataList(String version) {
+        QueryWrapper<MaimaiChartData> wrapper = new QueryWrapper<>();
+        if(version.equals("ALL")){
+            wrapper.eq("version","maimai")
+                    .or().eq("version","maimai PLUS")
+                    .or().eq("version","maimai GreeN")
+                    .or().eq("version","maimai GreeN PLUS")
+                    .or().eq("version","maimai ORANGE")
+                    .or().eq("version","maimai ORANGE PLUS")
+                    .or().eq("version","maimai PiNK")
+                    .or().eq("version","maimai PiNK PLUS")
+                    .or().eq("version","maimai MURASAKi")
+                    .or().eq("version","maimai MURASAKi PLUS")
+                    .or().eq("version","maimai MiLK")
+                    .or().eq("version","maimai MiLK PLUS")
+                    .or().eq("version","maimai FiNALE");
+        }
+        else if(version.equals("maimai")){
+            wrapper.eq("version",version)
+                    .ne("official_id",70)
+                    .or().eq("version","maimai PLUS");
+        }
+        else {
+            wrapper.eq("version",version);
+        }
+        return list(wrapper);
+    }
 }

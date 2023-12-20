@@ -17,4 +17,6 @@ public interface IMaimaiChartDataService extends IService<MaimaiChartData> {
     MaimaiChartData getChartData(int officialId);
 
     List<Integer> getOfficialId(String titleKana);
+
+    List<MaimaiChartData> getChartDataList(String version);
 }

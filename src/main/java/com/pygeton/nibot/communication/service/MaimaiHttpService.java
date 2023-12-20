@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
@@ -66,7 +67,28 @@ public class MaimaiHttpService {
         }
         catch (HttpClientErrorException e){
             if(e.getStatusCode() == HttpStatus.NOT_MODIFIED){
-                System.out.println("304 ERROR");
+                System.out.println(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+    public List<JSONObject> getPlayerRecords(Long userId){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Developer-Token", "xmIkbz28USlL6CgtZ5BAjJFwHsv91YNc");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://www.diving-fish.com/api/maimaidxprober/dev/player/records").queryParam("qq",userId);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+            if(response.getStatusCode() == HttpStatus.OK){
+                return Objects.requireNonNull(JSON.parseObject(response.getBody())).getJSONArray("records").toJavaList(JSONObject.class);
+            }
+            else return null;
+        }
+        catch (HttpClientErrorException e){
+            if(e.getStatusCode() == HttpStatus.BAD_REQUEST){
+                System.out.println(e.getMessage());
             }
             return null;
         }

@@ -350,6 +350,7 @@ public class Chunithm extends Function implements IMessageEvent {
                     else {
                         double attackTolerance = Math.floor(reduce / attackDeduction);
                         double missTolerance = Math.floor(reduce / justiceCritical);
+                        double justiceTolerance = Math.floor(reduce / justiceDeduction);
                         builder.append("=====================\n");
                         if(attackTolerance > combo){
                             builder.append("目标分数过低，已经不具备计算价值，仅显示误差列表>_<");
@@ -361,7 +362,9 @@ public class Chunithm extends Function implements IMessageEvent {
                                 builder.append("达到目标").append((int) target).append("允许的误差为：\n");
                                 builder.append("最大Attack+Justice(绿+小J)数量为").append((int) attackTolerance).append(" + ").append((int) Math.floor(attackReduce / justiceDeduction)).append("个\n");
                                 builder.append("最大Miss+Justice(灰+小J)数量为").append((int) missTolerance).append(" + ").append((int) Math.floor(missReduce / justiceDeduction)).append("个\n");
-                                builder.append("在AJ条件下，最大Justice(小J)数量为").append((int) Math.floor(reduce / justiceDeduction)).append("个");
+                                if(justiceTolerance < combo){
+                                    builder.append("在AJ条件下，最大Justice(小J)数量为").append((int) justiceTolerance).append("个");
+                                }
                             }
                             else {
                                 int justiceExpectation = Integer.parseInt(rawMessage[5]);

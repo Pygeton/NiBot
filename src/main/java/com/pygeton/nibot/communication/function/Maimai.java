@@ -409,6 +409,9 @@ public class Maimai extends Function implements IMessageEvent {
             else if(version.getIndex() == 12){
                 sendMsgParams.addTextMessageSegment("这个版本的牌子还在施工中，敬请期待=_=");
             }
+            else if(version.getIndex() == 16){
+                sendMsgParams.addTextMessageSegment("国服还没有这个牌子，别急=_=");
+            }
             else if(rawMessage[2].equals("真将")){
                 sendMsgParams.addTextMessageSegment("输入的牌子类型不存在，请注意输入>_<");
             }
@@ -480,17 +483,18 @@ public class Maimai extends Function implements IMessageEvent {
                     }
                     else {
                         boolean isGet = true;
-                        for(Integer count : countList){
-                            if (count != total) {
+                        for(int i = 0;i < 4;i++){
+                            int count = countList.get(i);
+                            if(count != total){
                                 isGet = false;
                                 break;
                             }
                         }
                         if(isGet){
-                            builder.append("你已经").append(rawMessage[2]).append("确认啦，加油清谱吧 (☆^O^☆) ");
+                            builder.append("你已经成功取得").append(rawMessage[2]).append("啦，太棒啦Ｏ(≧▽≦)Ｏ");
                         }
                         else {
-                            builder.append("你已经成功取得").append(rawMessage[2]).append("啦，太棒啦Ｏ(≧▽≦)Ｏ");
+                            builder.append("你已经").append(rawMessage[2]).append("确认啦，加油清谱吧 (☆^O^☆) ");
                         }
                     }
                 }

@@ -14,7 +14,7 @@ public interface IMaimaiSongDataService extends IService<MaimaiSongData> {
 
     boolean updateCoverUrl(List<MaimaiChartData> list);
 
-    boolean updateFromJson(List<JSONObject> list);
+    boolean updateSongData(List<JSONObject> list);
 
     MaimaiSongData getSongData(int officialId);
 

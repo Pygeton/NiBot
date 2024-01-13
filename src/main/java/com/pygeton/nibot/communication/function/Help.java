@@ -117,6 +117,8 @@ public class Help extends Function implements IMessageEvent {
                         4.add 为歌曲添加别名
                         5.line 误差分析和分数线计算
                         6.plate 查询牌子进度
+                        7.rec 上分歌曲推荐（暂未实现）
+                        8.ping 测试服务器状态（暂未实现）
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -168,6 +170,22 @@ public class Help extends Function implements IMessageEvent {
                                     参数内填写牌子的名称，即可查看该牌子的进度信息，支持查询极/将/神/舞舞牌。
                                     版本为DX及之后的，填写该版本的任一小版本名即可。
                                     如：输入“/mai plate 熊将”，即可查看熊/华将的进度信息。
+                                    """;
+                        }
+                        case 7 -> {
+                            return """
+                                    【此功能暂未实现】
+                                    使用方法：
+                                    /mai rec
+                                    可以获取根据你的b50综合歌曲统计数据联合推算出的推荐上分歌曲。由于本游戏个人差较大，统计数据也存在一定偏差，仅供参考。
+                                    """;
+                        }
+                        case 8 -> {
+                            return """
+                                    【此功能暂未实现】
+                                    使用方法：
+                                    /mai ping
+                                    可以向舞萌DX的服务器发包进行连接测试获取当前服务器状态。
                                     """;
                         }
                         default -> {

@@ -72,7 +72,7 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
     }
 
     @Override
-    public boolean updateFromJson(List<JSONObject> list) {
+    public boolean updateChartData(List<JSONObject> list) {
         try {
             for (JSONObject object : list){
                 JSONObject basicInfo = object.getJSONObject("basic_info");
@@ -98,6 +98,26 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
                     wrapper.set("remaster_constant",constants.getFloat(4));
                 }
                 wrapper.set("data_list",charts.toString());
+                update(wrapper);
+            }
+            return true;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateStatList(JSONObject charts) {
+        try {
+            for (Map.Entry<String,Object> entry : charts.entrySet()){
+                String key = entry.getKey();
+                JSONArray values = (JSONArray) entry.getValue();
+                //System.out.println(values);
+                UpdateWrapper<MaimaiChartData> wrapper = new UpdateWrapper<>();
+                wrapper.eq("official_id",key);
+                wrapper.set("stat_list",values.toString());
                 update(wrapper);
             }
             return true;

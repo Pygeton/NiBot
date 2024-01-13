@@ -90,7 +90,7 @@ public class MaimaiSongDataServiceImpl extends ServiceImpl<MaimaiSongDataMapper,
     }
 
     @Override
-    public boolean updateFromJson(List<JSONObject> list) {
+    public boolean updateSongData(List<JSONObject> list) {
         try {
             for (JSONObject object : list){
                 JSONObject basicInfo = object.getJSONObject("basic_info");

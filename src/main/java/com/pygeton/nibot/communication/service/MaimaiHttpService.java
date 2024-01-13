@@ -1,6 +1,7 @@
 package com.pygeton.nibot.communication.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.mai.MaimaiPayload;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -10,6 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 @Service
@@ -83,6 +85,25 @@ public class MaimaiHttpService {
             ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 return Objects.requireNonNull(JSON.parseObject(response.getBody())).getJSONArray("records").toJavaList(JSONObject.class);
+            }
+            else return null;
+        }
+        catch (HttpClientErrorException e){
+            if(e.getStatusCode() == HttpStatus.BAD_REQUEST){
+                System.out.println(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+    public JSONObject getChartStats(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/maimaidxprober/chart_stats", HttpMethod.GET, entity, String.class);
+            if(response.getStatusCode() == HttpStatus.OK){
+                return Objects.requireNonNull(JSON.parseObject(response.getBody())).getJSONObject("charts");
             }
             else return null;
         }

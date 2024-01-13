@@ -12,7 +12,9 @@ public interface IMaimaiChartDataService extends IService<MaimaiChartData> {
 
     List<MaimaiChartData> getTitleAndOfficialIdList();
 
-    boolean updateFromJson(List<JSONObject> list);
+    boolean updateChartData(List<JSONObject> list);
+
+    boolean updateStatList(JSONObject charts);
 
     MaimaiChartData getChartData(int officialId);
 

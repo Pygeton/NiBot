@@ -61,7 +61,6 @@ public class Maimai extends Function implements IMessageEvent {
             //开发者功能
             case "init" -> initDatabase(message.getUserId());
             case "update" -> updateDatabase(message.getUserId());
-            case "test" -> test(message.getUserId());
             //常规功能
             case "b50" -> generateB50(message.getUserId());
             case "info" -> getSongInfo();
@@ -105,7 +104,7 @@ public class Maimai extends Function implements IMessageEvent {
         if(userId == 1944539440L){
             switch (rawMessage[2]){
                 case "chart" -> {
-                    boolean chartRet = maimaiChartDataService.updateFromJson(maimaiHttpService.getMusicData());
+                    boolean chartRet = maimaiChartDataService.updateChartData(maimaiHttpService.getMusicData());
                     if(chartRet){
                         sendMsgParams.addTextMessageSegment("谱面数据库更新完成！\n");
                     }
@@ -114,7 +113,7 @@ public class Maimai extends Function implements IMessageEvent {
                     }
                 }
                 case "song" -> {
-                    boolean songRet = maimaiSongDataService.updateFromJson(maimaiHttpService.getMusicData());
+                    boolean songRet = maimaiSongDataService.updateSongData(maimaiHttpService.getMusicData());
                     if(songRet){
                         sendMsgParams.addTextMessageSegment("歌曲数据库更新完成！\n");
                     }
@@ -131,20 +130,20 @@ public class Maimai extends Function implements IMessageEvent {
                         sendMsgParams.addTextMessageSegment("歌曲封面地址更新失败...\n");
                     }
                 }
+                case "stats" -> {
+                    boolean coverRet = maimaiChartDataService.updateStatList(maimaiHttpService.getChartStats());
+                    if(coverRet){
+                        sendMsgParams.addTextMessageSegment("歌曲统计数据更新完成！\n");
+                    }
+                    else {
+                        sendMsgParams.addTextMessageSegment("歌曲统计数据更新失败...\n");
+                    }
+                }
             }
         }
         else {
             sendMsgParams.addTextMessageSegment("你没有使用这个命令的权限喵");
         }
-        sendMessage();
-    }
-
-    //测试用模块
-    private void test(Long userId){
-        if(userId == 1944539440L){
-            sendMsgParams.addTextMessageSegment("这是一条测试信息喵");
-        }
-        else sendMsgParams.addTextMessageSegment("你没有使用这个命令的权限喵");
         sendMessage();
     }
 

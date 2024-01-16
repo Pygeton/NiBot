@@ -1,10 +1,13 @@
 package com.pygeton.nibot.repository.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pygeton.nibot.communication.entity.mai.MaimaiChartStat;
+import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.mapper.MaimaiChartDataMapper;
 import org.apache.poi.ss.usermodel.Cell;
@@ -114,10 +117,30 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
             for (Map.Entry<String,Object> entry : charts.entrySet()){
                 String key = entry.getKey();
                 JSONArray values = (JSONArray) entry.getValue();
-                //System.out.println(values);
+                JSONObject expStat = values.getJSONObject(2);
+                JSONObject masStat = values.getJSONObject(3);
+                JSONObject reMasStat = values.getJSONObject(4);
+                MaimaiChartStat chartStat = new MaimaiChartStat();
+                int expCount = expStat.getIntValue("cnt");
+                JSONArray expDist = expStat.getJSONArray("dist");
+                chartStat.setExpSSPlus(expDist.getDoubleValue(11) / expCount);
+                chartStat.setExpSSS(expDist.getDoubleValue(12) / expCount);
+                chartStat.setExpSSSPlus(expDist.getDoubleValue(13) / expCount);
+                int masCount = masStat.getIntValue("cnt");
+                JSONArray masDist = masStat.getJSONArray("dist");
+                chartStat.setMasSSPlus(masDist.getDoubleValue(11) / masCount);
+                chartStat.setMasSSS(masDist.getDoubleValue(12) / masCount);
+                chartStat.setMasSSSPlus(masDist.getDoubleValue(13) / masCount);
+                if(!reMasStat.isEmpty()){
+                    int reMasCount = reMasStat.getIntValue("cnt");
+                    JSONArray reMasDist = reMasStat.getJSONArray("dist");
+                    chartStat.setReMasSSPlus(reMasDist.getDoubleValue(11) / reMasCount);
+                    chartStat.setReMasSSS(reMasDist.getDoubleValue(12) / reMasCount);
+                    chartStat.setReMasSSSPlus(reMasDist.getDoubleValue(13) / reMasCount);
+                }
                 UpdateWrapper<MaimaiChartData> wrapper = new UpdateWrapper<>();
                 wrapper.eq("official_id",key);
-                wrapper.set("stat_list",values.toString());
+                wrapper.set("stat_list", JSON.toJSONString(chartStat));
                 update(wrapper);
             }
             return true;
@@ -141,7 +164,7 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
     }
 
     @Override
-    public List<MaimaiChartData> getChartDataList(String version) {
+    public List<MaimaiChartData> getChartDataListByVersion(String version) {
         QueryWrapper<MaimaiChartData> wrapper = new QueryWrapper<>();
         if(version.equals("ALL")){
             wrapper.eq("version","maimai")
@@ -167,5 +190,10 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
             wrapper.eq("version",version);
         }
         return list(wrapper);
+    }
+
+    @Override
+    public List<MaimaiRecChart> getRecChartList(float constant,boolean isNew) {
+        return baseMapper.getRecChartByConstant(constant,isNew);
     }
 }

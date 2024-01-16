@@ -1,6 +1,7 @@
 package com.pygeton.nibot.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import org.apache.ibatis.annotations.Select;
 
@@ -16,4 +17,12 @@ public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
 
     @Select("SELECT official_id FROM maimai_chart_data WHERE title_kana = #{titleKana}")
     List<Integer> getOfficialIdByTitleKana(String titleKana);
+
+    @Select("SELECT official_id,title,type,'Expert' AS difficulty,expert_constant AS constant,stat_list FROM maimai_chart_data,maimai_song_data " +
+            "WHERE expert_constant > #{value} - 0.01 AND expert_constant < #{value} + 0.01 AND is_new = #{isNew} AND maimai_chart_data.title_kana = maimai_song_data.title_kana UNION ALL " +
+            "SELECT official_id,title,type,'Master' AS difficulty,master_constant AS constant,stat_list FROM maimai_chart_data,maimai_song_data " +
+            "WHERE master_constant > #{value} - 0.01 AND master_constant < #{value} + 0.01 AND is_new = #{isNew} AND maimai_chart_data.title_kana = maimai_song_data.title_kana UNION ALL " +
+            "SELECT official_id,title,type,'Re:Master' AS difficulty,remaster_constant AS constant,stat_list FROM maimai_chart_data,maimai_song_data " +
+            "WHERE remaster_constant > #{value} - 0.01 AND remaster_constant < #{value} + 0.01 AND is_new = #{isNew} AND maimai_chart_data.title_kana = maimai_song_data.title_kana")
+    List<MaimaiRecChart> getRecChartByConstant(float value,boolean isNew);
 }

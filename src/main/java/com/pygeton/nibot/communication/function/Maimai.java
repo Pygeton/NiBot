@@ -4,16 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.Message;
-import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
-import com.pygeton.nibot.communication.entity.mai.MaimaiDifficulty;
-import com.pygeton.nibot.communication.entity.mai.MaimaiNoteInfo;
-import com.pygeton.nibot.communication.entity.mai.MaimaiVersion;
+import com.pygeton.nibot.communication.entity.mai.*;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.entity.MaimaiSongData;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
+import com.pygeton.nibot.repository.service.MaimaiRatingDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiSongDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +27,9 @@ public class Maimai extends Function implements IMessageEvent {
 
     @Autowired
     MaimaiChartDataServiceImpl maimaiChartDataService;
+
+    @Autowired
+    MaimaiRatingDataServiceImpl maimaiRatingDataService;
 
     @Autowired
     MaimaiHttpService maimaiHttpService;
@@ -68,6 +69,7 @@ public class Maimai extends Function implements IMessageEvent {
             case "add" -> addAilaForSong();
             case "line" -> calculateScoreLine();
             case "plate" -> getPlateProgress(message.getUserId());
+            case "rec" -> getRecommendSong(message.getUserId());
         }
     }
 
@@ -416,7 +418,7 @@ public class Maimai extends Function implements IMessageEvent {
             }
             else {
                 List<JSONObject> records = maimaiHttpService.getPlayerRecords(userId);
-                List<MaimaiChartData> chartDataList = maimaiChartDataService.getChartDataList(version.getVersion());
+                List<MaimaiChartData> chartDataList = maimaiChartDataService.getChartDataListByVersion(version.getVersion());
                 int total = chartDataList.size();
                 Map<String, List<?>> result;
                 switch (rawMessage[2].charAt(1)){
@@ -559,5 +561,78 @@ public class Maimai extends Function implements IMessageEvent {
         result.put("master",incompleteMasterList);
         result.put("remaster",incompleteReMasterList);
         return result;
+    }
+
+    private void getRecommendSong(Long userId){
+        Map<String, List<JSONObject>> map = maimaiHttpService.getB50(userId);
+        if(map.containsKey("400")){
+            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 6>_<");
+        }
+        else if(map.containsKey("403")){
+            sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
+        }
+        else {
+            List<MaimaiChartInfo> b35List = new ArrayList<>();
+            List<MaimaiChartInfo> b15List = new ArrayList<>();
+            for(JSONObject object : map.get("sd")){
+                b35List.add(object.toJavaObject(MaimaiChartInfo.class));
+            }
+            for(JSONObject object : map.get("dx")){
+                b15List.add(object.toJavaObject(MaimaiChartInfo.class));
+            }
+            getRecommendChart(b35List,false);
+            getRecommendChart(b15List,true);
+        }
+        sendMessage();
+    }
+
+    private List<MaimaiChartData> getRecommendChart(List<MaimaiChartInfo> originList,boolean isNew){
+        Optional<Integer> minRaOpt = originList.stream().map(MaimaiChartInfo::getRa).filter(Objects::nonNull).min(Integer::compare);
+        int minRa = minRaOpt.orElse(0);
+        List<MaimaiRating> validList = maimaiRatingDataService.getRatingList(minRa);
+        validList.sort(Comparator.comparing(MaimaiRating::getRating));
+        List<MaimaiRating> SSPlusRating = new ArrayList<>();
+        List<MaimaiRating> SSSRating = new ArrayList<>();
+        List<MaimaiRating> SSSPlusRating = new ArrayList<>();
+        for(MaimaiRating rating : validList){
+            switch (rating.getGrade()){
+                case "SS+(MIN)" -> SSPlusRating.add(rating);
+                case "SSS(MIN)" -> SSSRating.add(rating);
+                case "SSS+" -> SSSPlusRating.add(rating);
+            }
+        }
+        List<MaimaiRecChart> SSPlusRec = maimaiChartDataService.getRecChartList(SSPlusRating.get(0).getLevel(),isNew);
+        List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),isNew);
+        SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),isNew));
+        List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),isNew);
+        SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),isNew));
+        SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),isNew));
+        for(MaimaiRecChart chart : SSPlusRec){
+            System.out.println("------SS+------");
+            System.out.println(chart);
+        }
+        System.out.println();
+        for(MaimaiRecChart chart : SSSRec){
+            System.out.println("------SSS------");
+            System.out.println(chart);
+        }
+        System.out.println();
+        for(MaimaiRecChart chart : SSSPlusRec){
+            System.out.println("------SSS+------");
+            System.out.println(chart);
+        }
+        /*
+        for (MaimaiRating maimaiRating : SSPlusRating){
+            System.out.println(maimaiRating);
+        }
+        for (MaimaiRating maimaiRating : SSSRating){
+            System.out.println(maimaiRating);
+        }
+        for (MaimaiRating maimaiRating : SSSPlusRating){
+            System.out.println(maimaiRating);
+        }*/
+        List<MaimaiChartData> recommendList = new ArrayList<>();
+
+        return recommendList;
     }
 }

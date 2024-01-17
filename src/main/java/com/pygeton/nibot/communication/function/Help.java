@@ -117,8 +117,8 @@ public class Help extends Function implements IMessageEvent {
                         4.add 为歌曲添加别名
                         5.line 误差分析和分数线计算
                         6.plate 查询牌子进度
-                        7.rec 上分歌曲推荐（暂未实现）
-                        8.ping 测试服务器状态（暂未实现）
+                        7.rec 上分歌曲推荐
+                        8.status 获取服务器状态（暂未实现）
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -174,18 +174,17 @@ public class Help extends Function implements IMessageEvent {
                         }
                         case 7 -> {
                             return """
-                                    【此功能暂未实现】
                                     使用方法：
                                     /mai rec
                                     可以获取根据你的b50综合歌曲统计数据联合推算出的推荐上分歌曲。由于本游戏个人差较大，统计数据也存在一定偏差，仅供参考。
+                                    注意：当玩家的rating达到15500以上时，将不会显示SS+评级的歌曲推荐。
                                     """;
                         }
                         case 8 -> {
                             return """
-                                    【此功能暂未实现】
                                     使用方法：
-                                    /mai ping
-                                    可以向舞萌DX的服务器发包进行连接测试获取当前服务器状态。
+                                    /mai status
+                                    可以查看当前的华立服务器状态。数据来源于https://status.naominet.live/status/wahlap。
                                     """;
                         }
                         default -> {

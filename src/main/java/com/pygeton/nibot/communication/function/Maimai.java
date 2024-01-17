@@ -13,9 +13,18 @@ import com.pygeton.nibot.repository.entity.MaimaiSongData;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiRatingDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiSongDataServiceImpl;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -70,6 +79,7 @@ public class Maimai extends Function implements IMessageEvent {
             case "line" -> calculateScoreLine();
             case "plate" -> getPlateProgress(message.getUserId());
             case "rec" -> getRecommendSong(message.getUserId());
+            case "status" -> getServerStatus(message.getMessageId());
         }
     }
 
@@ -580,59 +590,156 @@ public class Maimai extends Function implements IMessageEvent {
             for(JSONObject object : map.get("dx")){
                 b15List.add(object.toJavaObject(MaimaiChartInfo.class));
             }
-            getRecommendChart(b35List,false);
-            getRecommendChart(b15List,true);
+            boolean isAdvanced = map.get("userdata").get(0).getIntValue("rating") > 15500;
+            List<MaimaiRecChart> b35RecChartList = getRecommendChart(b35List,false,isAdvanced);
+            List<MaimaiRecChart> b15RecChartList = getRecommendChart(b15List,true,isAdvanced);
+            StringBuilder builder = new StringBuilder();
+            builder.append("镍酱认为你可以试一下推推这些歌 (≧▽≦)\n");
+            builder.append("可以结合info功能快速查看谱面信息哦~\n");
+            builder.append("------------B35------------\n");
+            appendRecInfo(b35RecChartList,isAdvanced,builder);
+            builder.append("------------B15------------\n");
+            appendRecInfo(b15RecChartList,isAdvanced,builder);
+            sendMsgParams.addTextMessageSegment(builder.toString());
         }
         sendMessage();
     }
 
-    private List<MaimaiChartData> getRecommendChart(List<MaimaiChartInfo> originList,boolean isNew){
-        Optional<Integer> minRaOpt = originList.stream().map(MaimaiChartInfo::getRa).filter(Objects::nonNull).min(Integer::compare);
-        int minRa = minRaOpt.orElse(0);
-        List<MaimaiRating> validList = maimaiRatingDataService.getRatingList(minRa);
-        validList.sort(Comparator.comparing(MaimaiRating::getRating));
-        List<MaimaiRating> SSPlusRating = new ArrayList<>();
-        List<MaimaiRating> SSSRating = new ArrayList<>();
-        List<MaimaiRating> SSSPlusRating = new ArrayList<>();
-        for(MaimaiRating rating : validList){
-            switch (rating.getGrade()){
-                case "SS+(MIN)" -> SSPlusRating.add(rating);
-                case "SSS(MIN)" -> SSSRating.add(rating);
-                case "SSS+" -> SSSPlusRating.add(rating);
+    private List<MaimaiRecChart> getRecommendChart(List<MaimaiChartInfo> originList,boolean isNew,boolean isAdvanced){
+        try {
+            Optional<Integer> minRaOpt = originList.stream().map(MaimaiChartInfo::getRa).filter(Objects::nonNull).min(Integer::compare);
+            int minRa = minRaOpt.orElse(0);
+            List<MaimaiRating> validList = maimaiRatingDataService.getRatingList(minRa);
+            validList.sort(Comparator.comparing(MaimaiRating::getRating));
+            List<MaimaiRating> SSPlusRating = new ArrayList<>();
+            List<MaimaiRating> SSSRating = new ArrayList<>();
+            List<MaimaiRating> SSSPlusRating = new ArrayList<>();
+            for(MaimaiRating rating : validList){
+                switch (rating.getGrade()){
+                    case "SS+(MIN)" -> SSPlusRating.add(rating);
+                    case "SSS(MIN)" -> SSSRating.add(rating);
+                    case "SSS+" -> SSSPlusRating.add(rating);
+                }
+            }
+            List<MaimaiRecChart> allRec = new ArrayList<>();
+
+            if(!isAdvanced){
+                if(!SSPlusRating.isEmpty()){
+                    List<MaimaiRecChart> SSPlusRec = maimaiChartDataService.getRecChartList(SSPlusRating.get(0).getLevel(),isNew);
+                    List<MaimaiRecChart> SSPlusRemove = new ArrayList<>();
+                    for(MaimaiRecChart chart : SSPlusRec){
+                        chart.setGradeAndProportion("SS+");
+                        for (MaimaiChartInfo info : originList) {
+                            if (info.getSongId().equals(chart.getOfficialId())) {
+                                SSPlusRemove.add(chart);
+                            }
+                        }
+                    }
+                    SSPlusRec.removeAll(SSPlusRemove);
+                    SSPlusRec.sort(Comparator.comparing(MaimaiRecChart::getProportion).reversed());
+                    if(!SSPlusRec.isEmpty()){
+                        allRec.add(SSPlusRec.get(0));
+                    }
+                }
+            }
+
+            List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),isNew);
+            SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),isNew));
+            List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),isNew);
+            SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),isNew));
+            SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),isNew));
+
+            if(!SSSRating.isEmpty()){
+                List<MaimaiRecChart> SSSRemove = new ArrayList<>();
+                for(MaimaiRecChart chart : SSSRec){
+                    chart.setGradeAndProportion("SSS");
+                    for (MaimaiChartInfo info : originList) {
+                        if (info.getSongId().equals(chart.getOfficialId())) {
+                            SSSRemove.add(chart);
+                        }
+                    }
+                }
+                SSSRec.sort(Comparator.comparing(MaimaiRecChart::getProportion).reversed());
+                SSSRec.removeAll(SSSRemove);
+                for (int i = 0;i < SSSRec.size();i++){
+                    if(i == 2) break;
+                    allRec.add(SSSRec.get(i));
+                }
+            }
+
+            if(!SSSPlusRating.isEmpty()){
+                List<MaimaiRecChart> SSSPlusRemove = new ArrayList<>();
+                for(MaimaiRecChart chart : SSSPlusRec){
+                    chart.setGradeAndProportion("SSS+");
+                    for (MaimaiChartInfo info : originList) {
+                        if (info.getSongId().equals(chart.getOfficialId())) {
+                            SSSPlusRemove.add(chart);
+                        }
+                    }
+                }
+                SSSPlusRec.sort(Comparator.comparing(MaimaiRecChart::getProportion).reversed());
+                SSSPlusRec.removeAll(SSSPlusRemove);
+                for (int i = 0;i < SSSPlusRec.size();i++){
+                    if(i == 3) break;
+                    allRec.add(SSSPlusRec.get(i));
+                }
+            }
+
+
+            return allRec;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void appendRecInfo(List<MaimaiRecChart> recChartList,boolean isAdvanced,StringBuilder builder){
+        MaimaiRecChart recChart;
+        for (MaimaiRecChart maimaiRecChart : recChartList) {
+            recChart = maimaiRecChart;
+            if (!(isAdvanced && recChart.getGrade().equals("SS+"))) {
+                builder.append(recChart.getOfficialId()).append(".").append(recChart.getTitle()).append("(").append(recChart.getType()).append(") ").
+                        append(recChart.getDifficulty()).append("(").append(recChart.getConstant()).append(") ").append(recChart.getGrade()).append("\n");
             }
         }
-        List<MaimaiRecChart> SSPlusRec = maimaiChartDataService.getRecChartList(SSPlusRating.get(0).getLevel(),isNew);
-        List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),isNew);
-        SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),isNew));
-        List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),isNew);
-        SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),isNew));
-        SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),isNew));
-        for(MaimaiRecChart chart : SSPlusRec){
-            System.out.println("------SS+------");
-            System.out.println(chart);
-        }
-        System.out.println();
-        for(MaimaiRecChart chart : SSSRec){
-            System.out.println("------SSS------");
-            System.out.println(chart);
-        }
-        System.out.println();
-        for(MaimaiRecChart chart : SSSPlusRec){
-            System.out.println("------SSS+------");
-            System.out.println(chart);
-        }
-        /*
-        for (MaimaiRating maimaiRating : SSPlusRating){
-            System.out.println(maimaiRating);
-        }
-        for (MaimaiRating maimaiRating : SSSRating){
-            System.out.println(maimaiRating);
-        }
-        for (MaimaiRating maimaiRating : SSSPlusRating){
-            System.out.println(maimaiRating);
-        }*/
-        List<MaimaiChartData> recommendList = new ArrayList<>();
+    }
 
-        return recommendList;
+    private void getServerStatus(Long messageId){
+        System.setProperty("webdriver.chrome.driver","D:/IDE-Enviroment/chromedriver-win64/chromedriver.exe");
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        WebDriver driver = new ChromeDriver(options);
+        driver.get("https://status.naominet.live/status/wahlap");
+
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return !!document.querySelector('.main .mb-4')"));
+        }
+        catch (TimeoutException e){
+            sendMsgParams.addReplyMessageSegment(Math.toIntExact(messageId));
+            sendMsgParams.addTextMessageSegment("请求超时，请再试一次喵>_<");
+            sendMessage();
+            return;
+        }
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        int width = Integer.parseInt(js.executeScript("return document.body.scrollWidth").toString());
+        int height = Integer.parseInt(js.executeScript("return document.body.scrollHeight").toString());
+        driver.manage().window().setSize(new Dimension(width,height));
+
+        String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+        String fileName = "mai-status "+ date + ".png";
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        try {
+            FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Maimai/Status" + fileName));
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        String path = "file:///sdcard/Pictures/Maimai/Status" + fileName;
+        driver.quit();
+        sendMsgParams.addImageMessageSegment(path);
+        sendMessage();
     }
 }

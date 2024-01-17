@@ -101,6 +101,7 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
                     wrapper.set("remaster_constant",constants.getFloat(4));
                 }
                 wrapper.set("data_list",charts.toString());
+                wrapper.set("stat_list",null);
                 update(wrapper);
             }
             return true;

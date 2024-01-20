@@ -148,8 +148,6 @@ public class Mahjong extends Function implements IMessageEvent {
             }
             driver.quit();
         }
-
-
     }
 
     private WebDriver initDriver(String url, Mode mode){
@@ -159,8 +157,15 @@ public class Mahjong extends Function implements IMessageEvent {
         WebDriver driver = new ChromeDriver(options);
         driver.get(url);
         if(mode == Mode.RATE){
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("image_loaded")));
+            try {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.id("image_loaded")));
+            }
+            catch (TimeoutException e){
+                sendMsgParams.addTextMessageSegment("请求超时，请再试一次喵>_<");
+                sendMessage();
+                return null;
+            }
         }
         return driver;
     }

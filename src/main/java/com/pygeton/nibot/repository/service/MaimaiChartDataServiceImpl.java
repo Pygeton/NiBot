@@ -197,4 +197,9 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
     public List<MaimaiRecChart> getRecChartList(float constant,boolean isNew) {
         return baseMapper.getRecChartByConstant(constant,isNew);
     }
+
+    @Override
+    public String getCoverUrl(int officialId) {
+        return baseMapper.getCoverUrlByOfficialId(officialId);
+    }
 }

@@ -1,6 +1,6 @@
 package com.pygeton.nibot.communication.task;
 
-import com.pygeton.nibot.communication.websocket.Client;
+import com.pygeton.nibot.communication.websocket.WebSocketClient;
 
 public class ReconnectTask implements Runnable{
 
@@ -8,7 +8,7 @@ public class ReconnectTask implements Runnable{
     public void run() {
         while (true){
             System.out.println("开始请求重连");
-            if(Client.connect("ws://127.0.0.1:9099")){
+            if(WebSocketClient.connect()){
                 break;
             }
             else {

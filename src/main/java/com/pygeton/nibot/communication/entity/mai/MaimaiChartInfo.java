@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MaimaiChartInfo {
 
+    private String coverUrl;
     private String title;
     private Integer songId;
     private String type;//SD\DX

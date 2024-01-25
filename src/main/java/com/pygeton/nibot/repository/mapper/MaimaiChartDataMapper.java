@@ -25,4 +25,7 @@ public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
             "SELECT official_id,title,type,'Re:Master' AS difficulty,remaster_constant AS constant,stat_list FROM maimai_chart_data,maimai_song_data " +
             "WHERE remaster_constant > #{value} - 0.01 AND remaster_constant < #{value} + 0.01 AND is_new = #{isNew} AND maimai_chart_data.title_kana = maimai_song_data.title_kana")
     List<MaimaiRecChart> getRecChartByConstant(float value,boolean isNew);
+
+    @Select("SELECT cover_url FROM maimai_chart_data,maimai_song_data WHERE official_id = #{officialId} AND maimai_chart_data.title_kana = maimai_song_data.title_kana")
+    String getCoverUrlByOfficialId(int officialId);
 }

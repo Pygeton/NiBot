@@ -1,7 +1,6 @@
 package com.pygeton.nibot.communication.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.pygeton.nibot.communication.entity.mai.MaimaiPayload;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -11,13 +10,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 @Service
 public class MaimaiHttpService {
 
     private final RestTemplate restTemplate;
+    private final String baseUrl = "https://www.diving-fish.com";
 
     public MaimaiHttpService(RestTemplateBuilder builder){
         this.restTemplate = builder.build();
@@ -30,7 +29,7 @@ public class MaimaiHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(payload),headers);
         try {
-            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/maimaidxprober/query/player", HttpMethod.POST, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange( baseUrl + "/api/maimaidxprober/query/player", HttpMethod.POST, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 JSONObject object = JSONObject.parseObject(response.getBody());
                 List<JSONObject> userdata = new ArrayList<>();
@@ -61,7 +60,7 @@ public class MaimaiHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/maimaidxprober/music_data", HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/api/maimaidxprober/music_data", HttpMethod.GET, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 return Objects.requireNonNull(JSON.parseArray(response.getBody())).toJavaList(JSONObject.class);
             }
@@ -80,7 +79,7 @@ public class MaimaiHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Developer-Token", "xmIkbz28USlL6CgtZ5BAjJFwHsv91YNc");
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://www.diving-fish.com/api/maimaidxprober/dev/player/records").queryParam("qq",userId);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/maimaidxprober/dev/player/records").queryParam("qq",userId);
         try {
             ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
@@ -101,7 +100,7 @@ public class MaimaiHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/maimaidxprober/chart_stats", HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/api/maimaidxprober/chart_stats", HttpMethod.GET, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 return Objects.requireNonNull(JSON.parseObject(response.getBody())).getJSONObject("charts");
             }

@@ -16,26 +16,27 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @ClientEndpoint
-public class Client {
+public class WebSocketClient {
 
     private Session session;
-    private static Client INSTANCE;
+    private static WebSocketClient INSTANCE;
+    private static final String URL = "ws://127.0.0.1:9099";
     private static IResponseHandler responseHandler;
     private volatile static boolean connecting = false;
     private volatile static boolean responding = false;
 
-    public Client(String url) throws DeploymentException, IOException {
-        session = ContainerProvider.getWebSocketContainer().connectToServer(this, URI.create(url));
+    public WebSocketClient() throws DeploymentException, IOException {
+        session = ContainerProvider.getWebSocketContainer().connectToServer(this, URI.create(URL));
     }
 
-    public synchronized static boolean connect(String url){
+    public synchronized static boolean connect(){
         try {
-            INSTANCE = new Client(url);
+            INSTANCE = new WebSocketClient();
             connecting = false;
             return true;
         }
         catch (Exception e){
-            System.out.println("连接失败");
+            System.out.println("OpenShamrock连接失败");
             e.printStackTrace();
             return false;
         }
@@ -54,13 +55,12 @@ public class Client {
 
     @OnOpen
     public void onOpen(Session session){
-        System.out.println("连接成功");
+        System.out.println("OpenShamrock连接成功");
     }
 
     @OnMessage
     public void onMessage(String json){
         if(responding){
-            //超时响应机制可能存在问题导致消息重叠，需要修复
             ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
             Runnable task = () -> {
@@ -99,24 +99,26 @@ public class Client {
                     }
                     case "meta_event" -> hideFlag = true;
                 }
-                if (!hideFlag) System.out.println(json);
+                if (!hideFlag) {
+                    System.out.println(json);
+                }
             }
         }
     }
 
     @OnClose
     public void onClose(Session session){
-        System.out.println("连接关闭");
+        System.out.println("OpenShamrock连接关闭");
         reconnect();
     }
 
     @OnError
     public void onError(Session session,Throwable throwable){
-        System.out.println("连接异常：" + throwable.getMessage());
+        System.out.println("OpenShamrock连接异常：" + throwable.getMessage());
     }
 
     public static void sendMessage(String json){
-        Client.INSTANCE.session.getAsyncRemote().sendText(json);
+        WebSocketClient.INSTANCE.session.getAsyncRemote().sendText(json);
     }
 
     public static void setResponseHandler(IResponseHandler handler){

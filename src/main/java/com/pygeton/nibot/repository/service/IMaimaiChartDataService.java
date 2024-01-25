@@ -25,4 +25,6 @@ public interface IMaimaiChartDataService extends IService<MaimaiChartData> {
 
     List<MaimaiRecChart> getRecChartList(float constant,boolean isNew);
 
+    String getCoverUrl(int officialId);
+
 }

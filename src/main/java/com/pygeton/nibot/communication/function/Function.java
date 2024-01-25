@@ -9,7 +9,7 @@ import com.pygeton.nibot.communication.entity.params.GetMsgParams;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.entity.params.SetGroupBanParams;
 import com.pygeton.nibot.communication.event.IResponseHandler;
-import com.pygeton.nibot.communication.websocket.Client;
+import com.pygeton.nibot.communication.websocket.WebSocketClient;
 
 public abstract class Function {
 
@@ -33,22 +33,22 @@ public abstract class Function {
     public void sendMessage(){
         Request<SendMsgParams> request = new Request<>("send_msg", sendMsgParams);
         System.out.println(JSONObject.toJSONString(request, getConfig()));
-        Client.sendMessage(JSONObject.toJSONString(request, getConfig()));
+        WebSocketClient.sendMessage(JSONObject.toJSONString(request, getConfig()));
     }
 
     public void getMessage(IResponseHandler handler){
         Request<GetMsgParams> request = new Request<>("get_msg", getMsgParams);
-        Client.setResponding(true);
-        Client.setResponseHandler(handler);
+        WebSocketClient.setResponding(true);
+        WebSocketClient.setResponseHandler(handler);
         System.out.println(JSONObject.toJSONString(request, getConfig()));
-        Client.sendMessage(JSONObject.toJSONString(request, getConfig()));
+        WebSocketClient.sendMessage(JSONObject.toJSONString(request, getConfig()));
     }
 
     public void setGroupBan(IResponseHandler handler){
         Request<SetGroupBanParams> request = new Request<>("set_group_ban", setGroupBanParams);
-        Client.setResponding(true);
-        Client.setResponseHandler(handler);
+        WebSocketClient.setResponding(true);
+        WebSocketClient.setResponseHandler(handler);
         System.out.println(JSONObject.toJSONString(request, getConfig()));
-        Client.sendMessage(JSONObject.toJSONString(request, getConfig()));
+        WebSocketClient.sendMessage(JSONObject.toJSONString(request, getConfig()));
     }
 }

@@ -8,6 +8,7 @@ import com.pygeton.nibot.communication.entity.mai.*;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
+import com.pygeton.nibot.communication.websocket.WebSocketServer;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.entity.MaimaiSongData;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
@@ -160,34 +163,62 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void generateB50(Long userId){
-        Map<String, List<JSONObject>> map = maimaiHttpService.getB50(userId);
-        if(map.containsKey("400")){
-            sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 6>_<");
-        }
-        else if(map.containsKey("403")){
-            sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
-        }
-        else {
-            String nickname = map.get("userdata").get(0).getString("nickname");
-            int rating = map.get("userdata").get(0).getIntValue("rating");
-            List<MaimaiChartInfo> b35List = new ArrayList<>();
-            List<MaimaiChartInfo> b15List = new ArrayList<>();
-            for(JSONObject object : map.get("sd")){
-                b35List.add(object.toJavaObject(MaimaiChartInfo.class));
+        try {
+            Map<String, List<JSONObject>> map = maimaiHttpService.getB50(userId);
+            if(map.containsKey("400")){
+                sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 6>_<");
             }
-            for(JSONObject object : map.get("dx")){
-                b15List.add(object.toJavaObject(MaimaiChartInfo.class));
+            else if(map.containsKey("403")){
+                sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
             }
-            StringBuilder builder = new StringBuilder(nickname + "【Rating:" + rating + "】的B50分数列表如下：\n");
-            builder.append("------------B35------------\n");
-            appendChartInfo(builder,b35List);
-            builder.append("------------B15------------\n");
-            appendChartInfo(builder,b15List);
-            sendMsgParams.addTextMessageSegment(builder.toString());
+            else {
+                String nickname = map.get("userdata").get(0).getString("nickname");
+                int rating = map.get("userdata").get(0).getIntValue("rating");
+                List<MaimaiChartInfo> b35List = new ArrayList<>();
+                List<MaimaiChartInfo> b15List = new ArrayList<>();
+                for(JSONObject object : map.get("sd")){
+                    b35List.add(object.toJavaObject(MaimaiChartInfo.class));
+                }
+                for(JSONObject object : map.get("dx")){
+                    b15List.add(object.toJavaObject(MaimaiChartInfo.class));
+                }
+
+                //
+                MaimaiBest50 best50 = new MaimaiBest50(map);
+                for(MaimaiChartInfo chartInfo : best50.getB35List()){
+                    int id = chartInfo.getSongId();
+                    chartInfo.setCoverUrl(getImageBase64String("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id)));
+                }
+                for(MaimaiChartInfo chartInfo : best50.getB15List()){
+                    int id = chartInfo.getSongId();
+                    chartInfo.setCoverUrl(getImageBase64String("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id)));
+                }
+                //System.out.println(JSON.toJSONString(best50));
+                //server.sendMessage(JSON.toJSONString(best50));
+
+                StringBuilder builder = new StringBuilder(nickname + "【Rating:" + rating + "】的B50分数列表如下：\n");
+                builder.append("------------B35------------\n");
+                appendChartInfo(builder,b35List);
+                builder.append("------------B15------------\n");
+                appendChartInfo(builder,b15List);
+                sendMsgParams.addTextMessageSegment(builder.toString());
+            }
         }
-        sendMessage();
+        catch (Exception e){
+            e.printStackTrace();
+            sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
+        }
+        finally {
+            sendMessage();
+        }
     }
 
+    private String getImageBase64String(String imagePath) throws IOException {
+        byte[] fileContent = Files.readAllBytes(Paths.get(imagePath));
+        return Base64.getEncoder().encodeToString(fileContent);
+    }
+
+    @Deprecated
     private void appendChartInfo(StringBuilder builder,List<MaimaiChartInfo> list){
         int i = 1;
         for(MaimaiChartInfo chartInfo : list){
@@ -732,12 +763,12 @@ public class Maimai extends Function implements IMessageEvent {
         String fileName = "mai-status "+ date + ".png";
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         try {
-            FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Maimai/Status" + fileName));
+            FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Maimai/Status/" + fileName));
         }
         catch (IOException e){
             e.printStackTrace();
         }
-        String path = "file:///sdcard/Pictures/Maimai/Status" + fileName;
+        String path = "file:///sdcard/Pictures/Maimai/Status/" + fileName;
         driver.quit();
         sendMsgParams.addImageMessageSegment(path);
         sendMessage();

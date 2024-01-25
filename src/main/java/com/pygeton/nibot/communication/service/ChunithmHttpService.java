@@ -15,6 +15,7 @@ import java.util.*;
 public class ChunithmHttpService {
 
     private final RestTemplate restTemplate;
+    private final String baseUrl = "https://www.diving-fish.com";
 
     public ChunithmHttpService(RestTemplateBuilder builder){
         this.restTemplate = builder.build();
@@ -42,7 +43,7 @@ public class ChunithmHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/chunithmprober/music_data", HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/api/chunithmprober/music_data", HttpMethod.GET, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 return Objects.requireNonNull(JSON.parseArray(response.getBody())).toJavaList(JSONObject.class);
             }
@@ -61,7 +62,7 @@ public class ChunithmHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(payload),headers);
         try {
-            ResponseEntity<String> response = restTemplate.exchange("https://www.diving-fish.com/api/chunithmprober/query/player", HttpMethod.POST, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/api/chunithmprober/query/player", HttpMethod.POST, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 JSONObject object = JSONObject.parseObject(response.getBody());
                 List<JSONObject> userdata = new ArrayList<>();

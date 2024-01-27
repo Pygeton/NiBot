@@ -129,7 +129,7 @@ public class Help extends Function implements IMessageEvent {
                             return """
                                     使用方法：
                                     /mai b50
-                                    可以获得一张带有你的b50信息的图片(目前暂时仅支持纯文本)，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    可以获得一张带有你的b50信息的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
                                     """;
                         }
                         case 2 -> {

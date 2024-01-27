@@ -8,7 +8,7 @@ import com.pygeton.nibot.communication.entity.mai.*;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
-import com.pygeton.nibot.communication.websocket.WebSocketServer;
+import com.pygeton.nibot.graphic.ImageGenerator;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.entity.MaimaiSongData;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
@@ -22,10 +22,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
@@ -45,6 +44,9 @@ public class Maimai extends Function implements IMessageEvent {
 
     @Autowired
     MaimaiHttpService maimaiHttpService;
+
+    @Autowired
+    ImageGenerator imageGenerator;
 
     @Override
     public int weight() {
@@ -172,8 +174,6 @@ public class Maimai extends Function implements IMessageEvent {
                 sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
             }
             else {
-                String nickname = map.get("userdata").get(0).getString("nickname");
-                int rating = map.get("userdata").get(0).getIntValue("rating");
                 List<MaimaiChartInfo> b35List = new ArrayList<>();
                 List<MaimaiChartInfo> b15List = new ArrayList<>();
                 for(JSONObject object : map.get("sd")){
@@ -182,26 +182,24 @@ public class Maimai extends Function implements IMessageEvent {
                 for(JSONObject object : map.get("dx")){
                     b15List.add(object.toJavaObject(MaimaiChartInfo.class));
                 }
-
-                //
                 MaimaiBest50 best50 = new MaimaiBest50(map);
+                best50.setNickname(map.get("userdata").get(0).getString("nickname"));
+                best50.setRating(map.get("userdata").get(0).getIntValue("rating"));
+                best50.setB35List(b35List);
+                best50.setB15List(b15List);
                 for(MaimaiChartInfo chartInfo : best50.getB35List()){
                     int id = chartInfo.getSongId();
-                    chartInfo.setCoverUrl(getImageBase64String("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id)));
+                    chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id));
                 }
                 for(MaimaiChartInfo chartInfo : best50.getB15List()){
                     int id = chartInfo.getSongId();
-                    chartInfo.setCoverUrl(getImageBase64String("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id)));
+                    chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id));
                 }
-                //System.out.println(JSON.toJSONString(best50));
-                //server.sendMessage(JSON.toJSONString(best50));
-
-                StringBuilder builder = new StringBuilder(nickname + "【Rating:" + rating + "】的B50分数列表如下：\n");
-                builder.append("------------B35------------\n");
-                appendChartInfo(builder,b35List);
-                builder.append("------------B15------------\n");
-                appendChartInfo(builder,b15List);
-                sendMsgParams.addTextMessageSegment(builder.toString());
+                String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+                String fileName = "mai-b50-" + userId + " " + date + ".png";
+                String path = "file:///sdcard/Pictures/Maimai/Best50/" + fileName;
+                ImageIO.write(imageGenerator.generateB50Image(best50), "png", new File("D:/Documents/leidian9/Pictures/Maimai/Best50/" + fileName));
+                sendMsgParams.addImageMessageSegment(path);
             }
         }
         catch (Exception e){
@@ -211,11 +209,6 @@ public class Maimai extends Function implements IMessageEvent {
         finally {
             sendMessage();
         }
-    }
-
-    private String getImageBase64String(String imagePath) throws IOException {
-        byte[] fileContent = Files.readAllBytes(Paths.get(imagePath));
-        return Base64.getEncoder().encodeToString(fileContent);
     }
 
     @Deprecated

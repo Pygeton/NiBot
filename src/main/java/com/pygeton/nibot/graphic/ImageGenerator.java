@@ -2,6 +2,7 @@ package com.pygeton.nibot.graphic;
 
 import com.pygeton.nibot.communication.entity.mai.MaimaiBest50;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
+import com.pygeton.nibot.communication.entity.mai.MaimaiNoteInfo;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -21,6 +22,7 @@ public class ImageGenerator {
     static BufferedImage STD_ICON,DX_ICON;
     static BufferedImage FC_ICON,FCP_ICON,AP_ICON,APP_ICON;
     static BufferedImage FS_ICON,FSP_ICON,FSD_ICON,FSDP_ICON;
+    static BufferedImage BASE_BSC,BASE_ADV,BASE_EXP,BASE_MST,BASE_MST_RE;
 
     public ImageGenerator() {
         try {
@@ -60,6 +62,11 @@ public class ImageGenerator {
             FSP_ICON = ImageIO.read(getResource("mai/pic/UI_MSS_MBase_Icon_FSp.png"));
             FSD_ICON = ImageIO.read(getResource("mai/pic/UI_MSS_MBase_Icon_FSD.png"));
             FSDP_ICON = ImageIO.read(getResource("mai/pic/UI_MSS_MBase_Icon_FSDp.png"));
+            BASE_BSC = ImageIO.read(getResource("mai/pic/UI_TST_MBase_BSC.png"));
+            BASE_ADV = ImageIO.read(getResource("mai/pic/UI_TST_MBase_ADV.png"));
+            BASE_EXP = ImageIO.read(getResource("mai/pic/UI_TST_MBase_EXP.png"));
+            BASE_MST = ImageIO.read(getResource("mai/pic/UI_TST_MBase_MST.png"));
+            BASE_MST_RE = ImageIO.read(getResource("mai/pic/UI_TST_MBase_MST_Re.png"));
         }
         catch (IOException e){
             e.printStackTrace();
@@ -80,11 +87,10 @@ public class ImageGenerator {
         //绘制头部装饰组件
         graphics.drawImage(BOARD.getScaledInstance(800,250,Image.SCALE_SMOOTH),50,20,null);
         graphics.drawImage(KUMA.getScaledInstance(230,170,Image.SCALE_SMOOTH),90,35,null);
-        graphics.drawImage(DX_LOGO.getScaledInstance(100,70,Image.SCALE_SMOOTH),665,40,null);
+        graphics.drawImage(DX_LOGO.getScaledInstance(100,70,Image.SCALE_SMOOTH),665,35,null);
         graphics.setColor(Color.BLACK);
-        graphics.setFont(TextGenerator.loadFont("Regular",72));
-        TextGenerator.drawText(graphics,TextGenerator.addSpaces(best50.getNickname()),460,340,170);
-        graphics.drawString(TextGenerator.addSpaces(best50.getNickname()),340,170);
+        graphics.setFont(TextGenerator.loadFont("Regular",68));
+        TextGenerator.drawText(graphics,TextGenerator.addSpaces(best50.getNickname()),460,340,172);
 
         //匹配rating颜色框
         int rating = best50.getRating();
@@ -141,16 +147,7 @@ public class ImageGenerator {
         y = 250;
 
         //绘制B35
-        for (int i = 0, k = 0; i < 7; i++) {
-            x = 50;
-            for (int j = 0; j < 5; j++) {
-                MaimaiChartInfo chartInfo = b35List.get(k);
-                graphics.drawImage(generateMaimaiChartImage(chartInfo,++k),x,y,null);
-                addDetail(chartInfo,graphics,x,y);
-                x += 340;
-            }
-            y += 140;
-        }
+        y = drawChartInfo(b35List,graphics,35,y);
 
         //绘制中间装饰组件
         graphics.drawImage(DIALOG_B35.getScaledInstance(200,120,Image.SCALE_SMOOTH),50,y,null);
@@ -159,19 +156,38 @@ public class ImageGenerator {
         y += 130;
 
         //绘制B15
-        for (int i = 0, k = 0; i < 3; i++) {
-            x = 50;
-            for (int j = 0; j < 5; j++) {
-                MaimaiChartInfo chartInfo = b15List.get(k);
-                graphics.drawImage(generateMaimaiChartImage(chartInfo,++k),x,y,null);
-                addDetail(chartInfo,graphics,x,y);
-                x += 340;
-            }
-            y += 140;
-        }
+        drawChartInfo(b15List,graphics,15,y);
 
         graphics.dispose();
         return template;
+    }
+
+    private int drawChartInfo(List<MaimaiChartInfo> list,Graphics2D graphics,int max,int y){
+        try {
+            int k = 0;
+            int x = 50;
+            while (k < max){
+                if(k < list.size()){
+                    MaimaiChartInfo chartInfo = list.get(k);
+                    graphics.drawImage(generateMaimaiChartImage(chartInfo,++k),x,y,null);
+                    addDetail(chartInfo,graphics,x,y);
+                }
+                else {
+                    graphics.drawImage(generateEmptyChartImage(++k),x,y,null);
+                }
+                if(k % 5 == 0){
+                    x = 50;
+                    y += 140;
+                }
+                else {
+                    x += 340;
+                }
+            }
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        return y;
     }
 
     private void addDetail(MaimaiChartInfo chartInfo,Graphics2D graphics,int x,int y){
@@ -195,37 +211,108 @@ public class ImageGenerator {
         }
     }
 
-    private BufferedImage generateMaimaiChartImage(MaimaiChartInfo chartInfo, int index) throws IOException {
-        //绘制封面
-        BufferedImage template = ImageIO.read(getResource("mai/template/chart.png"));
-        BufferedImage cover = ImageIO.read(new File(chartInfo.getCoverUrl()));
-        Graphics2D graphics = template.createGraphics();
-        graphics.drawImage(cover.getScaledInstance(100,100,Image.SCALE_SMOOTH),10,10,null);
-        switch (chartInfo.getLevelIndex()){
-            case 0 -> graphics.setColor(Color.GREEN);
-            case 1 -> graphics.setColor(Color.ORANGE);
-            case 2 -> graphics.setColor(Color.decode("#FF6666"));
-            case 3 -> graphics.setColor(Color.decode("#9932CC"));
-            case 4 -> graphics.setColor(Color.decode("#CC99CC"));
-            default -> graphics.setColor(Color.WHITE);
+    private BufferedImage generateMaimaiChartImage(MaimaiChartInfo chartInfo, int index) throws IOException{
+        try {
+            BufferedImage template = ImageIO.read(getResource("mai/template/chart.png"));
+            Graphics2D graphics = template.createGraphics();
+            //绘制封面
+            BufferedImage cover = ImageIO.read(new File(chartInfo.getCoverUrl()));
+            graphics.drawImage(cover.getScaledInstance(100,100,Image.SCALE_SMOOTH),10,10,null);
+            switch (chartInfo.getLevelIndex()){
+                case 0 -> graphics.setColor(Color.decode("#009966"));
+                case 1 -> graphics.setColor(Color.decode("#FF9900"));
+                case 2 -> graphics.setColor(Color.decode("#FF6666"));
+                case 3 -> graphics.setColor(Color.decode("#9932CC"));
+                case 4 -> graphics.setColor(Color.decode("#CC99CC"));
+                default -> graphics.setColor(Color.WHITE);
+            }
+            graphics.fillRect(110,10,200,100);
+            graphics.setColor(Color.WHITE);
+            //绘制标题
+            graphics.setFont(TextGenerator.loadFont("Bold",20));
+            TextGenerator.drawText(graphics,chartInfo.getTitle(),195,115,35);
+            //绘制分数和其他信息
+            graphics.setFont(new Font("Bahnschrift",Font.PLAIN,34));
+            graphics.drawString(String.format("%.4f", chartInfo.getAchievements()) + "%",115,70);
+            graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
+            graphics.drawString("#" + index + " | " + chartInfo.getDs().toString() + " -> " + chartInfo.getRa(),115,100);
+            graphics.dispose();
+            return template;
         }
-        graphics.fillRect(110,10,200,100);
-        if (chartInfo.getLevelIndex() == 4){
-            graphics.setColor(Color.BLACK);
+        catch (Exception e){
+            e.printStackTrace();
+            System.out.println(index + " " + chartInfo.getSongId());
+            return generateEmptyChartImage(index);
+        }
+    }
+
+    private BufferedImage generateEmptyChartImage(int index) throws IOException{
+        BufferedImage template = ImageIO.read(getResource("mai/template/chart.png"));
+        Graphics2D graphics = template.createGraphics();
+        graphics.setColor(Color.BLACK);
+        graphics.setFont(TextGenerator.loadFont("Bold",20));
+        TextGenerator.drawText(graphics,"-- NO DATA --",195,115,35);
+        graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
+        graphics.drawString("#" + index + " | --",115,100);
+        return template;
+    }
+
+    public BufferedImage generateScoreLineImage(MaimaiChartInfo chartInfo,MaimaiNoteInfo noteInfo) throws IOException{
+        BufferedImage template = ImageIO.read(getResource("mai/template/scoreline.png"));
+        Graphics2D graphics = template.createGraphics();
+        if(chartInfo.getType().equals("SD")){
+            graphics.drawImage(STD_ICON.getScaledInstance(115,28,Image.SCALE_SMOOTH),105,127,null);
         }
         else {
+            graphics.drawImage(DX_ICON.getScaledInstance(115,28,Image.SCALE_SMOOTH),105,127,null);
+        }
+        switch (chartInfo.getLevelIndex()){
+            case 0 -> graphics.drawImage(BASE_BSC.getScaledInstance(270,378,Image.SCALE_SMOOTH),105,155,null);
+            case 1 -> graphics.drawImage(BASE_ADV.getScaledInstance(270,378,Image.SCALE_SMOOTH),105,155,null);
+            case 2 -> graphics.drawImage(BASE_EXP.getScaledInstance(270,378,Image.SCALE_SMOOTH),105,155,null);
+            case 3 -> graphics.drawImage(BASE_MST.getScaledInstance(270,378,Image.SCALE_SMOOTH),105,155,null);
+            case 4 -> graphics.drawImage(BASE_MST_RE.getScaledInstance(270,378,Image.SCALE_SMOOTH),105,155,null);
+        }
+        //绘制封面
+        BufferedImage cover = ImageIO.read(new File(chartInfo.getCoverUrl()));
+        graphics.drawImage(cover.getScaledInstance(220,220,Image.SCALE_SMOOTH),130,173,null);
+        //绘制标题
+        graphics.setColor(Color.WHITE);
+        graphics.setFont(TextGenerator.loadFont("Bold",28));
+        TextGenerator.drawTitle(graphics,chartInfo.getTitle(),260,110,490);
+        //绘制等级
+        if(chartInfo.getLevelIndex() < 4){
             graphics.setColor(Color.WHITE);
         }
+        else {
+            graphics.setColor(Color.decode("#9900CC"));
+        }
+        graphics.setFont(new Font("Bahnschrift",Font.PLAIN,48));
+        if(chartInfo.getLevel().contains("+")){
+            graphics.drawString(chartInfo.getLevel(),295,440);
+        }
+        else {
+            graphics.drawString(chartInfo.getLevel(),303,440);
+        }
+        //绘制误差表
         graphics.setColor(Color.WHITE);
-        //绘制标题
-        graphics.setFont(TextGenerator.loadFont("Bold",20));
-        TextGenerator.drawText(graphics,chartInfo.getTitle(),195,115,35);
-        //绘制分数和其他信息
-        graphics.setFont(new Font("Bahnschrift",Font.PLAIN,34));
-        graphics.drawString(String.format("%.4f", chartInfo.getAchievements()) + "%",115,70);
-        graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
-        graphics.drawString("#" + index + " | " + chartInfo.getDs().toString() + " -> " + chartInfo.getRa(),115,100);
-        graphics.dispose();
+        graphics.setFont(new Font("Bahnschrift",Font.PLAIN,32));
+        for(int i = 0,x,y = 232; i < 3; i++){
+            x = 830;
+            for (int j = 0; j < 3; j++){
+                graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[i][j]) + "%",x,y);
+                x += 180;
+            }
+            y += 60;
+        }
+        graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[3][0]) + "%",650,470);
+        graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[3][1]) + "%",650,530);
+        for(int i = 0,x = 830,y = 410; i < 3; i++){
+            graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[4][i]) + "%",x,y);
+            y += 60;
+        }
+        graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[5][0]) + "%",1010,470);
+        graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[6][0]) + "%",1190,470);
         return template;
     }
 }

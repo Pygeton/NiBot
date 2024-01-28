@@ -38,10 +38,24 @@ public class TextGenerator {
         int textWidth = fontMetrics.stringWidth(text);
         if(textWidth > maxWidth){
             int numChars = text.length() * maxWidth / textWidth;
-            String shortTitle = text.substring(0, numChars - 3) + "...";
-            graphics.drawString(shortTitle,x,y);
+            String shortText = text.substring(0, numChars - 3) + "...";
+            graphics.drawString(shortText,x,y);
         }
         else {
+            graphics.drawString(text,x,y);
+        }
+    }
+
+    public static void drawTitle(Graphics2D graphics,String text,int maxWidth,int x,int y){
+        FontMetrics fontMetrics = graphics.getFontMetrics();
+        int textWidth = fontMetrics.stringWidth(text);
+        if(textWidth > maxWidth){
+            int numChars = text.length() * maxWidth / textWidth;
+            String shortText = text.substring(0, numChars - 3) + "...";
+            graphics.drawString(shortText,x + 10,y);
+        }
+        else {
+            x = x + maxWidth / 2 - fontMetrics.stringWidth(text) / 2;
             graphics.drawString(text,x,y);
         }
     }

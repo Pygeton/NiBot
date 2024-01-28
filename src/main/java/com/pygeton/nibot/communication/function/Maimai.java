@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
@@ -395,28 +397,38 @@ public class Maimai extends Function implements IMessageEvent {
             try {
                 MaimaiChartData chartData = maimaiChartDataService.getChartData(officialId);
                 MaimaiSongData songData = maimaiSongDataService.getSongData(officialId);
+                MaimaiChartInfo chartInfo = new MaimaiChartInfo();
+                chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Maimai/" + songData.getCoverUrl());
+                chartInfo.setTitle(songData.getTitle());
+                chartInfo.setLevelIndex(difficulty.getIndex());
+                chartInfo.setType(chartData.getType());
+                switch (chartInfo.getLevelIndex()){
+                    case 0 -> chartInfo.setLevel(chartData.getBasicLevel());
+                    case 1 -> chartInfo.setLevel(chartData.getAdvancedLevel());
+                    case 2 -> chartInfo.setLevel(chartData.getExpertLevel());
+                    case 3 -> chartInfo.setLevel(chartData.getMasterLevel());
+                    case 4 -> chartInfo.setLevel(chartData.getRemasterLevel());
+                }
                 MaimaiNoteInfo noteInfo = new MaimaiNoteInfo(chartData.getDataList(),difficulty.getIndex());
-                //后续可能考虑图形化
-                StringBuilder builder = new StringBuilder(rawMessage[2]).append(".").append(songData.getTitle());
-                builder.append("(").append(chartData.getType()).append(")的").append(difficulty.getDifficulty()).append("难度的误差列表如下：\n");
-                builder.append("种类/Great/Good/Miss\n");
-                builder.append("Tap/Touch:").append(String.format("%.4f", -noteInfo.getDeductions()[0][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[0][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[0][2])).append("%\n");
-                builder.append("Hold:").append(String.format("%.4f", -noteInfo.getDeductions()[1][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[1][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[1][2])).append("%\n");
-                builder.append("Slide:").append(String.format("%.4f", -noteInfo.getDeductions()[2][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[2][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[2][2])).append("%\n");
-                builder.append("=====================\n");
-                builder.append("Break(Perfect):").append(String.format("%.4f", -noteInfo.getDeductions()[3][0])).append("%(50落)/").append(String.format("%.4f", -noteInfo.getDeductions()[3][1])).append("%(100落)\n");
-                builder.append("Break(Great):").append(String.format("%.4f", -noteInfo.getDeductions()[4][0])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[4][1])).append("%/").append(String.format("%.4f", -noteInfo.getDeductions()[4][2])).append("%\n");
-                builder.append("Break(Good):").append(String.format("%.4f", -noteInfo.getDeductions()[5][0])).append("%\n");
-                builder.append("Break(Miss):").append(String.format("%.4f", -noteInfo.getDeductions()[6][0])).append("%\n");
+                //图形化+缓存检测
+                String fileName = "mai-sl-" + officialId + "-" + difficulty.getIndex() + ".png";
+                String androidPath = "file:///sdcard/Pictures/Maimai/ScoreLine/" + fileName;
+                String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ScoreLine/" + fileName;
+                if(!Files.exists(Path.of(pcPath))){
+                    ImageIO.write(imageGenerator.generateScoreLineImage(chartInfo,noteInfo), "png", new File(pcPath));
+                }
+                sendMsgParams.addImageMessageSegment(androidPath);
+                //计算目标误差
                 if(rawMessage.length == 5){
+                    StringBuilder builder = new StringBuilder();
                     double target = Double.parseDouble(rawMessage[4]);
                     double[] bound = noteInfo.getBreakGreatEquivalenceBound();
-                    builder.append("=====================\n");
                     builder.append("达到目标").append(target).append("%允许的最大Tap Great数量为").append((int) Math.floor(noteInfo.getFaultTolerance(target))).append("个\n");
                     builder.append("Break 50落等价于").append(String.format("%.2f",noteInfo.getBreak50Equivalence())).append("个Tap Great\n");
                     builder.append("Break Great相当于").append(String.format("%.2f",bound[0])).append("~").append(String.format("%.2f",bound[1])).append("个Tap Great");
+                    sendMsgParams.addTextMessageSegment(builder.toString());
                 }
-                sendMsgParams.addTextMessageSegment(builder.toString());
+
             }
             catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
@@ -425,6 +437,10 @@ public class Maimai extends Function implements IMessageEvent {
             catch (NullPointerException e){
                 e.printStackTrace();
                 sendMsgParams.addTextMessageSegment("歌曲id有误，可能是歌曲不存在或国服未实装，无法获取数据进行计算>_<");
+            }
+            catch (IOException e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
             }
         }
         else {
@@ -621,9 +637,19 @@ public class Maimai extends Function implements IMessageEvent {
             builder.append("镍酱认为你可以试一下推推这些歌 (≧▽≦)\n");
             builder.append("可以结合info功能快速查看谱面信息哦~\n");
             builder.append("------------B35------------\n");
-            appendRecInfo(b35RecChartList,isAdvanced,builder);
+            if(!b35RecChartList.isEmpty()){
+                appendRecInfo(b35RecChartList,isAdvanced,builder);
+            }
+            else {
+                builder.append("你的Best35部分已经理论啦！你好厉害呀OvO\n");
+            }
             builder.append("------------B15------------\n");
-            appendRecInfo(b15RecChartList,isAdvanced,builder);
+            if(!b15RecChartList.isEmpty()){
+                appendRecInfo(b15RecChartList,isAdvanced,builder);
+            }
+            else {
+                builder.append("你的Best15部分已经理论啦！你好厉害呀OvO\n");
+            }
             sendMsgParams.addTextMessageSegment(builder.toString());
         }
         sendMessage();
@@ -667,13 +693,11 @@ public class Maimai extends Function implements IMessageEvent {
                 }
             }
 
-            List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),isNew);
-            SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),isNew));
-            List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),isNew);
-            SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),isNew));
-            SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),isNew));
-
             if(!SSSRating.isEmpty()){
+                List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),isNew);
+                if(SSSRating.size() > 1){
+                    SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),isNew));
+                }
                 List<MaimaiRecChart> SSSRemove = new ArrayList<>();
                 for(MaimaiRecChart chart : SSSRec){
                     chart.setGradeAndProportion("SSS");
@@ -692,6 +716,13 @@ public class Maimai extends Function implements IMessageEvent {
             }
 
             if(!SSSPlusRating.isEmpty()){
+                List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),isNew);
+                if(SSSPlusRating.size() > 1){
+                    SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),isNew));
+                }
+                if(SSSPlusRating.size() > 2){
+                    SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),isNew));
+                }
                 List<MaimaiRecChart> SSSPlusRemove = new ArrayList<>();
                 for(MaimaiRecChart chart : SSSPlusRec){
                     chart.setGradeAndProportion("SSS+");

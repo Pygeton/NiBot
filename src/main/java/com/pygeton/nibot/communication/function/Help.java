@@ -109,7 +109,6 @@ public class Help extends Function implements IMessageEvent {
             case 6 -> {
                 if(rawMessage.length == 2){
                     return """
-                        【此模块还在开发中，功能和指令可能随时变动】
                         以下是支持的功能列表：
                         1.b50 查询Best50
                         2.info 查看歌曲谱面信息
@@ -118,7 +117,7 @@ public class Help extends Function implements IMessageEvent {
                         5.line 误差分析和分数线计算
                         6.plate 查询牌子进度
                         7.rec 上分歌曲推荐
-                        8.status 获取服务器状态（暂未实现）
+                        8.status 获取服务器状态
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -130,6 +129,8 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /mai b50
                                     可以获得一张带有你的b50信息的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    如果提示该用户禁止他人访问获取数据，大概率是由于查分器网站用户协议更新未同意造成，可登录上述网站同意用户协议解决。
+                                    分数后三位全部为0的，是由于查分器开启了查询时使用掩码造成，同样可登录上述网站打开个人资料，将使用掩码的勾选框取消即可解决。
                                     """;
                         }
                         case 2 -> {
@@ -197,7 +198,6 @@ public class Help extends Function implements IMessageEvent {
             case 7 -> {
                 if(rawMessage.length == 2){
                     return """
-                        【此模块还在开发中，功能和指令可能随时变动】
                         以下是支持的功能列表：
                         1.b30 查询B30+R10
                         2.info 查看歌曲谱面信息

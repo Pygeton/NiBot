@@ -23,7 +23,7 @@ public interface IMaimaiChartDataService extends IService<MaimaiChartData> {
 
     List<MaimaiChartData> getChartDataListByVersion(String version);
 
-    List<MaimaiRecChart> getRecChartList(float constant,boolean isNew);
+    List<MaimaiRecChart> getRecChartList(float constant,int rating,boolean isNew);
 
     String getCoverUrl(int officialId);
 

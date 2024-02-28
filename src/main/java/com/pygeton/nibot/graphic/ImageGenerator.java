@@ -3,10 +3,14 @@ package com.pygeton.nibot.graphic;
 import com.pygeton.nibot.communication.entity.mai.MaimaiBest50;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
 import com.pygeton.nibot.communication.entity.mai.MaimaiNoteInfo;
+import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
+import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +27,10 @@ public class ImageGenerator {
     static BufferedImage FC_ICON,FCP_ICON,AP_ICON,APP_ICON;
     static BufferedImage FS_ICON,FSP_ICON,FSD_ICON,FSDP_ICON;
     static BufferedImage BASE_BSC,BASE_ADV,BASE_EXP,BASE_MST,BASE_MST_RE;
+
+    @Autowired
+    MaimaiChartDataServiceImpl maimaiChartDataService;
+
 
     public ImageGenerator() {
         try {
@@ -261,10 +269,10 @@ public class ImageGenerator {
         BufferedImage template = ImageIO.read(getResource("mai/template/scoreline.png"));
         Graphics2D graphics = template.createGraphics();
         if(chartInfo.getType().equals("SD")){
-            graphics.drawImage(STD_ICON.getScaledInstance(115,28,Image.SCALE_SMOOTH),105,127,null);
+            graphics.drawImage(STD_ICON.getScaledInstance(115,28,Image.SCALE_SMOOTH),105,130,null);
         }
         else {
-            graphics.drawImage(DX_ICON.getScaledInstance(115,28,Image.SCALE_SMOOTH),105,127,null);
+            graphics.drawImage(DX_ICON.getScaledInstance(115,28,Image.SCALE_SMOOTH),105,130,null);
         }
         switch (chartInfo.getLevelIndex()){
             case 0 -> graphics.drawImage(BASE_BSC.getScaledInstance(270,378,Image.SCALE_SMOOTH),105,155,null);
@@ -275,7 +283,7 @@ public class ImageGenerator {
         }
         //绘制封面
         BufferedImage cover = ImageIO.read(new File(chartInfo.getCoverUrl()));
-        graphics.drawImage(cover.getScaledInstance(220,220,Image.SCALE_SMOOTH),130,173,null);
+        graphics.drawImage(cover.getScaledInstance(220,220,Image.SCALE_SMOOTH),131,175,null);
         //绘制标题
         graphics.setColor(Color.WHITE);
         graphics.setFont(TextGenerator.loadFont("Bold",28));
@@ -313,6 +321,64 @@ public class ImageGenerator {
         }
         graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[5][0]) + "%",1010,470);
         graphics.drawString(String.format("%.4f",-noteInfo.getDeductions()[6][0]) + "%",1190,470);
+        graphics.dispose();
+        return template;
+    }
+
+    public BufferedImage generateRecommendImage(List<MaimaiRecChart> b35RecChartList,List<MaimaiRecChart> b15RecChartList) throws IOException {
+        BufferedImage template = ImageIO.read(getResource("mai/template/rec.png"));
+        Graphics2D graphics = template.createGraphics();
+        drawRecChart(b35RecChartList,graphics,47,236);
+        drawRecChart(b15RecChartList,graphics,542,236);
+        return template;
+    }
+
+    private void drawRecChart(List<MaimaiRecChart> recChartList,Graphics2D graphics,int x,int y) throws IOException {
+        int opx,opy = y;
+        for(int i = 0,k = 0; i < 3; i++){
+            opx = x;
+            for(int j = 0; j < 2; j++){
+                if(k >= recChartList.size()) break;
+                else {
+                    MaimaiRecChart recChart = recChartList.get(k);
+                    graphics.drawImage(generateRecChartImage(recChart).getScaledInstance(213,80,Image.SCALE_SMOOTH),opx,opy,null);
+                    if(recChart.getType().equals("SD")){
+                        graphics.drawImage(STD_ICON.getScaledInstance(80,20,Image.SCALE_SMOOTH),opx,opy + 73,null);
+                    }
+                    else {
+                        graphics.drawImage(DX_ICON.getScaledInstance(80,20,Image.SCALE_SMOOTH),opx,opy + 73,null);
+                    }
+                    k++;
+                    opx += 242;
+                }
+            }
+            opy += 105;
+        }
+    }
+
+    private BufferedImage generateRecChartImage(MaimaiRecChart recChart) throws IOException{
+        BufferedImage template = ImageIO.read(getResource("mai/template/chart.png"));
+        Graphics2D graphics = template.createGraphics();
+        //绘制封面
+        BufferedImage cover = ImageIO.read(new File("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(recChart.getOfficialId())));
+        graphics.drawImage(cover.getScaledInstance(100,100,Image.SCALE_SMOOTH),10,10,null);
+        switch (recChart.getDifficulty()){
+            case "Expert" -> graphics.setColor(Color.decode("#FF6666"));
+            case "Master" -> graphics.setColor(Color.decode("#9932CC"));
+            case "Re:Master" -> graphics.setColor(Color.decode("#CC99CC"));
+            default -> graphics.setColor(Color.WHITE);
+        }
+        graphics.fillRect(110,10,200,100);
+        graphics.setColor(Color.WHITE);
+        //绘制标题
+        graphics.setFont(TextGenerator.loadFont("Bold",20));
+        TextGenerator.drawText(graphics,recChart.getTitle(),195,115,35);
+        //绘制具体信息
+        graphics.setFont(new Font("Bahnschrift", Font.BOLD,34));
+        graphics.drawString(recChart.getGrade(),115,70);
+        graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
+        graphics.drawString(recChart.getOfficialId() + " | " + recChart.getConstant() + " -> " + recChart.getRating(),115,100);
+        graphics.dispose();
         return template;
     }
 }

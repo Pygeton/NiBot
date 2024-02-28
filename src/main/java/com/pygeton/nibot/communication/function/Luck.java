@@ -9,6 +9,7 @@ import com.pygeton.nibot.repository.service.LuckDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Random;
 
 @Component
@@ -28,6 +29,11 @@ public class Luck extends Function implements IMessageEvent {
         if(rawMessage[0].equals("/luck")){
             Random random = new Random();
             int luck = random.nextInt(101);
+            LocalDate date = LocalDate.now();
+            LocalDate fes = LocalDate.of(2024,2,10);
+            if(date.equals(fes)){
+                luck = random.nextInt(80,101);
+            }
             String text;
             sendMsgParams = new SendMsgParams(message);
             if(rawMessage.length == 1){

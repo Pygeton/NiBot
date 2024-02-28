@@ -17,6 +17,7 @@ public class MaimaiRecChart {
     private String difficulty;
     private Float constant;
     private String grade;
+    private Integer rating;
     private String statList;
     private Double proportion;
 

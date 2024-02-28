@@ -18,11 +18,13 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.v85.io.IO;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -630,27 +632,33 @@ public class Maimai extends Function implements IMessageEvent {
             for(JSONObject object : map.get("dx")){
                 b15List.add(object.toJavaObject(MaimaiChartInfo.class));
             }
-            boolean isAdvanced = map.get("userdata").get(0).getIntValue("rating") > 15500;
+            int rating = map.get("userdata").get(0).getIntValue("rating");
+            boolean isAdvanced = rating > 15500;
             List<MaimaiRecChart> b35RecChartList = getRecommendChart(b35List,false,isAdvanced);
             List<MaimaiRecChart> b15RecChartList = getRecommendChart(b15List,true,isAdvanced);
-            StringBuilder builder = new StringBuilder();
-            builder.append("镍酱认为你可以试一下推推这些歌 (≧▽≦)\n");
-            builder.append("可以结合info功能快速查看谱面信息哦~\n");
-            builder.append("------------B35------------\n");
-            if(!b35RecChartList.isEmpty()){
-                appendRecInfo(b35RecChartList,isAdvanced,builder);
+            try {
+                String fileName = "mai-rec-" + userId + "-" + rating + ".png";
+                String androidPath = "file:///sdcard/Pictures/Maimai/Recommend/" + fileName;
+                String pcPath = "D:/Documents/leidian9/Pictures/Maimai/Recommend/" + fileName;
+                if(!Files.exists(Path.of(pcPath))){
+                    ImageIO.write(imageGenerator.generateRecommendImage(b35RecChartList,b15RecChartList), "png", new File(pcPath));
+                }
+                sendMsgParams.addImageMessageSegment(androidPath);
+                StringBuilder builder = new StringBuilder();
+                builder.append("镍酱认为你可以试一下推推这些歌 (≧▽≦)\n");
+                builder.append("可以结合info功能快速查看谱面信息哦~\n");
+                if(b35RecChartList.isEmpty()){
+                    builder.append("你的Best35部分已经达到理论最高Rating啦！你好厉害呀OvO\n");
+                }
+                if(b15RecChartList.isEmpty()){
+                    builder.append("你的Best15部分已经达到理论最高Rating啦！你好厉害呀OvO\n");
+                }
+                sendMsgParams.addTextMessageSegment(builder.toString());
             }
-            else {
-                builder.append("你的Best35部分已经理论啦！你好厉害呀OvO\n");
+            catch (IOException | NullPointerException e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
             }
-            builder.append("------------B15------------\n");
-            if(!b15RecChartList.isEmpty()){
-                appendRecInfo(b15RecChartList,isAdvanced,builder);
-            }
-            else {
-                builder.append("你的Best15部分已经理论啦！你好厉害呀OvO\n");
-            }
-            sendMsgParams.addTextMessageSegment(builder.toString());
         }
         sendMessage();
     }
@@ -672,10 +680,10 @@ public class Maimai extends Function implements IMessageEvent {
                 }
             }
             List<MaimaiRecChart> allRec = new ArrayList<>();
-
+            //SS+推荐曲目计算
             if(!isAdvanced){
                 if(!SSPlusRating.isEmpty()){
-                    List<MaimaiRecChart> SSPlusRec = maimaiChartDataService.getRecChartList(SSPlusRating.get(0).getLevel(),isNew);
+                    List<MaimaiRecChart> SSPlusRec = maimaiChartDataService.getRecChartList(SSPlusRating.get(0).getLevel(),SSPlusRating.get(0).getRating(),isNew);
                     List<MaimaiRecChart> SSPlusRemove = new ArrayList<>();
                     for(MaimaiRecChart chart : SSPlusRec){
                         chart.setGradeAndProportion("SS+");
@@ -692,11 +700,11 @@ public class Maimai extends Function implements IMessageEvent {
                     }
                 }
             }
-
+            //SSS推荐曲目计算
             if(!SSSRating.isEmpty()){
-                List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),isNew);
+                List<MaimaiRecChart> SSSRec = maimaiChartDataService.getRecChartList(SSSRating.get(0).getLevel(),SSSRating.get(0).getRating(),isNew);
                 if(SSSRating.size() > 1){
-                    SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),isNew));
+                    SSSRec.addAll(maimaiChartDataService.getRecChartList(SSSRating.get(1).getLevel(),SSSRating.get(1).getRating(),isNew));
                 }
                 List<MaimaiRecChart> SSSRemove = new ArrayList<>();
                 for(MaimaiRecChart chart : SSSRec){
@@ -714,14 +722,14 @@ public class Maimai extends Function implements IMessageEvent {
                     allRec.add(SSSRec.get(i));
                 }
             }
-
+            //SSS+推荐曲目计算
             if(!SSSPlusRating.isEmpty()){
-                List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),isNew);
+                List<MaimaiRecChart> SSSPlusRec = maimaiChartDataService.getRecChartList(SSSPlusRating.get(0).getLevel(),SSSPlusRating.get(0).getRating(),isNew);
                 if(SSSPlusRating.size() > 1){
-                    SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),isNew));
+                    SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(1).getLevel(),SSSPlusRating.get(1).getRating(),isNew));
                 }
                 if(SSSPlusRating.size() > 2){
-                    SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),isNew));
+                    SSSPlusRec.addAll(maimaiChartDataService.getRecChartList(SSSPlusRating.get(2).getLevel(),SSSPlusRating.get(2).getRating(),isNew));
                 }
                 List<MaimaiRecChart> SSSPlusRemove = new ArrayList<>();
                 for(MaimaiRecChart chart : SSSPlusRec){
@@ -739,8 +747,6 @@ public class Maimai extends Function implements IMessageEvent {
                     allRec.add(SSSPlusRec.get(i));
                 }
             }
-
-
             return allRec;
         }
         catch (Exception e){
@@ -749,6 +755,7 @@ public class Maimai extends Function implements IMessageEvent {
         }
     }
 
+    @Deprecated
     private void appendRecInfo(List<MaimaiRecChart> recChartList,boolean isAdvanced,StringBuilder builder){
         MaimaiRecChart recChart;
         for (MaimaiRecChart maimaiRecChart : recChartList) {

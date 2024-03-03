@@ -2,6 +2,7 @@ package com.pygeton.nibot.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
+import com.pygeton.nibot.communication.entity.mai.MaimaiTableCell;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import org.apache.ibatis.annotations.Select;
 
@@ -28,4 +29,16 @@ public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
 
     @Select("SELECT cover_url FROM maimai_chart_data,maimai_song_data WHERE official_id = #{officialId} AND maimai_chart_data.title_kana = maimai_song_data.title_kana")
     String getCoverUrlByOfficialId(int officialId);
+
+    @Select("SELECT official_id,title,cover_url,type,'Expert' AS difficulty,expert_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+            "WHERE expert_constant > #{value} - 0.01 AND expert_constant < #{value} + 0.01 AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL ORDER BY official_id")
+    List<MaimaiTableCell> getTableCellByExpConstant(double value);
+
+    @Select("SELECT official_id,title,cover_url,type,'Master' AS difficulty,master_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+            "WHERE master_constant > #{value} - 0.01 AND master_constant < #{value} + 0.01 AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL ORDER BY official_id")
+    List<MaimaiTableCell> getTableCellByMstConstant(double value);
+
+    @Select("SELECT official_id,title,cover_url,type,'Re:Master' AS difficulty,remaster_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+            "WHERE remaster_constant > #{value} - 0.01 AND remaster_constant < #{value} + 0.01 AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL ORDER BY official_id")
+    List<MaimaiTableCell> getTableCellByRemConstant(double value);
 }

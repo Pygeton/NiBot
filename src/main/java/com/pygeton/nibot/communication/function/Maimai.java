@@ -18,13 +18,11 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.devtools.v85.io.IO;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -80,6 +78,7 @@ public class Maimai extends Function implements IMessageEvent {
             //开发者功能
             case "init" -> initDatabase(message.getUserId());
             case "update" -> updateDatabase(message.getUserId());
+            case "clear" -> clearCache(message.getUserId());
             //常规功能
             case "b50" -> generateB50(message.getUserId());
             case "info" -> getSongInfo();
@@ -89,6 +88,8 @@ public class Maimai extends Function implements IMessageEvent {
             case "plate" -> getPlateProgress(message.getUserId());
             case "rec" -> getRecommendSong(message.getUserId());
             case "status" -> getServerStatus(message.getMessageId());
+            case "ds" -> getConstantTable();
+            case "list" -> getScoreList(message.getUserId());
         }
     }
 
@@ -160,6 +161,44 @@ public class Maimai extends Function implements IMessageEvent {
                         sendMsgParams.addTextMessageSegment("歌曲统计数据更新失败...\n");
                     }
                 }
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("你没有使用这个命令的权限喵");
+        }
+        sendMessage();
+    }
+
+    private void clearCache(Long userId){
+        if(userId == 1944539440L){
+            String dirPath = "D:/Documents/leidian9/Pictures/Maimai/";
+            switch (rawMessage[2]){
+                case "b50" -> dirPath += "Best50";
+                case "line" -> dirPath += "ScoreLine";
+                case "rec" -> dirPath += "Recommend";
+                case "status" -> dirPath += "Status";
+                case "ds" -> dirPath += "ConstantTable";
+                case "list" -> dirPath += "ScoreList";
+            }
+            File dir = new File(dirPath);
+            if (dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if(files.length > 0){
+                    for (File file : files) {
+                        if (file.isFile()) {
+                            boolean result = file.delete();
+                            if (result) {
+                                System.out.println("成功删除文件：" + file.getName());
+                            } else {
+                                System.out.println("删除文件失败：" + file.getName());
+                            }
+                        }
+                    }
+                }
+                sendMsgParams.addTextMessageSegment("清除缓存成功！");
+            }
+            else {
+                sendMsgParams.addTextMessageSegment("清除缓存失败，请检查参数或路径。");
             }
         }
         else {
@@ -803,5 +842,38 @@ public class Maimai extends Function implements IMessageEvent {
         driver.quit();
         sendMsgParams.addImageMessageSegment(path);
         sendMessage();
+    }
+
+    private void getConstantTable(){
+        if(rawMessage.length == 3){
+            List<MaimaiTableCell> cellList = maimaiChartDataService.getTableCell(rawMessage[2]);
+            if(cellList.size() == 0) {
+                sendMsgParams.addTextMessageSegment("此功能不支持该等级歌曲>_<");
+            }
+            else {
+                try {
+                    for (MaimaiTableCell cell : cellList){
+                        System.out.println(cell);
+                    }
+                    String fileName = "mai-ds-" + rawMessage[2] + ".png";
+                    String androidPath = "file:///sdcard/Pictures/Maimai/ConstantTable/" + fileName;
+                    String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ConstantTable/" + fileName;
+                    ImageIO.write(imageGenerator.generateConstantTableImage(rawMessage[2],cellList), "png", new File(pcPath));
+                    sendMsgParams.addImageMessageSegment(androidPath);
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                    sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
+                }
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+        }
+        sendMessage();
+    }
+
+    private void getScoreList(Long userId){
+
     }
 }

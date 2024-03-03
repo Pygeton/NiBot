@@ -118,6 +118,8 @@ public class Help extends Function implements IMessageEvent {
                         6.plate 查询牌子进度
                         7.rec 上分歌曲推荐
                         8.status 获取服务器状态
+                        9.ds 查询歌曲定数表
+                        10.list 查询分数列表
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -178,7 +180,7 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /mai rec
                                     可以获取根据你的b50综合歌曲统计数据联合推算出的推荐上分歌曲。由于本游戏个人差较大，统计数据也存在一定偏差，仅供参考。
-                                    注意：当玩家的rating达到15500以上时，将不会显示SS+评级的歌曲推荐。
+                                    注意：当玩家的rating达到15500以上时，将不会显示SS+评级的歌曲推荐。除此之外，本功能不会推荐12级以下的歌曲，建议有一定游玩时长后再使用本功能，其分析结果会具备更高的参考价值。
                                     """;
                         }
                         case 8 -> {
@@ -186,6 +188,22 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /mai status
                                     可以查看当前的华立服务器状态。数据来源于https://status.naominet.live/status/wahlap。
+                                    """;
+                        }
+                        case 9 -> {
+                            return """
+                                    使用方法：
+                                    /mai ds [参数]
+                                    参数内填写等级即可获取该等级下所有歌曲的定数表。
+                                    如：输入“/mai ds 13+”，即可查看等级为13+的所有歌曲的定数表。
+                                    """;
+                        }
+                        case 10 -> {
+                            return """
+                                    使用方法：
+                                    /mai list [参数]
+                                    参数内填写等级即可获取该等级下所有歌曲的分数评级表。
+                                    如：输入“/mai ds 14”，即可查看等级为14的所有歌曲的定数表。
                                     """;
                         }
                         default -> {

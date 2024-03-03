@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartStat;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
+import com.pygeton.nibot.communication.entity.mai.MaimaiTableCell;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.mapper.MaimaiChartDataMapper;
 import org.apache.poi.ss.usermodel.Cell;
@@ -201,5 +202,34 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
     @Override
     public String getCoverUrl(int officialId) {
         return baseMapper.getCoverUrlByOfficialId(officialId);
+    }
+
+    @Override
+    public List<MaimaiTableCell> getTableCell(String level) {
+        List<MaimaiTableCell> cellList = new ArrayList<>();
+        switch (level){
+            case "13+" -> {
+                for (double value = 13.9;value >= 13.7;value -= 0.1){
+                    cellList.addAll(baseMapper.getTableCellByExpConstant(value));
+                    cellList.addAll(baseMapper.getTableCellByMstConstant(value));
+                    cellList.addAll(baseMapper.getTableCellByRemConstant(value));
+                }
+            }
+            case "14" -> {
+                for (double value = 14.6;value >= 14.0;value -= 0.1){
+                    cellList.addAll(baseMapper.getTableCellByExpConstant(value));
+                    cellList.addAll(baseMapper.getTableCellByMstConstant(value));
+                    cellList.addAll(baseMapper.getTableCellByRemConstant(value));
+                }
+            }
+            case "14+","15" -> {
+                for (double value = 15.0;value >= 14.7;value -= 0.1){
+                    cellList.addAll(baseMapper.getTableCellByExpConstant(value));
+                    cellList.addAll(baseMapper.getTableCellByMstConstant(value));
+                    cellList.addAll(baseMapper.getTableCellByRemConstant(value));
+                }
+            }
+        }
+        return cellList;
     }
 }

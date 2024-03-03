@@ -1,16 +1,12 @@
 package com.pygeton.nibot.graphic;
 
-import com.pygeton.nibot.communication.entity.mai.MaimaiBest50;
-import com.pygeton.nibot.communication.entity.mai.MaimaiChartInfo;
-import com.pygeton.nibot.communication.entity.mai.MaimaiNoteInfo;
-import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
+import com.pygeton.nibot.communication.entity.mai.*;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +16,7 @@ import java.util.Objects;
 @Component
 public class ImageGenerator {
 
-    static BufferedImage BOARD,KUMA,DX_LOGO,DIALOG_B35,DIALOG_B15,DECORATE_BG;
+    static BufferedImage BOARD,KUMA,DX_LOGO,DIALOG_B35,DIALOG_B15,DECORATE_BG,DX_TOKEN;
     static BufferedImage RATING_1,RATING_2,RATING_3,RATING_4,RATING_5,RATING_6,RATING_7,RATING_8,RATING_9,RATING_10;
     static BufferedImage NUM_0,NUM_1,NUM_2,NUM_3,NUM_4,NUM_5,NUM_6,NUM_7,NUM_8,NUM_9;
     static BufferedImage STD_ICON,DX_ICON;
@@ -40,6 +36,7 @@ public class ImageGenerator {
             DIALOG_B35 = ImageIO.read(getResource("mai/pic/UI_CMN_MiniDialog_b35.png"));
             DIALOG_B15 = ImageIO.read(getResource("mai/pic/UI_CMN_MiniDialog_b15.png"));
             DECORATE_BG = ImageIO.read(getResource("mai/pic/UI_RSL_BG_Parts_01.png"));
+            DX_TOKEN = ImageIO.read(getResource("mai/template/dx_token.png"));
             RATING_1 = ImageIO.read(getResource("mai/pic/UI_CMN_DXRating_S_01.png"));
             RATING_2 = ImageIO.read(getResource("mai/pic/UI_CMN_DXRating_S_02.png"));
             RATING_3 = ImageIO.read(getResource("mai/pic/UI_CMN_DXRating_S_03.png"));
@@ -231,7 +228,7 @@ public class ImageGenerator {
                 case 1 -> graphics.setColor(Color.decode("#FF9900"));
                 case 2 -> graphics.setColor(Color.decode("#FF6666"));
                 case 3 -> graphics.setColor(Color.decode("#9932CC"));
-                case 4 -> graphics.setColor(Color.decode("#CC99CC"));
+                case 4 -> graphics.setColor(Color.decode("#CC99FF"));
                 default -> graphics.setColor(Color.WHITE);
             }
             graphics.fillRect(110,10,200,100);
@@ -378,6 +375,130 @@ public class ImageGenerator {
         graphics.drawString(recChart.getGrade(),115,70);
         graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
         graphics.drawString(recChart.getOfficialId() + " | " + recChart.getConstant() + " -> " + recChart.getRating(),115,100);
+        graphics.dispose();
+        return template;
+    }
+
+    public BufferedImage generateConstantTableImage(String level,List<MaimaiTableCell> cellList){
+        try {
+            switch (level){
+                case "13+" -> {
+                    BufferedImage template = ImageIO.read(getResource("mai/template/table_13+.png"));
+                    Graphics2D graphics = template.createGraphics();
+                    int x,y = 177;
+                    for (double constant = 13.9;constant >= 13.7;constant -= 0.1){
+                        int k = 0,total = 0,i = 0;
+                        x = 115;
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                total++;
+                            }
+                        }
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                graphics.drawImage(generateTableCell(cell).getScaledInstance(60,60,Image.SCALE_SMOOTH),x,y,null);
+                                k++;
+                                if(k == 14 && i < total){
+                                    x = 115;
+                                    y += 66;
+                                    k = 0;
+                                }
+                                else x += 66;
+                            }
+                        }
+                        y += 66;
+                    }
+                    graphics.dispose();
+                    return template;
+                }
+                case "14" -> {
+                    BufferedImage template = ImageIO.read(getResource("mai/template/table_14.png"));
+                    Graphics2D graphics = template.createGraphics();
+                    int x,y = 176;
+                    for (double constant = 14.6;constant >= 14.0;constant -= 0.1){
+                        int k = 0,total = 0,i = 0;
+                        x = 132;
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                total++;
+                            }
+                        }
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                graphics.drawImage(generateTableCell(cell).getScaledInstance(60,60,Image.SCALE_SMOOTH),x,y,null);
+                                k++;
+                                i++;
+                                if(k == 12 && i < total){
+                                    x = 132;
+                                    y += 74;
+                                    k = 0;
+                                }
+                                else x += 74;
+                            }
+                        }
+                        y += 84;
+                    }
+                    graphics.dispose();
+                    return template;
+                }
+                case "14+","15" -> {
+                    BufferedImage template = ImageIO.read(getResource("mai/template/table_14+.png"));
+                    Graphics2D graphics = template.createGraphics();
+                    int x,y = 176;
+                    for (double constant = 15.0;constant >= 14.7;constant -= 0.1){
+                        int k = 0,total = 0,i = 0;
+                        x = 132;
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                total++;
+                            }
+                        }
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                graphics.drawImage(generateTableCell(cell).getScaledInstance(60,60,Image.SCALE_SMOOTH),x,y,null);
+                                k++;
+                                i++;
+                                if(k == 12 && i < total){
+                                    x = 132;
+                                    y += 74;
+                                    k = 0;
+                                }
+                                else x += 74;
+                            }
+                        }
+                        y += 84;
+                    }
+                    graphics.dispose();
+                    return template;
+                }
+                default -> { return null; }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private BufferedImage generateTableCell(MaimaiTableCell tableCell) throws IOException{
+        BufferedImage cover = ImageIO.read(getResource("mai/cover/" + tableCell.getCoverUrl()));
+        Image tmp = cover.getScaledInstance(200,200,Image.SCALE_SMOOTH);
+        BufferedImage template = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = template.createGraphics();
+        graphics.drawImage(tmp,0,0,null);
+        if(tableCell.getDifficulty().equals("Expert")){
+            graphics.setColor(Color.decode("#FF6666"));
+            graphics.setStroke(new BasicStroke(40));
+            graphics.drawRect(0,0,200,200);
+        }
+        else if (tableCell.getDifficulty().equals("Re:Master")){
+            graphics.setColor(Color.decode("#CC99FF"));
+            graphics.setStroke(new BasicStroke(40));
+            graphics.drawRect(0,0,200,200);
+        }
+        if(tableCell.getType().equals("DX")){
+            graphics.drawImage(DX_TOKEN.getScaledInstance(90,45,Image.SCALE_SMOOTH),110,0,null);
+        }
         graphics.dispose();
         return template;
     }

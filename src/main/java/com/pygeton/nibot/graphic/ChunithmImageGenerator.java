@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,7 +78,9 @@ public class ChunithmImageGenerator {
                 graphics.drawImage(RAINBOW_RATING.getScaledInstance(103,25,Image.SCALE_SMOOTH),159,125,null);
             }
             else graphics.drawImage(PLATINUM_RATING.getScaledInstance(103,25,Image.SCALE_SMOOTH),159,125,null);
-            String ratingStr = String.format("%.2f",rating);
+            BigDecimal bdRating = new BigDecimal(rating);
+            bdRating = bdRating.setScale(2, RoundingMode.DOWN);
+            String ratingStr = String.format("%.2f",bdRating.doubleValue());
             if(ratingStr.charAt(1) == '.'){
                 ratingStr = "0" + ratingStr;
             }

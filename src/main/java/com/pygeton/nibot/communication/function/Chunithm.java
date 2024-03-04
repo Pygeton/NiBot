@@ -10,6 +10,7 @@ import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.ChunithmHttpService;
 import com.pygeton.nibot.repository.entity.ChunithmData;
+import com.pygeton.nibot.repository.service.AdminDataService;
 import com.pygeton.nibot.repository.service.ChunithmDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,9 @@ import java.util.*;
 
 @Component
 public class Chunithm extends Function implements IMessageEvent {
+
+    @Autowired
+    AdminDataService adminDataService;
 
     @Autowired
     ChunithmDataServiceImpl chunithmDataService;
@@ -62,7 +66,7 @@ public class Chunithm extends Function implements IMessageEvent {
     }
 
     private void updateDatabase(Long userId){
-        if(userId == 1944539440L){
+        if(adminDataService.isAdminExist(userId)){
             if(rawMessage.length == 3){
                 switch (rawMessage[2]){
                     case "sega" -> {

@@ -11,6 +11,7 @@ import com.pygeton.nibot.communication.service.MaimaiHttpService;
 import com.pygeton.nibot.graphic.ImageGenerator;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.entity.MaimaiSongData;
+import com.pygeton.nibot.repository.service.AdminDataService;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiRatingDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiSongDataServiceImpl;
@@ -34,6 +35,9 @@ import java.util.function.Predicate;
 
 @Component
 public class Maimai extends Function implements IMessageEvent {
+
+    @Autowired
+    AdminDataService adminDataService;
 
     @Autowired
     MaimaiSongDataServiceImpl maimaiSongDataService;
@@ -94,7 +98,7 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void initDatabase(Long userId){
-        if(userId == 1944539440L){
+        if(adminDataService.isAdminExist(userId)){
             switch (rawMessage[2]){
                 case "song" -> {
                     boolean ret = maimaiSongDataService.init();

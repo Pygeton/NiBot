@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChunithmChartInfo {
 
+    private String coverUrl;
     private String title;
     private Integer mid;
     private Integer cid;

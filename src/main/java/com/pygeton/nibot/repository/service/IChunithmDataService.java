@@ -18,4 +18,6 @@ public interface IChunithmDataService extends IService<ChunithmData> {
     ChunithmData getChunithmData(int officialId);
 
     Map<Integer, String> getResultMap(String keyword);
+
+    String getCoverUrl(int officialId);
 }

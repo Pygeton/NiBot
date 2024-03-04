@@ -130,7 +130,7 @@ public class Help extends Function implements IMessageEvent {
                             return """
                                     使用方法：
                                     /mai b50
-                                    可以获得一张带有你的b50信息的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    可以生成一张带有你的b50信息的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
                                     如果提示该用户禁止他人访问获取数据，大概率是由于查分器网站用户协议更新未同意造成，可登录上述网站同意用户协议解决。
                                     分数后三位全部为0的，是由于查分器开启了查询时使用掩码造成，同样可登录上述网站打开个人资料，将使用掩码的勾选框取消即可解决。
                                     """;
@@ -234,7 +234,7 @@ public class Help extends Function implements IMessageEvent {
                             return """
                                     使用方法：
                                     /chu b30
-                                    可以查询你的b30+r10数据，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    可以生成一张带有你的b30+r10数据的图片，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
                                     """;
                         }
                         case 2 -> {

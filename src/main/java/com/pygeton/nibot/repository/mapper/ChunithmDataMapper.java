@@ -10,4 +10,7 @@ public interface ChunithmDataMapper extends BaseMapper<ChunithmData> {
 
     @Select("SELECT official_id FROM chunithm_data")
     List<Integer> getOfficialIdList();
+
+    @Select("SELECT cover_url FROM chunithm_data WHERE #{officialId} = official_id")
+    String getCoverUrlByOfficialId(int officialId);
 }

@@ -153,4 +153,9 @@ public class ChunithmDataServiceImpl extends ServiceImpl<ChunithmDataMapper, Chu
         }
         return map;
     }
+
+    @Override
+    public String getCoverUrl(int officialId) {
+        return baseMapper.getCoverUrlByOfficialId(officialId);
+    }
 }

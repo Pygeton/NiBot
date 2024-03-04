@@ -8,7 +8,7 @@ import com.pygeton.nibot.communication.entity.mai.*;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
-import com.pygeton.nibot.graphic.ImageGenerator;
+import com.pygeton.nibot.graphic.MaimaiImageGenerator;
 import com.pygeton.nibot.repository.entity.MaimaiChartData;
 import com.pygeton.nibot.repository.entity.MaimaiSongData;
 import com.pygeton.nibot.repository.service.AdminDataService;
@@ -52,7 +52,7 @@ public class Maimai extends Function implements IMessageEvent {
     MaimaiHttpService maimaiHttpService;
 
     @Autowired
-    ImageGenerator imageGenerator;
+    MaimaiImageGenerator maimaiImageGenerator;
 
     @Override
     public int weight() {
@@ -174,7 +174,7 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void clearCache(Long userId){
-        if(userId == 1944539440L){
+        if(adminDataService.isAdminExist(userId)){
             String dirPath = "D:/Documents/leidian9/Pictures/Maimai/";
             switch (rawMessage[2]){
                 case "b50" -> dirPath += "Best50";
@@ -221,19 +221,7 @@ public class Maimai extends Function implements IMessageEvent {
                 sendMsgParams.addTextMessageSegment("该用户禁止他人访问获取数据=_=");
             }
             else {
-                List<MaimaiChartInfo> b35List = new ArrayList<>();
-                List<MaimaiChartInfo> b15List = new ArrayList<>();
-                for(JSONObject object : map.get("sd")){
-                    b35List.add(object.toJavaObject(MaimaiChartInfo.class));
-                }
-                for(JSONObject object : map.get("dx")){
-                    b15List.add(object.toJavaObject(MaimaiChartInfo.class));
-                }
                 MaimaiBest50 best50 = new MaimaiBest50(map);
-                best50.setNickname(map.get("userdata").get(0).getString("nickname"));
-                best50.setRating(map.get("userdata").get(0).getIntValue("rating"));
-                best50.setB35List(b35List);
-                best50.setB15List(b15List);
                 for(MaimaiChartInfo chartInfo : best50.getB35List()){
                     int id = chartInfo.getSongId();
                     chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id));
@@ -245,7 +233,7 @@ public class Maimai extends Function implements IMessageEvent {
                 String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
                 String fileName = "mai-b50-" + userId + " " + date + ".png";
                 String path = "file:///sdcard/Pictures/Maimai/Best50/" + fileName;
-                ImageIO.write(imageGenerator.generateB50Image(best50), "png", new File("D:/Documents/leidian9/Pictures/Maimai/Best50/" + fileName));
+                ImageIO.write(maimaiImageGenerator.generateB50Image(best50), "png", new File("D:/Documents/leidian9/Pictures/Maimai/Best50/" + fileName));
                 sendMsgParams.addImageMessageSegment(path);
             }
         }
@@ -460,7 +448,7 @@ public class Maimai extends Function implements IMessageEvent {
                 String androidPath = "file:///sdcard/Pictures/Maimai/ScoreLine/" + fileName;
                 String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ScoreLine/" + fileName;
                 if(!Files.exists(Path.of(pcPath))){
-                    ImageIO.write(imageGenerator.generateScoreLineImage(chartInfo,noteInfo), "png", new File(pcPath));
+                    ImageIO.write(maimaiImageGenerator.generateScoreLineImage(chartInfo,noteInfo), "png", new File(pcPath));
                 }
                 sendMsgParams.addImageMessageSegment(androidPath);
                 //计算目标误差
@@ -684,7 +672,7 @@ public class Maimai extends Function implements IMessageEvent {
                 String androidPath = "file:///sdcard/Pictures/Maimai/Recommend/" + fileName;
                 String pcPath = "D:/Documents/leidian9/Pictures/Maimai/Recommend/" + fileName;
                 if(!Files.exists(Path.of(pcPath))){
-                    ImageIO.write(imageGenerator.generateRecommendImage(b35RecChartList,b15RecChartList), "png", new File(pcPath));
+                    ImageIO.write(maimaiImageGenerator.generateRecommendImage(b35RecChartList,b15RecChartList), "png", new File(pcPath));
                 }
                 sendMsgParams.addImageMessageSegment(androidPath);
                 StringBuilder builder = new StringBuilder();
@@ -860,7 +848,7 @@ public class Maimai extends Function implements IMessageEvent {
                         sendMsgParams.addTextMessageSegment("此功能不支持该等级歌曲>_<");
                     }
                     else {
-                        ImageIO.write(imageGenerator.generateConstantTableImage(rawMessage[2], cellList), "png", new File(pcPath));
+                        ImageIO.write(maimaiImageGenerator.generateConstantTableImage(rawMessage[2], cellList), "png", new File(pcPath));
                     }
                 }
                 sendMsgParams.addImageMessageSegment(androidPath);
@@ -908,7 +896,7 @@ public class Maimai extends Function implements IMessageEvent {
                     String fileName = "mai-list-" + userId + "-" + rawMessage[2] + ".png";
                     String androidPath = "file:///sdcard/Pictures/Maimai/ScoreList/" + fileName;
                     String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ScoreList/" + fileName;
-                    ImageIO.write(imageGenerator.generateScoreListImage(rawMessage[2], cellList,stat), "png", new File(pcPath));
+                    ImageIO.write(maimaiImageGenerator.generateScoreListImage(rawMessage[2], cellList,stat), "png", new File(pcPath));
                     sendMsgParams.addImageMessageSegment(androidPath);
                 }
             }

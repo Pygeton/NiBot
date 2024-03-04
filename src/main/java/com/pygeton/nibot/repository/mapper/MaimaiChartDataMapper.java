@@ -38,7 +38,7 @@ public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
             "WHERE master_constant > #{value} - 0.01 AND master_constant < #{value} + 0.01 AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL ORDER BY official_id")
     List<MaimaiTableCell> getTableCellByMstConstant(double value);
 
-    @Select("SELECT official_id,title,cover_url,type,'Re:Master' AS difficulty,remaster_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+    @Select("SELECT official_id,title,cover_url,type,'Re:MASTER' AS difficulty,remaster_constant AS constant FROM maimai_chart_data,maimai_song_data " +
             "WHERE remaster_constant > #{value} - 0.01 AND remaster_constant < #{value} + 0.01 AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL ORDER BY official_id")
     List<MaimaiTableCell> getTableCellByRemConstant(double value);
 }

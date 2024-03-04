@@ -846,25 +846,24 @@ public class Maimai extends Function implements IMessageEvent {
 
     private void getConstantTable(){
         if(rawMessage.length == 3){
-            List<MaimaiTableCell> cellList = maimaiChartDataService.getTableCell(rawMessage[2]);
-            if(cellList.size() == 0) {
-                sendMsgParams.addTextMessageSegment("此功能不支持该等级歌曲>_<");
-            }
-            else {
-                try {
-                    for (MaimaiTableCell cell : cellList){
-                        System.out.println(cell);
+            try {
+                String fileName = "mai-ds-" + rawMessage[2] + ".png";
+                String androidPath = "file:///sdcard/Pictures/Maimai/ConstantTable/" + fileName;
+                String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ConstantTable/" + fileName;
+                if(!Files.exists(Path.of(pcPath))) {
+                    List<MaimaiTableCell> cellList = maimaiChartDataService.getTableCell(rawMessage[2]);
+                    if (cellList.size() == 0) {
+                        sendMsgParams.addTextMessageSegment("此功能不支持该等级歌曲>_<");
                     }
-                    String fileName = "mai-ds-" + rawMessage[2] + ".png";
-                    String androidPath = "file:///sdcard/Pictures/Maimai/ConstantTable/" + fileName;
-                    String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ConstantTable/" + fileName;
-                    ImageIO.write(imageGenerator.generateConstantTableImage(rawMessage[2],cellList), "png", new File(pcPath));
-                    sendMsgParams.addImageMessageSegment(androidPath);
+                    else {
+                        ImageIO.write(imageGenerator.generateConstantTableImage(rawMessage[2], cellList), "png", new File(pcPath));
+                    }
                 }
-                catch (IOException e){
-                    e.printStackTrace();
-                    sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
-                }
+                sendMsgParams.addImageMessageSegment(androidPath);
+            }
+            catch (IOException e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
             }
         }
         else {
@@ -874,6 +873,49 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void getScoreList(Long userId){
-
+        if (rawMessage.length == 3){
+            try {
+                List<JSONObject> records = maimaiHttpService.getPlayerRecords(userId);
+                List<MaimaiTableCell> cellList = maimaiChartDataService.getTableCell(rawMessage[2]);
+                if (cellList.size() == 0) {
+                    sendMsgParams.addTextMessageSegment("此功能不支持该等级歌曲>_<");
+                }
+                else {
+                    int[] stat = {0,0,0,0,0,0};
+                    for (MaimaiTableCell cell : cellList){
+                        for(JSONObject record : records){
+                            if(record.getIntValue("song_id") == cell.getOfficialId() && record.getString("level_label").equals(cell.getDifficulty())){
+                                cell.setGrade(record.getString("rate"));
+                                switch (record.getString("rate")){
+                                    case "s" -> stat[0]++;
+                                    case "sp" -> stat[1]++;
+                                    case "ss" -> stat[2]++;
+                                    case "ssp" -> stat[3]++;
+                                    case "sss" -> stat[4]++;
+                                    case "sssp" -> stat[5]++;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    for (int i = 5;i > 0;i--){
+                        stat[i - 1] += stat[i];
+                    }
+                    String fileName = "mai-list-" + userId + "-" + rawMessage[2] + ".png";
+                    String androidPath = "file:///sdcard/Pictures/Maimai/ScoreList/" + fileName;
+                    String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ScoreList/" + fileName;
+                    ImageIO.write(imageGenerator.generateScoreListImage(rawMessage[2], cellList,stat), "png", new File(pcPath));
+                    sendMsgParams.addImageMessageSegment(androidPath);
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                sendMsgParams.addTextMessageSegment("服务器出现错误>_<");
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+        }
+        sendMessage();
     }
 }

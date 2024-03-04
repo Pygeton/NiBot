@@ -196,6 +196,7 @@ public class Help extends Function implements IMessageEvent {
                                     /mai ds [参数]
                                     参数内填写等级即可获取该等级下所有歌曲的定数表。
                                     如：输入“/mai ds 13+”，即可查看等级为13+的所有歌曲的定数表。
+                                    注意：此功能仅支持等级为13+及以上歌曲。
                                     """;
                         }
                         case 10 -> {
@@ -204,6 +205,7 @@ public class Help extends Function implements IMessageEvent {
                                     /mai list [参数]
                                     参数内填写等级即可获取该等级下所有歌曲的分数评级表。
                                     如：输入“/mai ds 14”，即可查看等级为14的所有歌曲的定数表。
+                                    注意：此功能仅支持等级为13+及以上歌曲。
                                     """;
                         }
                         default -> {

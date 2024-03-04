@@ -23,6 +23,7 @@ public class ImageGenerator {
     static BufferedImage FC_ICON,FCP_ICON,AP_ICON,APP_ICON;
     static BufferedImage FS_ICON,FSP_ICON,FSD_ICON,FSDP_ICON;
     static BufferedImage BASE_BSC,BASE_ADV,BASE_EXP,BASE_MST,BASE_MST_RE;
+    static BufferedImage RANK_D,RANK_C,RANK_B,RANK_BB,RANK_BBB,RANK_A,RANK_AA,RANK_AAA,RANK_S,RANK_SP,RANK_SS,RANK_SSP,RANK_SSS,RANK_SSSP;
 
     @Autowired
     MaimaiChartDataServiceImpl maimaiChartDataService;
@@ -72,6 +73,20 @@ public class ImageGenerator {
             BASE_EXP = ImageIO.read(getResource("mai/pic/UI_TST_MBase_EXP.png"));
             BASE_MST = ImageIO.read(getResource("mai/pic/UI_TST_MBase_MST.png"));
             BASE_MST_RE = ImageIO.read(getResource("mai/pic/UI_TST_MBase_MST_Re.png"));
+            RANK_D = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_D.png"));
+            RANK_C = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_C.png"));
+            RANK_B = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_B.png"));
+            RANK_BB = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_BB.png"));
+            RANK_BBB = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_BBB.png"));
+            RANK_A = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_A.png"));
+            RANK_AA = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_AA.png"));
+            RANK_AAA = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_AAA.png"));
+            RANK_S = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_S.png"));
+            RANK_SP = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_Sp.png"));
+            RANK_SS = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_SS.png"));
+            RANK_SSP = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_SSp.png"));
+            RANK_SSS = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_SSS.png"));
+            RANK_SSSP = ImageIO.read(getResource("mai/pic/UI_GAM_Rank_SSSp.png"));
         }
         catch (IOException e){
             e.printStackTrace();
@@ -284,7 +299,7 @@ public class ImageGenerator {
         //绘制标题
         graphics.setColor(Color.WHITE);
         graphics.setFont(TextGenerator.loadFont("Bold",28));
-        TextGenerator.drawTitle(graphics,chartInfo.getTitle(),260,110,490);
+        TextGenerator.drawCenteredText(graphics,chartInfo.getTitle(),260,110,490);
         //绘制等级
         if(chartInfo.getLevelIndex() < 4){
             graphics.setColor(Color.WHITE);
@@ -491,7 +506,7 @@ public class ImageGenerator {
             graphics.setStroke(new BasicStroke(40));
             graphics.drawRect(0,0,200,200);
         }
-        else if (tableCell.getDifficulty().equals("Re:Master")){
+        else if (tableCell.getDifficulty().equals("Re:MASTER")){
             graphics.setColor(Color.decode("#CC99FF"));
             graphics.setStroke(new BasicStroke(40));
             graphics.drawRect(0,0,200,200);
@@ -499,7 +514,145 @@ public class ImageGenerator {
         if(tableCell.getType().equals("DX")){
             graphics.drawImage(DX_TOKEN.getScaledInstance(90,45,Image.SCALE_SMOOTH),110,0,null);
         }
+        if(tableCell.getGrade() != null){
+            switch (tableCell.getGrade()){
+                case "sssp" -> graphics.drawImage(RANK_SSSP.getScaledInstance(141,72,Image.SCALE_SMOOTH),40,64,null);
+                case "sss" -> graphics.drawImage(RANK_SSS.getScaledInstance(117,69,Image.SCALE_SMOOTH),42,64,null);
+                case "ssp" -> graphics.drawImage(RANK_SSP.getScaledInstance(109,69,Image.SCALE_SMOOTH),45,64,null);
+                case "ss" -> graphics.drawImage(RANK_SS.getScaledInstance(88,69,Image.SCALE_SMOOTH),56,64,null);
+                case "sp" -> graphics.drawImage(RANK_SP.getScaledInstance(72,69,Image.SCALE_SMOOTH),64,66,null);
+                case "s" -> graphics.drawImage(RANK_S.getScaledInstance(50,69,Image.SCALE_SMOOTH),75,66,null);
+            }
+        }
         graphics.dispose();
         return template;
+    }
+
+    public BufferedImage generateScoreListImage(String level, List<MaimaiTableCell> cellList, int[] stat){
+        try {
+            switch (level){
+                case "13+" -> {
+                    BufferedImage template = ImageIO.read(getResource("mai/template/list_13+.png"));
+                    Graphics2D graphics = template.createGraphics();
+                    int x,y = 177;
+                    for (double constant = 13.9;constant >= 13.7;constant -= 0.1){
+                        int k = 0,total = 0,i = 0;
+                        x = 115;
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                total++;
+                            }
+                        }
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                graphics.drawImage(generateTableCell(cell).getScaledInstance(60,60,Image.SCALE_SMOOTH),x,y,null);
+                                k++;
+                                if(k == 14 && i < total){
+                                    x = 115;
+                                    y += 66;
+                                    k = 0;
+                                }
+                                else x += 66;
+                            }
+                        }
+                        y += 66;
+                    }
+                    x = 164;
+                    y = 133;
+                    graphics.setFont(new Font("Bahnschrift", Font.BOLD,36));
+                    graphics.setColor(Color.BLACK);
+                    for (int i = 0;i < 6;i++){
+                        TextGenerator.drawCenteredText(graphics,String.valueOf(stat[i]),100,x,y);
+                        x += 102;
+                    }
+                    TextGenerator.drawCenteredText(graphics,String.valueOf(cellList.size()),100,x,y);
+                    graphics.dispose();
+                    return template;
+                }
+                case "14" -> {
+                    BufferedImage template = ImageIO.read(getResource("mai/template/list_14.png"));
+                    Graphics2D graphics = template.createGraphics();
+                    int x,y = 176;
+                    for (double constant = 14.6;constant >= 14.0;constant -= 0.1){
+                        int k = 0,total = 0,i = 0;
+                        x = 132;
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                total++;
+                            }
+                        }
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                graphics.drawImage(generateTableCell(cell).getScaledInstance(60,60,Image.SCALE_SMOOTH),x,y,null);
+                                k++;
+                                i++;
+                                if(k == 12 && i < total){
+                                    x = 132;
+                                    y += 74;
+                                    k = 0;
+                                }
+                                else x += 74;
+                            }
+                        }
+                        y += 84;
+                    }
+                    x = 164;
+                    y = 133;
+                    graphics.setFont(new Font("Bahnschrift", Font.BOLD,36));
+                    graphics.setColor(Color.BLACK);
+                    for (int i = 0;i < 6;i++){
+                        TextGenerator.drawCenteredText(graphics,String.valueOf(stat[i]),100,x,y);
+                        x += 102;
+                    }
+                    TextGenerator.drawCenteredText(graphics,String.valueOf(cellList.size()),100,x,y);
+                    graphics.dispose();
+                    return template;
+                }
+                case "14+","15" -> {
+                    BufferedImage template = ImageIO.read(getResource("mai/template/list_14+.png"));
+                    Graphics2D graphics = template.createGraphics();
+                    int x,y = 176;
+                    for (double constant = 15.0;constant >= 14.7;constant -= 0.1){
+                        int k = 0,total = 0,i = 0;
+                        x = 132;
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                total++;
+                            }
+                        }
+                        for (MaimaiTableCell cell : cellList){
+                            if(cell.getConstant() > constant - 0.01 && cell.getConstant() < constant + 0.01){
+                                graphics.drawImage(generateTableCell(cell).getScaledInstance(60,60,Image.SCALE_SMOOTH),x,y,null);
+                                k++;
+                                i++;
+                                if(k == 12 && i < total){
+                                    x = 132;
+                                    y += 74;
+                                    k = 0;
+                                }
+                                else x += 74;
+                            }
+                        }
+                        y += 84;
+                    }
+                    x = 164;
+                    y = 133;
+                    graphics.setFont(new Font("Bahnschrift", Font.BOLD,36));
+                    graphics.setColor(Color.BLACK);
+                    for (int i = 0;i < 6;i++){
+                        TextGenerator.drawCenteredText(graphics,String.valueOf(stat[i]),100,x,y);
+                        x += 102;
+                    }
+                    TextGenerator.drawCenteredText(graphics,String.valueOf(cellList.size()),100,x,y);
+                    graphics.dispose();
+                    return template;
+                }
+                default -> { return null; }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }

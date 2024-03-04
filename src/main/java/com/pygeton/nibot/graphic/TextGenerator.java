@@ -46,7 +46,7 @@ public class TextGenerator {
         }
     }
 
-    public static void drawTitle(Graphics2D graphics,String text,int maxWidth,int x,int y){
+    public static void drawCenteredText(Graphics2D graphics,String text,int maxWidth,int x,int y){
         FontMetrics fontMetrics = graphics.getFontMetrics();
         int textWidth = fontMetrics.stringWidth(text);
         if(textWidth > maxWidth){

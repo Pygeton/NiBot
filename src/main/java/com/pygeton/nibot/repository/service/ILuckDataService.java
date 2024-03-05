@@ -1,7 +1,7 @@
 package com.pygeton.nibot.repository.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.pygeton.nibot.repository.entity.LuckData;
+import com.pygeton.nibot.repository.pojo.LuckData;
 
 public interface ILuckDataService extends IService<LuckData> {
 

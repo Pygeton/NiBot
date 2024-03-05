@@ -5,7 +5,7 @@ import com.pygeton.nibot.communication.entity.data.AtData;
 import com.pygeton.nibot.communication.entity.data.MessageData;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
-import com.pygeton.nibot.repository.entity.MahjongData;
+import com.pygeton.nibot.repository.pojo.MahjongData;
 import com.pygeton.nibot.repository.service.MahjongDataServiceImpl;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;

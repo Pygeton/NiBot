@@ -1,17 +1,19 @@
-package com.pygeton.nibot.repository.entity;
+package com.pygeton.nibot.repository.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("mahjong_data")
-public class MahjongData {
+@TableName("luck_data")
+public class LuckData {
 
     private Long id;
-    private String name;
-    private Integer area;
+    private Date date;
+    private Integer luck;
 }

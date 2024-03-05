@@ -2,7 +2,7 @@ package com.pygeton.nibot.repository.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRating;
-import com.pygeton.nibot.repository.entity.MaimaiRatingData;
+import com.pygeton.nibot.repository.pojo.MaimaiRatingData;
 
 import java.util.List;
 

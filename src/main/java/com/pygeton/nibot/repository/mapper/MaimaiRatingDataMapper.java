@@ -2,7 +2,7 @@ package com.pygeton.nibot.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRating;
-import com.pygeton.nibot.repository.entity.MaimaiRatingData;
+import com.pygeton.nibot.repository.pojo.MaimaiRatingData;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;

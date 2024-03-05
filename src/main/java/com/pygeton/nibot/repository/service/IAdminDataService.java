@@ -1,7 +1,7 @@
 package com.pygeton.nibot.repository.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.pygeton.nibot.repository.entity.AdminData;
+import com.pygeton.nibot.repository.pojo.AdminData;
 
 import java.util.List;
 

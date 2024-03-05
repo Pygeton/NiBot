@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartStat;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
 import com.pygeton.nibot.communication.entity.mai.MaimaiTableCell;
-import com.pygeton.nibot.repository.entity.MaimaiChartData;
+import com.pygeton.nibot.repository.pojo.MaimaiChartData;
 import com.pygeton.nibot.repository.mapper.MaimaiChartDataMapper;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;

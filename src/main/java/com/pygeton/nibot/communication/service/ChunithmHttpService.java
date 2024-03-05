@@ -62,6 +62,7 @@ public class ChunithmHttpService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(payload),headers);
         try {
+            ResponseEntity<String> preResponse = restTemplate.exchange(baseUrl + "/api/chunithmprober/query/player", HttpMethod.POST, entity, String.class);
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/api/chunithmprober/query/player", HttpMethod.POST, entity, String.class);
             if(response.getStatusCode() == HttpStatus.OK){
                 JSONObject object = JSONObject.parseObject(response.getBody());

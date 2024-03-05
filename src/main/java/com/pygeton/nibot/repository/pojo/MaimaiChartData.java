@@ -1,4 +1,4 @@
-package com.pygeton.nibot.repository.entity;
+package com.pygeton.nibot.repository.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;

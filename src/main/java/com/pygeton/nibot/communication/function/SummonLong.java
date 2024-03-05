@@ -9,7 +9,7 @@ import com.pygeton.nibot.communication.entity.params.GetMsgParams;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.event.IResponseHandler;
-import com.pygeton.nibot.repository.entity.LongData;
+import com.pygeton.nibot.repository.pojo.LongData;
 import com.pygeton.nibot.repository.service.LongDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

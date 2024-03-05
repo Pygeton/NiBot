@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pygeton.nibot.repository.entity.ChunithmData;
+import com.pygeton.nibot.repository.pojo.ChunithmData;
 import com.pygeton.nibot.repository.mapper.ChunithmDataMapper;
 import org.springframework.stereotype.Service;
 

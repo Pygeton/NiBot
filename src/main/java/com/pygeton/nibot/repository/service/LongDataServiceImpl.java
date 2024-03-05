@@ -1,7 +1,7 @@
 package com.pygeton.nibot.repository.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pygeton.nibot.repository.entity.LongData;
+import com.pygeton.nibot.repository.pojo.LongData;
 import com.pygeton.nibot.repository.mapper.LongDataMapper;
 import org.springframework.stereotype.Service;
 

@@ -9,12 +9,13 @@ import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.MaimaiHttpService;
 import com.pygeton.nibot.graphic.MaimaiImageGenerator;
-import com.pygeton.nibot.repository.entity.MaimaiChartData;
-import com.pygeton.nibot.repository.entity.MaimaiSongData;
-import com.pygeton.nibot.repository.service.AdminDataService;
+import com.pygeton.nibot.repository.pojo.MaimaiChartData;
+import com.pygeton.nibot.repository.pojo.MaimaiSongData;
+import com.pygeton.nibot.repository.service.AdminDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiRatingDataServiceImpl;
 import com.pygeton.nibot.repository.service.MaimaiSongDataServiceImpl;
+import com.pygeton.nibot.stat.util.MaimaiStatUtil;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -37,7 +38,7 @@ import java.util.function.Predicate;
 public class Maimai extends Function implements IMessageEvent {
 
     @Autowired
-    AdminDataService adminDataService;
+    AdminDataServiceImpl adminDataServiceImpl;
 
     @Autowired
     MaimaiSongDataServiceImpl maimaiSongDataService;
@@ -53,6 +54,9 @@ public class Maimai extends Function implements IMessageEvent {
 
     @Autowired
     MaimaiImageGenerator maimaiImageGenerator;
+
+    @Autowired
+    MaimaiStatUtil maimaiStatUtil;
 
     @Override
     public int weight() {
@@ -98,7 +102,7 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void initDatabase(Long userId){
-        if(adminDataService.isAdminExist(userId)){
+        if(adminDataServiceImpl.isAdminExist(userId)){
             switch (rawMessage[2]){
                 case "song" -> {
                     boolean ret = maimaiSongDataService.init();
@@ -174,7 +178,7 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void clearCache(Long userId){
-        if(adminDataService.isAdminExist(userId)){
+        if(adminDataServiceImpl.isAdminExist(userId)){
             String dirPath = "D:/Documents/leidian9/Pictures/Maimai/";
             switch (rawMessage[2]){
                 case "b50" -> dirPath += "Best50";
@@ -222,6 +226,7 @@ public class Maimai extends Function implements IMessageEvent {
             }
             else {
                 MaimaiBest50 best50 = new MaimaiBest50(map);
+                maimaiStatUtil.statRating(userId, best50.getRating());
                 for(MaimaiChartInfo chartInfo : best50.getB35List()){
                     int id = chartInfo.getSongId();
                     chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Maimai/" + maimaiChartDataService.getCoverUrl(id));
@@ -874,6 +879,7 @@ public class Maimai extends Function implements IMessageEvent {
                 }
                 else {
                     int[] stat = {0,0,0,0,0,0};
+                    double total = 0;
                     for (MaimaiTableCell cell : cellList){
                         for(JSONObject record : records){
                             if(record.getIntValue("song_id") == cell.getOfficialId() && record.getString("level_label").equals(cell.getDifficulty())){
@@ -886,6 +892,7 @@ public class Maimai extends Function implements IMessageEvent {
                                     case "sss" -> stat[4]++;
                                     case "sssp" -> stat[5]++;
                                 }
+                                total++;
                                 break;
                             }
                         }
@@ -893,6 +900,7 @@ public class Maimai extends Function implements IMessageEvent {
                     for (int i = 5;i > 0;i--){
                         stat[i - 1] += stat[i];
                     }
+                    maimaiStatUtil.statGradePercent(userId,rawMessage[2],stat,total);
                     String fileName = "mai-list-" + userId + "-" + rawMessage[2] + ".png";
                     String androidPath = "file:///sdcard/Pictures/Maimai/ScoreList/" + fileName;
                     String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ScoreList/" + fileName;

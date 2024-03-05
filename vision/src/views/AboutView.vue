@@ -1,16 +1,6 @@
-<script setup>
- import { inject } from 'vue'
- const messages = inject('messages')
-</script>
-
 <template>
   <div class="about">
-    <h1>Console</h1>
-    <ul>
-      <li v-for="(message, index) in messages" :key="index">
-        {{ message }}
-      </li>
-    </ul>
+    <h1>This is an about page</h1>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 package com.pygeton.nibot.repository.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pygeton.nibot.repository.entity.LuckData;
+import com.pygeton.nibot.repository.pojo.LuckData;
 import com.pygeton.nibot.repository.mapper.LuckDataMapper;
 import org.springframework.stereotype.Service;
 

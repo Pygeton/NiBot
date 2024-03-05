@@ -3,7 +3,7 @@ package com.pygeton.nibot.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
 import com.pygeton.nibot.communication.entity.mai.MaimaiTableCell;
-import com.pygeton.nibot.repository.entity.MaimaiChartData;
+import com.pygeton.nibot.repository.pojo.MaimaiChartData;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;

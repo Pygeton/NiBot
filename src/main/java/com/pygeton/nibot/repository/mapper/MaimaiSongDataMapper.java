@@ -1,7 +1,7 @@
 package com.pygeton.nibot.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.pygeton.nibot.repository.entity.MaimaiSongData;
+import com.pygeton.nibot.repository.pojo.MaimaiSongData;
 import org.apache.ibatis.annotations.Select;
 
 public interface MaimaiSongDataMapper extends BaseMapper<MaimaiSongData> {

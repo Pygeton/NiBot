@@ -2,7 +2,6 @@ package com.pygeton.nibot.graphic;
 
 import com.pygeton.nibot.communication.entity.chuni.ChunithmBest30;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmChartInfo;
-import com.pygeton.nibot.communication.function.Chunithm;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -23,7 +22,7 @@ public class ChunithmImageGenerator {
     static BufferedImage PLATINUM_1,PLATINUM_2,PLATINUM_3,PLATINUM_4,PLATINUM_5,PLATINUM_6,PLATINUM_7,PLATINUM_8,PLATINUM_9,PLATINUM_0;
     static BufferedImage RAINBOW_POINT,RAINBOW_RATING,PLATINUM_POINT,PLATINUM_RATING;
 
-    public  ChunithmImageGenerator(){
+    public ChunithmImageGenerator(){
         try {
             FC_ICON = ImageIO.read(getResource("chuni/pic/full_combo.png"));
             AJ_ICON = ImageIO.read(getResource("chuni/pic/all_justice.png"));
@@ -127,7 +126,7 @@ public class ChunithmImageGenerator {
     }
 
     private Image getNumberImage(double rating,char num,int w,int h,boolean isHead){
-        int fix1W,fixPointW,fixPointH;
+        int fix1W,fixPointW,fixPointH;//数字1和小数点的图像修正值
         if(isHead){
             fix1W = 6;
             fixPointW = 13;
@@ -236,7 +235,7 @@ public class ChunithmImageGenerator {
                     }
                 }
                 else {
-                    graphics.drawImage(generateEmptyChartImage(++k),x,y,null);
+                    graphics.drawImage(generateEmptyChartImage(++k).getScaledInstance(224,84,Image.SCALE_SMOOTH),x,y,null);
                 }
                 if(k % 5 == 0){
                     x = 50;

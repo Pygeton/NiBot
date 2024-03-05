@@ -11,9 +11,10 @@ import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.ChunithmHttpService;
 import com.pygeton.nibot.graphic.ChunithmImageGenerator;
-import com.pygeton.nibot.repository.entity.ChunithmData;
-import com.pygeton.nibot.repository.service.AdminDataService;
+import com.pygeton.nibot.repository.pojo.ChunithmData;
+import com.pygeton.nibot.repository.service.AdminDataServiceImpl;
 import com.pygeton.nibot.repository.service.ChunithmDataServiceImpl;
+import com.pygeton.nibot.stat.util.ChunithmStatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ import java.util.*;
 public class Chunithm extends Function implements IMessageEvent {
 
     @Autowired
-    AdminDataService adminDataService;
+    AdminDataServiceImpl adminDataServiceImpl;
 
     @Autowired
     ChunithmDataServiceImpl chunithmDataService;
@@ -36,6 +37,9 @@ public class Chunithm extends Function implements IMessageEvent {
 
     @Autowired
     ChunithmImageGenerator chunithmImageGenerator;
+
+    @Autowired
+    ChunithmStatUtil chunithmStatUtil;
 
     @Override
     public int weight() {
@@ -75,7 +79,7 @@ public class Chunithm extends Function implements IMessageEvent {
     }
 
     private void updateDatabase(Long userId){
-        if(adminDataService.isAdminExist(userId)){
+        if(adminDataServiceImpl.isAdminExist(userId)){
             if(rawMessage.length == 3){
                 switch (rawMessage[2]){
                     case "sega" -> {
@@ -118,7 +122,7 @@ public class Chunithm extends Function implements IMessageEvent {
     }
 
     private void clearCache(Long userId){
-        if(adminDataService.isAdminExist(userId)){
+        if(adminDataServiceImpl.isAdminExist(userId)){
             String dirPath = "D:/Documents/leidian9/Pictures/Chunithm/";
             if ("b30".equals(rawMessage[2])) {
                 dirPath += "Best30";
@@ -161,6 +165,7 @@ public class Chunithm extends Function implements IMessageEvent {
             }
             else {
                 ChunithmBest30 best30 = new ChunithmBest30(map);
+                chunithmStatUtil.statB30Rating(userId,best30.getB30List());
                 for (ChunithmChartInfo chartInfo : best30.getB30List()){
                     int id = chartInfo.getMid();
                     chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Chunithm/" + chunithmDataService.getCoverUrl(chartInfo.getMid()));

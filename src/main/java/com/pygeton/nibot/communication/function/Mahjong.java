@@ -121,32 +121,32 @@ public class Mahjong extends Function implements IMessageEvent {
     }
 
     private void rate(Long id){
-        MahjongData data;
-        if(mahjongDataService.getData(id) == null){
-            sendMsgParams.addTextMessageSegment("公式战战绩查询失败：用户未绑定");
-        }
-        else {
-            data = mahjongDataService.getData(id);
-            String url = "https://rate.000.mk/chart/?name=" + data.getName();
-            if(data.getArea() != null){
-                url += "&area=" + data.getArea();
+        try {
+            MahjongData data;
+            if(mahjongDataService.getData(id) == null){
+                sendMsgParams.addTextMessageSegment("公式战战绩查询失败：用户未绑定");
             }
-            WebDriver driver = initDriver(url,Mode.RATE);
-            boolean alert = alertCheck(driver);
-            if(!alert){
-                String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
-                String fileName = "mj-" + id + " " + date + ".png";
-                File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-                try {
+            else {
+                data = mahjongDataService.getData(id);
+                String url = "https://rate.000.mk/chart/?name=" + data.getName();
+                if(data.getArea() != null){
+                    url += "&area=" + data.getArea();
+                }
+                WebDriver driver = initDriver(url,Mode.RATE);
+                boolean alert = alertCheck(driver);
+                if(!alert){
+                    String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+                    String fileName = "mj-" + id + " " + date + ".png";
+                    File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
                     FileUtils.copyFile(screenshot,new File("D:/Documents/leidian9/Pictures/Mahjong/" + fileName));
+                    String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
+                    sendMsgParams.addImageMessageSegment(path);
                 }
-                catch (IOException e){
-                    e.printStackTrace();
-                }
-                String path = "file:///sdcard/Pictures/Mahjong/" + fileName;
-                sendMsgParams.addImageMessageSegment(path);
+                driver.quit();
             }
-            driver.quit();
+        }
+        catch (Exception e){
+            sendMsgParams.addTextMessageSegment("服务器发生错误，请再试一次喵>_<");
         }
     }
 

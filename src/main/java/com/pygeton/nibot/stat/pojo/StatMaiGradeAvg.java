@@ -27,11 +27,11 @@ public class StatMaiGradeAvg {
     private Double sssPctAvg14;
 
     @TableField(value = "sssp_pct_avg_14")
-    private Double sssPPctAvg14;
+    private Double ssspPctAvg14;
 
     @TableField(value = "sss_pct_avg_14_plus")
     private Double sssPctAvg14Plus;
 
-    @TableField(value = "sssp_pct_avg_13_plus")
+    @TableField(value = "sssp_pct_avg_14_plus")
     private Double ssspPctAvg14Plus;
 }

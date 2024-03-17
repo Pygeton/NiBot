@@ -20,6 +20,9 @@ public class StatMaiRaDistribution {
     @TableField(value = "ra_below_150")
     private Integer raBelow150;
 
+    @TableField(value = "ra_150")
+    private Integer ra150;
+
     @TableField(value = "ra_151")
     private Integer ra151;
 

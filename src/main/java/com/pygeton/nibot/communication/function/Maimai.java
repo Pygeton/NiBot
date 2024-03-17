@@ -11,10 +11,8 @@ import com.pygeton.nibot.communication.service.MaimaiHttpService;
 import com.pygeton.nibot.graphic.MaimaiImageGenerator;
 import com.pygeton.nibot.repository.pojo.MaimaiChartData;
 import com.pygeton.nibot.repository.pojo.MaimaiSongData;
-import com.pygeton.nibot.repository.service.AdminDataServiceImpl;
-import com.pygeton.nibot.repository.service.MaimaiChartDataServiceImpl;
-import com.pygeton.nibot.repository.service.MaimaiRatingDataServiceImpl;
-import com.pygeton.nibot.repository.service.MaimaiSongDataServiceImpl;
+import com.pygeton.nibot.repository.pojo.MaimaiStatData;
+import com.pygeton.nibot.repository.service.*;
 import com.pygeton.nibot.stat.util.MaimaiStatUtil;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
@@ -48,6 +46,9 @@ public class Maimai extends Function implements IMessageEvent {
 
     @Autowired
     MaimaiRatingDataServiceImpl maimaiRatingDataService;
+
+    @Autowired
+    MaimaiStatDataServiceImpl maimaiStatDataService;
 
     @Autowired
     MaimaiHttpService maimaiHttpService;
@@ -87,6 +88,7 @@ public class Maimai extends Function implements IMessageEvent {
             case "init" -> initDatabase(message.getUserId());
             case "update" -> updateDatabase(message.getUserId());
             case "clear" -> clearCache(message.getUserId());
+            case "fix" -> fixDatabase(message.getUserId());
             //常规功能
             case "b50" -> generateB50(message.getUserId());
             case "info" -> getSongInfo();
@@ -131,7 +133,7 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void updateDatabase(Long userId){
-        if(userId == 1944539440L){
+        if(adminDataServiceImpl.isAdminExist(userId)){
             switch (rawMessage[2]){
                 case "chart" -> {
                     boolean chartRet = maimaiChartDataService.updateChartData(maimaiHttpService.getMusicData());
@@ -169,6 +171,37 @@ public class Maimai extends Function implements IMessageEvent {
                         sendMsgParams.addTextMessageSegment("歌曲统计数据更新失败...\n");
                     }
                 }
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("你没有使用这个命令的权限喵");
+        }
+        sendMessage();
+    }
+
+    //会抛出null异常
+    private void fixDatabase(Long userId){
+        if(adminDataServiceImpl.isAdminExist(userId)){
+            try {
+                List<MaimaiStatData> statDataList = maimaiStatDataService.list();
+                for (MaimaiStatData statData : statDataList){
+                    int rating = maimaiHttpService.getB50(statData.getQq()).get("userdata").get(0).getIntValue("rating");
+                    maimaiStatUtil.statRating(statData.getQq(),rating);
+                    if(rating >= 14000){
+                        List<JSONObject> records = maimaiHttpService.getPlayerRecords(statData.getQq());
+                        List<MaimaiTableCell> cellList13Plus = maimaiChartDataService.getTableCell("13+");
+                        statGradeTotal(statData.getQq(),"13+",records,cellList13Plus);
+                        List<MaimaiTableCell> cellList14 = maimaiChartDataService.getTableCell("14");
+                        statGradeTotal(statData.getQq(),"14",records,cellList14);
+                        List<MaimaiTableCell> cellList14Plus = maimaiChartDataService.getTableCell("14+");
+                        statGradeTotal(statData.getQq(),"14+",records,cellList14Plus);
+                    }
+                }
+                sendMsgParams.addTextMessageSegment("更新统计数据成功！");
+            }
+            catch (Exception e){
+                sendMsgParams.addTextMessageSegment("服务器发生错误>_<\n" + e.getMessage());
+                e.printStackTrace();
             }
         }
         else {
@@ -680,7 +713,7 @@ public class Maimai extends Function implements IMessageEvent {
                     ImageIO.write(maimaiImageGenerator.generateRecommendImage(b35RecChartList,b15RecChartList), "png", new File(pcPath));
                 }
                 sendMsgParams.addImageMessageSegment(androidPath);
-                StringBuilder builder = new StringBuilder();
+                StringBuilder builder = new StringBuilder(" ");
                 builder.append("镍酱认为你可以试一下推推这些歌 (≧▽≦)\n");
                 builder.append("可以结合info功能快速查看谱面信息哦~\n");
                 if(b35RecChartList.isEmpty()){
@@ -689,6 +722,7 @@ public class Maimai extends Function implements IMessageEvent {
                 if(b15RecChartList.isEmpty()){
                     builder.append("你的Best15部分已经达到理论最高Rating啦！你好厉害呀OvO\n");
                 }
+                sendMsgParams.addAtMessageSegment(userId);
                 sendMsgParams.addTextMessageSegment(builder.toString());
             }
             catch (IOException | NullPointerException e){
@@ -878,29 +912,7 @@ public class Maimai extends Function implements IMessageEvent {
                     sendMsgParams.addTextMessageSegment("此功能不支持该等级歌曲>_<");
                 }
                 else {
-                    int[] stat = {0,0,0,0,0,0};
-                    double total = 0;
-                    for (MaimaiTableCell cell : cellList){
-                        for(JSONObject record : records){
-                            if(record.getIntValue("song_id") == cell.getOfficialId() && record.getString("level_label").equals(cell.getDifficulty())){
-                                cell.setGrade(record.getString("rate"));
-                                switch (record.getString("rate")){
-                                    case "s" -> stat[0]++;
-                                    case "sp" -> stat[1]++;
-                                    case "ss" -> stat[2]++;
-                                    case "ssp" -> stat[3]++;
-                                    case "sss" -> stat[4]++;
-                                    case "sssp" -> stat[5]++;
-                                }
-                                total++;
-                                break;
-                            }
-                        }
-                    }
-                    for (int i = 5;i > 0;i--){
-                        stat[i - 1] += stat[i];
-                    }
-                    maimaiStatUtil.statGradePercent(userId,rawMessage[2],stat,total);
+                    int[] stat = statGradeTotal(userId,rawMessage[2],records,cellList);
                     String fileName = "mai-list-" + userId + "-" + rawMessage[2] + ".png";
                     String androidPath = "file:///sdcard/Pictures/Maimai/ScoreList/" + fileName;
                     String pcPath = "D:/Documents/leidian9/Pictures/Maimai/ScoreList/" + fileName;
@@ -917,5 +929,32 @@ public class Maimai extends Function implements IMessageEvent {
             sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
         }
         sendMessage();
+    }
+
+    private int[] statGradeTotal(Long userId,String level,List<JSONObject> records,List<MaimaiTableCell> cellList){
+        int[] stat = {0,0,0,0,0,0};
+        double total = 0;
+        for (MaimaiTableCell cell : cellList){
+            for(JSONObject record : records){
+                if(record.getIntValue("song_id") == cell.getOfficialId() && record.getString("level_label").equals(cell.getDifficulty())){
+                    cell.setGrade(record.getString("rate"));
+                    switch (record.getString("rate")){
+                        case "s" -> stat[0]++;
+                        case "sp" -> stat[1]++;
+                        case "ss" -> stat[2]++;
+                        case "ssp" -> stat[3]++;
+                        case "sss" -> stat[4]++;
+                        case "sssp" -> stat[5]++;
+                    }
+                    total++;
+                    break;
+                }
+            }
+        }
+        for (int i = 5;i > 0;i--){
+            stat[i - 1] += stat[i];
+        }
+        maimaiStatUtil.statGradePercent(userId,level,stat,total);
+        return stat;
     }
 }

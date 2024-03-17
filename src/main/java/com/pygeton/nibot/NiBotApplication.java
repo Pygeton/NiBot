@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @MapperScan("com.pygeton.nibot.repository.mapper")
+@MapperScan("com.pygeton.nibot.stat.mapper")
 @EnableScheduling
 public class NiBotApplication {
 

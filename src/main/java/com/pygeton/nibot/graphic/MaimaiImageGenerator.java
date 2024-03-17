@@ -383,7 +383,7 @@ public class MaimaiImageGenerator {
         switch (recChart.getDifficulty()){
             case "Expert" -> graphics.setColor(Color.decode("#FF6666"));
             case "Master" -> graphics.setColor(Color.decode("#9932CC"));
-            case "Re:Master" -> graphics.setColor(Color.decode("#CC99CC"));
+            case "Re:Master" -> graphics.setColor(Color.decode("#CC99FF"));
             default -> graphics.setColor(Color.WHITE);
         }
         graphics.fillRect(110,10,200,100);

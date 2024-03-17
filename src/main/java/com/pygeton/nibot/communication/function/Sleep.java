@@ -26,6 +26,10 @@ public class Sleep extends Function implements IMessageEvent, IResponseHandler {
                     sendMsgParams.addTextMessageSegment("狗管理自己睡去，衮！#_#");
                     sendMessage();
                 }
+                else if (Long.parseLong(rawMessage[1]) <= 0 || Long.parseLong(rawMessage[1]) > 720) {
+                    sendMsgParams.addTextMessageSegment("不合法的睡眠时间>_<");
+                    sendMessage();
+                }
                 else {
                     long time = Long.parseLong(rawMessage[1]) * 3600;
                     setGroupBanParams = new SetGroupBanParams(message.getGroupId(), message.getUserId(), time);

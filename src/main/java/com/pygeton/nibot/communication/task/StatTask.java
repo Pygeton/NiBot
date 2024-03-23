@@ -55,22 +55,25 @@ public class StatTask {
         for (MaimaiStatData statData : maimaiStatDataList){
             if(statData.getRating() != null){
                 int rating = statData.getRating();
-                if (rating < 15000) raBelow150++;
-                else if (rating < 15100) ra150++;
-                else if (rating < 15200) ra151++;
-                else if (rating < 15300) ra152++;
-                else if (rating < 15400) ra153++;
-                else if (rating < 15500) ra154++;
-                else if (rating < 15600) ra155++;
-                else if (rating < 15700) ra156++;
-                else if (rating < 15800) ra157++;
-                else if (rating < 15900) ra158++;
-                else if (rating < 16000) ra159++;
-                else if (rating < 16100) ra160++;
-                else if (rating < 16200) ra161++;
-                else if (rating < 16300) ra162++;
-                else if (rating < 16400) ra163++;
-                else ra165++;
+                if (rating > 0){
+                    if (rating < 15000) raBelow150++;
+                    else if (rating < 15100) ra150++;
+                    else if (rating < 15200) ra151++;
+                    else if (rating < 15300) ra152++;
+                    else if (rating < 15400) ra153++;
+                    else if (rating < 15500) ra154++;
+                    else if (rating < 15600) ra155++;
+                    else if (rating < 15700) ra156++;
+                    else if (rating < 15800) ra157++;
+                    else if (rating < 15900) ra158++;
+                    else if (rating < 16000) ra159++;
+                    else if (rating < 16100) ra160++;
+                    else if (rating < 16200) ra161++;
+                    else if (rating < 16300) ra162++;
+                    else if (rating < 16400) ra163++;
+                    else if (rating < 16500) ra164++;
+                    else ra165++;
+                }
             }
         }
         maiRaDistribution.setRaBelow150(raBelow150);
@@ -127,16 +130,18 @@ public class StatTask {
         int raBelow1500 = 0,ra1500 = 0,ra1525 = 0,ra1550 = 0,ra1575 = 0, ra1600 = 0, ra1625 = 0, ra1650 = 0,ra1675 = 0, ra1700 = 0;
         for (ChunithmStatData statData : chunithmStatDataList){
             double rating = statData.getB30Rating();
-            if(rating < 15.00) raBelow1500++;
-            else if (rating < 15.25) ra1500++;
-            else if (rating < 15.50) ra1525++;
-            else if (rating < 15.75) ra1550++;
-            else if (rating < 16.00) ra1575++;
-            else if (rating < 16.25) ra1600++;
-            else if (rating < 16.50) ra1625++;
-            else if (rating < 16.75) ra1650++;
-            else if (rating < 17.00) ra1675++;
-            else ra1700++;
+            if (rating > 0){
+                if(rating < 15.00) raBelow1500++;
+                else if (rating < 15.25) ra1500++;
+                else if (rating < 15.50) ra1525++;
+                else if (rating < 15.75) ra1550++;
+                else if (rating < 16.00) ra1575++;
+                else if (rating < 16.25) ra1600++;
+                else if (rating < 16.50) ra1625++;
+                else if (rating < 16.75) ra1650++;
+                else if (rating < 17.00) ra1675++;
+                else ra1700++;
+            }
         }
         chuRaDistribution.setRaBelow1500(raBelow1500);
         chuRaDistribution.setRa1500(ra1500);

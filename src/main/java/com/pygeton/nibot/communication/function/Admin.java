@@ -87,9 +87,9 @@ public class Admin extends Function implements IMessageEvent {
                 }
                 else {
                     if(adminDataServiceImpl.deleteAdmin(id)){
-                        sendMsgParams.addTextMessageSegment("删除管理员成功！");
+                        sendMsgParams.addTextMessageSegment("撤销管理员成功！");
                     }
-                    else sendMsgParams.addTextMessageSegment("删除管理员失败...");
+                    else sendMsgParams.addTextMessageSegment("撤销管理员失败...");
                 }
             }
         }

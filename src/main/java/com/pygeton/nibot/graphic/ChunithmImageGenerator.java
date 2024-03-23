@@ -89,7 +89,12 @@ public class ChunithmImageGenerator {
             graphics.drawImage(getNumberImage(rating,ratingStr.charAt(1),23,31,true),313,120,null);
             graphics.drawImage(getNumberImage(rating,ratingStr.charAt(2),23,31,true),342,139,null);
             graphics.drawImage(getNumberImage(rating,ratingStr.charAt(3),23,31,true),358,120,null);
-            graphics.drawImage(getNumberImage(rating,ratingStr.charAt(4),23,31,true),387,120,null);
+            if(ratingStr.charAt(3) == '1'){
+                graphics.drawImage(getNumberImage(rating,ratingStr.charAt(4),23,31,true),383,120,null);
+            }
+            else {
+                graphics.drawImage(getNumberImage(rating,ratingStr.charAt(4),23,31,true),387,120,null);
+            }
             //绘制B30
             double b30Rating = drawChartInfo(b30List,graphics,30,262);
             String b30RatingStr = String.format("%.2f",b30Rating);
@@ -102,7 +107,12 @@ public class ChunithmImageGenerator {
             graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(1),19,24,false),188,208,null);
             graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(2),19,24,false),210,224,null);
             graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(3),19,24,false),221,208,null);
-            graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(4),19,24,false),243,208,null);
+            if(b30RatingStr.charAt(3) == '1'){
+                graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(4),19,24,false),240,208,null);
+            }
+            else {
+                graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(4),19,24,false),243,208,null);
+            }
             //绘制R10
             double r10Rating = drawChartInfo(r10List,graphics,10,1005);
             String r10RatingStr = String.format("%.2f",r10Rating);
@@ -115,7 +125,12 @@ public class ChunithmImageGenerator {
             graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(1),19,24,false),188,950,null);
             graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(2),19,24,false),210,966,null);
             graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(3),19,24,false),221,950,null);
-            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),243,950,null);
+            if(r10RatingStr.charAt(3) == '1'){
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),240,950,null);
+            }
+            else {
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),243,950,null);
+            }
             graphics.dispose();
             return template;
         }

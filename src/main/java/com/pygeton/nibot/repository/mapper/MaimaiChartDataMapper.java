@@ -1,6 +1,7 @@
 package com.pygeton.nibot.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.pygeton.nibot.communication.entity.mai.MaimaiRandomChart;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
 import com.pygeton.nibot.communication.entity.mai.MaimaiTableCell;
 import com.pygeton.nibot.repository.pojo.MaimaiChartData;
@@ -41,4 +42,12 @@ public interface MaimaiChartDataMapper extends BaseMapper<MaimaiChartData> {
     @Select("SELECT official_id,title,cover_url,type,'Re:MASTER' AS difficulty,remaster_constant AS constant FROM maimai_chart_data,maimai_song_data " +
             "WHERE remaster_constant > #{value} - 0.01 AND remaster_constant < #{value} + 0.01 AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL ORDER BY official_id")
     List<MaimaiTableCell> getTableCellByRemConstant(double value);
+
+    @Select("SELECT official_id,title,cover_url,type,'Expert' AS difficulty,expert_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+            "WHERE expert_level = #{level} AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL UNION ALL " +
+            "SELECT official_id,title,cover_url,type,'Master' AS difficulty,master_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+            "WHERE master_level = #{level} AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL UNION ALL " +
+            "SELECT official_id,title,cover_url,type,'Re:Master' AS difficulty,remaster_constant AS constant FROM maimai_chart_data,maimai_song_data " +
+            "WHERE remaster_level = #{level} AND maimai_chart_data.title_kana = maimai_song_data.title_kana AND is_new IS NOT NULL")
+    List<MaimaiRandomChart> getRandomChartByLevel(String level);
 }

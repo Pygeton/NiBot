@@ -7,6 +7,7 @@ import com.pygeton.nibot.communication.entity.Message;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmBest30;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmChartInfo;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmDifficulty;
+import com.pygeton.nibot.communication.entity.chuni.ChunithmRandomChart;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.ChunithmHttpService;
@@ -75,6 +76,8 @@ public class Chunithm extends Function implements IMessageEvent {
             case "search" -> searchSong();
             case "add" -> addAilaForSong();
             case "line" -> calculateScoreLine();
+            case "random" -> randomSong();
+            case "class" -> randomClass();
         }
     }
 
@@ -447,5 +450,80 @@ public class Chunithm extends Function implements IMessageEvent {
             sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
         }
         sendMessage();
+    }
+
+    private void randomSong(){
+        if(rawMessage.length == 3){
+            List<ChunithmRandomChart> chartList = chunithmDataService.getRandomChartList(rawMessage[2]);
+            Random random = new Random();
+            int index = random.nextInt(chartList.size());
+            ChunithmRandomChart chart = chartList.get(index);
+            sendMsgParams.addTextMessageSegment("镍酱为你随机到了这首歌！\n");
+            sendMsgParams.addImageMessageSegment("file:///sdcard/Pictures/Chunithm/" + chart.getCoverUrl());
+            sendMsgParams.addTextMessageSegment(chart.getOfficialId() + "." + chart.getTitle() + " " + chart.getDifficulty() + "(" + chart.getConstant() + ")");
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
+        }
+        sendMessage();
+    }
+
+    private void randomClass(){
+        if(rawMessage.length == 3){
+            Random random = new Random();
+            int index;
+            List<ChunithmRandomChart> classList = new ArrayList<>();
+            switch (rawMessage[2]){
+                case "4","IV" -> {
+                    List<ChunithmRandomChart> firstChartList = chunithmDataService.getRandomChartList("13+");
+                    index = random.nextInt(firstChartList.size());
+                    classList.add(firstChartList.get(index));
+                    List<ChunithmRandomChart> secondChartList = chunithmDataService.getRandomChartList("14");
+                    index = random.nextInt(secondChartList.size());
+                    classList.add(secondChartList.get(index));
+                    List<ChunithmRandomChart> thirdChartList = chunithmDataService.getRandomChartList("14+");
+                    index = random.nextInt(thirdChartList.size());
+                    classList.add(thirdChartList.get(index));
+                    sendMsgParams.addTextMessageSegment("镍酱为你模拟了段位认定CLASS-IV的随机选曲！\n");
+                    showClassChart(classList);
+                }
+                case "5","V" -> {
+                    List<ChunithmRandomChart> chartList = chunithmDataService.getRandomChartList("14+");
+                    index = random.nextInt(chartList.size());
+                    classList.add(chartList.get(index));
+                    index = random.nextInt(chartList.size());
+                    classList.add(chartList.get(index));
+                    index = random.nextInt(chartList.size());
+                    classList.add(chartList.get(index));
+                    sendMsgParams.addTextMessageSegment("镍酱为你模拟了段位认定CLASS-V的随机选曲！\n");
+                    showClassChart(classList);
+                }
+                case "无限","∞","♾️" -> {
+                    List<ChunithmRandomChart> firstChartList = chunithmDataService.getRandomChartList("14");
+                    index = random.nextInt(firstChartList.size());
+                    classList.add(firstChartList.get(index));
+                    List<ChunithmRandomChart> secondChartList = chunithmDataService.getRandomChartList("14+");
+                    index = random.nextInt(secondChartList.size());
+                    classList.add(secondChartList.get(index));
+                    List<ChunithmRandomChart> thirdChartList = chunithmDataService.getRandomChartList("15");
+                    index = random.nextInt(thirdChartList.size());
+                    classList.add(thirdChartList.get(index));
+                    sendMsgParams.addTextMessageSegment("镍酱为你模拟了段位认定CLASS-∞的随机选曲！\n");
+                    showClassChart(classList);
+                }
+                default -> sendMsgParams.addTextMessageSegment("这是一个不支持的随机段位，请输入/help 7查看帮助文档>_<");
+            }
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
+        }
+        sendMessage();
+    }
+
+    private void showClassChart(List<ChunithmRandomChart> classList){
+        for (ChunithmRandomChart chart : classList){
+            sendMsgParams.addImageMessageSegment("file:///sdcard/Pictures/Chunithm/" + chart.getCoverUrl());
+            sendMsgParams.addTextMessageSegment(chart.getOfficialId() + "." + chart.getTitle() + " " + chart.getDifficulty() + "(" + chart.getConstant() + ")");
+        }
     }
 }

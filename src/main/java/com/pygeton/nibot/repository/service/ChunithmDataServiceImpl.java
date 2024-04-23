@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pygeton.nibot.communication.entity.chuni.ChunithmRandomChart;
 import com.pygeton.nibot.repository.pojo.ChunithmData;
 import com.pygeton.nibot.repository.mapper.ChunithmDataMapper;
 import org.springframework.stereotype.Service;
@@ -157,5 +158,10 @@ public class ChunithmDataServiceImpl extends ServiceImpl<ChunithmDataMapper, Chu
     @Override
     public String getCoverUrl(int officialId) {
         return baseMapper.getCoverUrlByOfficialId(officialId);
+    }
+
+    @Override
+    public List<ChunithmRandomChart> getRandomChartList(String level) {
+        return baseMapper.getRandomChartByLevel(level);
     }
 }

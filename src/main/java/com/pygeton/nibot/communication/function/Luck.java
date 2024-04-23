@@ -30,9 +30,9 @@ public class Luck extends Function implements IMessageEvent {
             Random random = new Random();
             int luck = random.nextInt(101);
             LocalDate date = LocalDate.now();
-            LocalDate fes = LocalDate.of(2024,2,10);
+            LocalDate fes = LocalDate.of(2024,4,1);
             if(date.equals(fes)){
-                luck = random.nextInt(80,101);
+                luck = 1007499;
             }
             String text;
             sendMsgParams = new SendMsgParams(message);

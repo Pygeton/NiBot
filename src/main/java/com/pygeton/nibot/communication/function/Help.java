@@ -38,7 +38,7 @@ public class Help extends Function implements IMessageEvent {
     }
 
     private String match(Message message,int param){
-        if (adminDataService.isAdminExist(message.getUserId())){
+        /*if (adminDataService.isAdminExist(message.getUserId())){
             switch (param){
                 case -1 -> {
                     return """
@@ -236,7 +236,7 @@ public class Help extends Function implements IMessageEvent {
                 }
             }
         }
-        else {
+        else {*/
             switch (param){
                 case 1 -> {
                     return """
@@ -324,6 +324,7 @@ public class Help extends Function implements IMessageEvent {
                         8.status 获取服务器状态
                         9.ds 查询歌曲定数表
                         10.list 查询分数列表
+                        11.random 随机歌曲
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。
                         """;
@@ -408,8 +409,17 @@ public class Help extends Function implements IMessageEvent {
                                     使用方法：
                                     /mai list [参数]
                                     参数内填写等级即可获取该等级下所有歌曲的分数评级表。
-                                    如：输入“/mai ds 14”，即可查看等级为14的所有歌曲的定数表。
+                                    如：输入“/mai list 14”，即可查看等级为14的所有歌曲的分数评级表。
                                     注意：此功能仅支持等级为13+及以上歌曲。
+                                    """;
+                            }
+                            case 11 -> {
+                                return """
+                                    使用方法：
+                                    /mai random [参数]
+                                    参数内填写等级即可随机一首歌曲。
+                                    如：输入“/mai random 13”，即可随机一首等级为13的歌曲。
+                                    注意：此功能仅支持红、紫、白难度。
                                     """;
                             }
                             default -> {
@@ -428,6 +438,8 @@ public class Help extends Function implements IMessageEvent {
                         3.search 查询歌曲
                         4.add 为歌曲添加别名
                         5.line 误差分析和分数线计算
+                        6.random 随机歌曲
+                        7.class 随机段位
                         可以输入“/help 7 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 7 5，可以查看“误差分析和分数线计算”的功能详情。
                         """;
@@ -477,6 +489,24 @@ public class Help extends Function implements IMessageEvent {
                                     注意：此功能无法对国服未实装的歌曲进行误差计算。
                                     """;
                             }
+                            case 6 -> {
+                                return """
+                                    使用方法：
+                                    /chu random [参数]
+                                    参数内填写等级即可随机一首歌曲。
+                                    如：输入“/chu random 13”，即可随机一首等级为13的歌曲。
+                                    注意：此功能仅支持红、紫、黑难度。
+                                    """;
+                            }
+                            case 7 -> {
+                                return """
+                                    使用方法：
+                                    /chu class [参数]
+                                    参数内填写段位即可进行一次指定段位随机选曲。
+                                    如：输入“/chu random V”，即可进行随五段位选曲。
+                                    注意：此功能仅支持随四(IV/4)、随五(V/5)、随无限（∞/♾️/无限）。
+                                    """;
+                            }
                             default -> {
                                 return "目前还没有这个功能哦=_=";
                             }
@@ -499,7 +529,7 @@ public class Help extends Function implements IMessageEvent {
                         """;
                 }
             }
-        }
+        //}
 
     }
 }

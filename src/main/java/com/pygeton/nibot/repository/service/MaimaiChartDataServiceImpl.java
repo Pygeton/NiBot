@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pygeton.nibot.communication.entity.mai.MaimaiChartStat;
+import com.pygeton.nibot.communication.entity.mai.MaimaiRandomChart;
 import com.pygeton.nibot.communication.entity.mai.MaimaiRecChart;
 import com.pygeton.nibot.communication.entity.mai.MaimaiTableCell;
 import com.pygeton.nibot.repository.pojo.MaimaiChartData;
@@ -231,5 +232,10 @@ public class MaimaiChartDataServiceImpl extends ServiceImpl<MaimaiChartDataMappe
             }
         }
         return cellList;
+    }
+
+    @Override
+    public List<MaimaiRandomChart> getRandomChartList(String level) {
+        return baseMapper.getRandomChartByLevel(level);
     }
 }

@@ -100,6 +100,7 @@ public class Maimai extends Function implements IMessageEvent {
             case "status" -> getServerStatus(message.getMessageId());
             case "ds" -> getConstantTable();
             case "list" -> getScoreList(message.getUserId());
+            case "random" -> randomSong();
         }
     }
 
@@ -956,5 +957,21 @@ public class Maimai extends Function implements IMessageEvent {
         }
         maimaiStatUtil.statGradePercent(userId,level,stat,total);
         return stat;
+    }
+
+    private void randomSong(){
+        if(rawMessage.length == 3){
+            List<MaimaiRandomChart> chartList = maimaiChartDataService.getRandomChartList(rawMessage[2]);
+            Random random = new Random();
+            int index = random.nextInt(chartList.size());
+            MaimaiRandomChart chart = chartList.get(index);
+            sendMsgParams.addTextMessageSegment("镍酱为你随机到了这首歌！\n");
+            sendMsgParams.addImageMessageSegment("file:///sdcard/Pictures/Maimai/" + chart.getCoverUrl());
+            sendMsgParams.addTextMessageSegment(chart.getOfficialId() + "." + chart.getTitle() + "(" + chart.getType() + ") " + chart.getDifficulty() + "(" + chart.getConstant() + ")");
+        }
+        else {
+            sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
+        }
+        sendMessage();
     }
 }

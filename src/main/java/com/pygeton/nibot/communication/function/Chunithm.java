@@ -378,7 +378,6 @@ public class Chunithm extends Function implements IMessageEvent {
                 double attack = justiceCritical * 50 / 101;//A分值
                 double justiceDeduction = justiceCritical - justice;//J扣分值
                 double attackDeduction = justiceCritical - attack;//A扣分值
-                //后续可能考虑图形化
                 StringBuilder builder = new StringBuilder(rawMessage[2]).append(".").append(data.getTitle());
                 builder.append("的").append(difficulty.getDifficulty()).append("难度的误差列表如下：\n");
                 builder.append("种类/分值\n");
@@ -433,9 +432,9 @@ public class Chunithm extends Function implements IMessageEvent {
                                 builder.append("最大Miss(灰)数量为").append((int) Math.floor(reduce / justiceCritical)).append("个");
                             }
                         }
-                        sendMsgParams.addTextMessageSegment(builder.toString());
                     }
                 }
+                sendMsgParams.addTextMessageSegment(builder.toString());
             }
             catch (IndexOutOfBoundsException e){
                 e.printStackTrace();

@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,6 +66,13 @@ public class ChunithmImageGenerator {
             List<ChunithmChartInfo> b30List = best30.getB30List();
             List<ChunithmChartInfo> r10List = best30.getR10List();
             double rating = best30.getRating();
+            refreshRating(b30List);
+            refreshRating(r10List);
+            b30List.sort((o1, o2) -> o2.getRaFine().compareTo(o1.getRaFine()));
+            r10List.sort((o1, o2) -> o2.getRaFine().compareTo(o1.getRaFine()));
+            for (ChunithmChartInfo chartInfo : b30List){
+                System.out.println(chartInfo.getRaFine());
+            }
 
             BufferedImage template = ImageIO.read(getResource("chuni/template/b30.png"));
             Graphics2D graphics = template.createGraphics();
@@ -97,7 +105,11 @@ public class ChunithmImageGenerator {
             }
             //绘制B30
             double b30Rating = drawChartInfo(b30List,graphics,30,262);
-            String b30RatingStr = String.format("%.2f",b30Rating);
+            DecimalFormat b30Mantissa = new DecimalFormat("0.0000");
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font("Bahnschrift",Font.PLAIN,32));
+            graphics.drawString(b30Mantissa.format(b30Rating % 1).substring(4),290,233);
+            String b30RatingStr = String.format("%.4f",b30Rating);
             if(b30RatingStr.charAt(1) == '.'){
                 b30RatingStr = "0" + b30RatingStr;
             }
@@ -115,7 +127,11 @@ public class ChunithmImageGenerator {
             }
             //绘制R10
             double r10Rating = drawChartInfo(r10List,graphics,10,1005);
-            String r10RatingStr = String.format("%.2f",r10Rating);
+            DecimalFormat r10Mantissa = new DecimalFormat("0.0000");
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font("Bahnschrift",Font.PLAIN,32));
+            graphics.drawString(r10Mantissa.format(r10Rating % 1).substring(4),290,975);
+            String r10RatingStr = String.format("%.4f",r10Rating);
             if(r10RatingStr.charAt(1) == '.'){
                 r10RatingStr = "0" + r10RatingStr;
             }
@@ -235,14 +251,14 @@ public class ChunithmImageGenerator {
     }
 
     private double drawChartInfo(List<ChunithmChartInfo> list,Graphics2D graphics,int max,int y){
-        double rating = 0;
+        BigDecimal ratingSum = BigDecimal.ZERO;
         try {
             int k = 0;
             int x = 50;
             while (k < max){
                 if (k < list.size()){
                     ChunithmChartInfo chartInfo = list.get(k);
-                    rating += chartInfo.getRa();
+                    ratingSum = ratingSum.add(BigDecimal.valueOf(chartInfo.getRaFine()));
                     graphics.drawImage(generateChunithmChartImage(chartInfo,++k).getScaledInstance(224,84,Image.SCALE_SMOOTH),x,y,null);
                     switch (chartInfo.getFc()){
                         case "fullcombo" -> graphics.drawImage(FC_ICON,x + 85,y + 84,null);
@@ -264,7 +280,9 @@ public class ChunithmImageGenerator {
         catch (IOException e){
             e.printStackTrace();
         }
-        return rating / max;
+        System.out.println(ratingSum);
+        //System.out.println(ratingSum.divide(BigDecimal.valueOf(max),4,RoundingMode.DOWN).doubleValue());
+        return ratingSum.divide(BigDecimal.valueOf(max),4,RoundingMode.HALF_UP).doubleValue();
     }
 
     private BufferedImage generateChunithmChartImage(ChunithmChartInfo chartInfo,int index) throws IOException{
@@ -291,7 +309,7 @@ public class ChunithmImageGenerator {
             graphics.setFont(new Font("Bahnschrift",Font.PLAIN,34));
             graphics.drawString(chartInfo.getScore().toString(),115,70);
             graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
-            graphics.drawString("#" + index + " | " + chartInfo.getDs().toString() + " -> " + String.format("%.2f",chartInfo.getRa()),115,100);
+            graphics.drawString("#" + index + " | " + chartInfo.getDs().toString() + " -> " + String.format("%.2f",chartInfo.getRaFine()),115,100);
             graphics.dispose();
             return template;
         }
@@ -310,5 +328,37 @@ public class ChunithmImageGenerator {
         graphics.setFont(new Font("Bahnschrift",Font.PLAIN,24));
         graphics.drawString("#" + index + " | --",115,100);
         return template;
+    }
+
+    private void refreshRating(List<ChunithmChartInfo> list){
+        for (ChunithmChartInfo chartInfo : list){
+            chartInfo.setRaFine(calculateRating(chartInfo.getScore(),chartInfo.getDs(),chartInfo.getRa()));
+        }
+    }
+
+    private Double calculateRating(int score, float ds, double rating) {
+        BigDecimal raFine;
+        BigDecimal scoreBD = new BigDecimal(Integer.toString(score));
+        BigDecimal dsBD = new BigDecimal(Float.toString(ds));
+        BigDecimal ratingBD = new BigDecimal(Double.toString(rating));
+        BigDecimal base = new BigDecimal("975000.0");
+        BigDecimal factor = new BigDecimal("0.1");
+
+        if (score < 975000) {
+            raFine = ratingBD;
+            return raFine.setScale(2, RoundingMode.DOWN).doubleValue();
+        } else if (score < 1000000) {
+            ratingBD = dsBD.add((scoreBD.subtract(base)).divide(new BigDecimal("2500")).multiply(factor));
+        } else if (score < 1005000) {
+            ratingBD = dsBD.add(new BigDecimal("1").add((scoreBD.subtract(new BigDecimal("1000000.0"))).divide(new BigDecimal("1000")).multiply(factor)));
+        } else if (score < 1007500) {
+            ratingBD = dsBD.add(new BigDecimal("1.5").add((scoreBD.subtract(new BigDecimal("1005000.0"))).divide(new BigDecimal("500")).multiply(factor)));
+        } else if (score < 1009000) {
+            ratingBD = dsBD.add(new BigDecimal("2").add((scoreBD.subtract(new BigDecimal("1007500.0"))).divide(new BigDecimal("1000")).multiply(factor)));
+        } else {
+            ratingBD = dsBD.add(new BigDecimal("2.15"));
+        }
+        raFine = ratingBD;
+        return raFine.setScale(2, RoundingMode.DOWN).doubleValue();
     }
 }

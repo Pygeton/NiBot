@@ -89,7 +89,7 @@ public class Mahjong extends Function implements IMessageEvent {
     }
 
     private void bind(Long id,String name){
-        String url = "https://rate.000.mk/chart/?name=" + name;
+        String url = "https://rate.r-mj.com/chart/?name=" + name;
         WebDriver driver = initDriver(url,Mode.BIND);
         boolean alert = alertCheck(driver);
         if(!alert){
@@ -105,7 +105,7 @@ public class Mahjong extends Function implements IMessageEvent {
     }
 
     private void bind(Long id,String name,Integer area){
-        String url = "https://rate.000.mk/chart/?name=" + name + "&area=" + area;
+        String url = "https://rate.r-mj.com/chart/?name=" + name + "&area=" + area;
         WebDriver driver = initDriver(url,Mode.BIND);
         boolean alert = alertCheck(driver);
         if(!alert){
@@ -128,7 +128,7 @@ public class Mahjong extends Function implements IMessageEvent {
             }
             else {
                 data = mahjongDataService.getData(id);
-                String url = "https://rate.000.mk/chart/?name=" + data.getName();
+                String url = "https://rate.r-mj.com/chart/?name=" + data.getName();
                 if(data.getArea() != null){
                     url += "&area=" + data.getArea();
                 }
@@ -146,6 +146,7 @@ public class Mahjong extends Function implements IMessageEvent {
             }
         }
         catch (Exception e){
+            e.printStackTrace();
             sendMsgParams.addTextMessageSegment("服务器发生错误，请再试一次喵>_<");
         }
     }

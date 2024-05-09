@@ -105,10 +105,12 @@ public class ChunithmImageGenerator {
             }
             //绘制B30
             double b30Rating = drawChartInfo(b30List,graphics,30,262);
+            /*
             DecimalFormat b30Mantissa = new DecimalFormat("0.0000");
             graphics.setColor(Color.WHITE);
             graphics.setFont(new Font("Bahnschrift",Font.PLAIN,32));
             graphics.drawString(b30Mantissa.format(b30Rating % 1).substring(4),290,233);
+            */
             String b30RatingStr = String.format("%.4f",b30Rating);
             if(b30RatingStr.charAt(1) == '.'){
                 b30RatingStr = "0" + b30RatingStr;
@@ -125,27 +127,43 @@ public class ChunithmImageGenerator {
             else {
                 graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(4),19,24,false),243,208,null);
             }
+            graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(5),13,18,false),265,214,null);
+            if(b30RatingStr.charAt(5) == '1'){
+                graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(6),13,18,false),278,214,null);
+            }
+            else {
+                graphics.drawImage(getNumberImage(b30Rating,b30RatingStr.charAt(6),13,18,false),281,214,null);
+            }
             //绘制R10
             double r10Rating = drawChartInfo(r10List,graphics,10,1005);
+            /*
             DecimalFormat r10Mantissa = new DecimalFormat("0.0000");
             graphics.setColor(Color.WHITE);
             graphics.setFont(new Font("Bahnschrift",Font.PLAIN,32));
             graphics.drawString(r10Mantissa.format(r10Rating % 1).substring(4),290,975);
+             */
             String r10RatingStr = String.format("%.4f",r10Rating);
             if(r10RatingStr.charAt(1) == '.'){
                 r10RatingStr = "0" + r10RatingStr;
             }
             if(r10RatingStr.charAt(0) != '0'){
-                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(0),19,24,false),169,950,null);
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(0),19,24,false),169,951,null);
             }
-            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(1),19,24,false),188,950,null);
-            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(2),19,24,false),210,966,null);
-            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(3),19,24,false),221,950,null);
+            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(1),19,24,false),188,951,null);
+            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(2),19,24,false),210,967,null);
+            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(3),19,24,false),221,951,null);
             if(r10RatingStr.charAt(3) == '1'){
-                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),240,950,null);
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),240,951,null);
             }
             else {
-                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),243,950,null);
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(4),19,24,false),243,951,null);
+            }
+            graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(5),13,18,false),265,957,null);
+            if(r10RatingStr.charAt(5) == '1'){
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(6),13,18,false),278,957,null);
+            }
+            else {
+                graphics.drawImage(getNumberImage(r10Rating,r10RatingStr.charAt(6),13,18,false),281,957,null);
             }
             graphics.dispose();
             return template;

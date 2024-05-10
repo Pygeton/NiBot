@@ -8,6 +8,8 @@ import com.pygeton.nibot.communication.entity.chuni.ChunithmBest30;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmChartInfo;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmDifficulty;
 import com.pygeton.nibot.communication.entity.chuni.ChunithmRandomChart;
+import com.pygeton.nibot.communication.entity.data.AtData;
+import com.pygeton.nibot.communication.entity.data.MessageData;
 import com.pygeton.nibot.communication.entity.params.SendMsgParams;
 import com.pygeton.nibot.communication.event.IMessageEvent;
 import com.pygeton.nibot.communication.service.ChunithmHttpService;
@@ -71,7 +73,7 @@ public class Chunithm extends Function implements IMessageEvent {
             case "update" -> updateDatabase(message.getUserId());
             case "clear" -> clearCache(message.getUserId());
             //常规功能
-            case "b30" -> generateB30AndR10(message.getUserId());
+            case "b30" -> generateB30AndR10(message.getUserId(), message);
             case "info" -> getSongInfo();
             case "search" -> searchSong();
             case "add" -> addAilaForSong();
@@ -157,8 +159,18 @@ public class Chunithm extends Function implements IMessageEvent {
         sendMessage();
     }
 
-    private void generateB30AndR10(Long userId){
+    private void generateB30AndR10(Long userId,Message message){
         try {
+            if (rawMessage.length == 3){
+                if(message.getMessageType().equals("group")){
+                    MessageData messageData = message.getSegmentList().get(1).getData();
+                    if(messageData instanceof AtData atData){
+                        userId = atData.getQq();
+                    }
+                    else sendMsgParams.addTextMessageSegment("参数有误，请输入/help 7查看帮助文档>_<");
+                }
+                else sendMsgParams.addTextMessageSegment("这个功能只有在群聊里才能使用哦QAQ");
+            }
             Map<String, List<JSONObject>> map = chunithmHttpService.getB30AndR10(userId);
             if(map.containsKey("400")){
                 sendMsgParams.addTextMessageSegment("未找到玩家，可能是查分器账号没有绑定qq，详见/help 7>_<");
@@ -170,11 +182,9 @@ public class Chunithm extends Function implements IMessageEvent {
                 ChunithmBest30 best30 = new ChunithmBest30(map);
                 chunithmStatUtil.statB30Rating(userId,best30.getB30List());
                 for (ChunithmChartInfo chartInfo : best30.getB30List()){
-                    int id = chartInfo.getMid();
                     chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Chunithm/" + chunithmDataService.getCoverUrl(chartInfo.getMid()));
                 }
                 for (ChunithmChartInfo chartInfo : best30.getR10List()){
-                    int id = chartInfo.getMid();
                     chartInfo.setCoverUrl("D:/Documents/leidian9/Pictures/Chunithm/" + chunithmDataService.getCoverUrl(chartInfo.getMid()));
                 }
                 String date = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());

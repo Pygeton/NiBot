@@ -449,8 +449,9 @@ public class Help extends Function implements IMessageEvent {
                             case 1 -> {
                                 return """
                                     使用方法：
-                                    /chu b30
+                                    /chu b30 [参数(可选)]
                                     可以生成一张带有你的b30+r10数据的图片，b30和r10的rating数值后的两位数字代表精确到四位小数的后两位，前提是你的qq号已经绑定到水鱼查分器上。如未绑定，可以前往https://www.diving-fish.com/maimaidx/prober进行绑定。
+                                    在参数内@群友即可查询ta的b30成绩。
                                     """;
                             }
                             case 2 -> {

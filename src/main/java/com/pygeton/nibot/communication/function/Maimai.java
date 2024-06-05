@@ -532,7 +532,7 @@ public class Maimai extends Function implements IMessageEvent {
             else if(version.getIndex() == 12){
                 sendMsgParams.addTextMessageSegment("这个版本的牌子还在施工中，敬请期待=_=");
             }
-            else if(version.getIndex() == 16){
+            else if(version.getIndex() == 17){
                 sendMsgParams.addTextMessageSegment("国服还没有这个牌子，别急=_=");
             }
             else if(rawMessage[2].equals("真将")){

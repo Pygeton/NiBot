@@ -78,6 +78,10 @@ public class MaimaiVersion {
                 version = "maimai でらっくす FESTiVAL";
                 index = 16;
             }
+            case '双' -> {
+                version = "maimai でらっくす BUDDiES";
+                index = 17;
+            }
             default -> {
                 version = "Unknown";
                 index = -1;

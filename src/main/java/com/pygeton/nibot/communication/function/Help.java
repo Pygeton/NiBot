@@ -322,8 +322,8 @@ public class Help extends Function implements IMessageEvent {
                         6.plate 查询牌子进度
                         7.rec 上分歌曲推荐
                         8.status 获取服务器状态
-                        9.ds 查询歌曲定数表
-                        10.list 查询分数列表
+                        9.ds 查询歌曲定数表(暂时无法使用)
+                        10.list 查询分数列表(暂时无法使用)
                         11.random 随机歌曲
                         可以输入“/help 6 [序号]”查看某项功能的具体使用方法QAQ
                         例如：输入/help 6 2，可以查看“查看歌曲谱面信息”的功能详情。

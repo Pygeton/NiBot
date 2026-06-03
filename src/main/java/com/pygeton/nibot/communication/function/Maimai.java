@@ -877,6 +877,7 @@ public class Maimai extends Function implements IMessageEvent {
     }
 
     private void getConstantTable(){
+        /*
         if(rawMessage.length == 3){
             try {
                 String fileName = "mai-ds-" + rawMessage[2] + ".png";
@@ -900,11 +901,13 @@ public class Maimai extends Function implements IMessageEvent {
         }
         else {
             sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
-        }
+        }*/
+        sendMsgParams.addTextMessageSegment("此功能暂不可用>_<");
         sendMessage();
     }
 
     private void getScoreList(Long userId){
+        /*
         if (rawMessage.length == 3){
             try {
                 List<JSONObject> records = maimaiHttpService.getPlayerRecords(userId);
@@ -928,7 +931,8 @@ public class Maimai extends Function implements IMessageEvent {
         }
         else {
             sendMsgParams.addTextMessageSegment("参数有误，请输入/help 6查看帮助文档>_<");
-        }
+        }*/
+        sendMsgParams.addTextMessageSegment("此功能暂不可用>_<");
         sendMessage();
     }
 

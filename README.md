@@ -8,21 +8,31 @@ Supports **QQ bot interaction** and **web-based visualization**, enabling player
 ## 🚀 Features
 - **QQ Bot Functions (OpenShamrock)**
   - Best score analysis
-  - ![](./readme/b50.png)
+
+    ![](./readme/b50.png)
+
   - Achievement lookup
-  - ![](./readme/list.png)
+
+    ![](./readme/list.png)
+
   - Song search & chart info
-  - ![](./readme/info.png)
+
+    ![](./readme/info.png)
+
   - Error margin analysis
-  - ![](./readme/line.png)
+
+    ![](./readme/line.png)
   - Server status check
   - Admin commands (DB update, cache clear)
 
 - **Web Dashboard (Vue + ECharts)**
   - Player rating distribution
-  - ![](./readme/data1.png)
+
+    ![](./readme/data1.png)
+
   - High-difficulty achievement statistics
-  - ![](./readme/data2.png)
+
+    ![](./readme/data2.png)
 
 ---
 

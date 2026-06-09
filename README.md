@@ -4,7 +4,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.5-green)
 ![Vue](https://img.shields.io/badge/Vue-3-brightgreen)
 ![MySQL](https://img.shields.io/badge/MySQL-8-blue)
-![Bot](https://img.shields.io/badge/Bot-OpenShamrock-purple)
+![Bot](https://img.shields.io/badge/OpenShamrock-purple)
 
 NiBot is a rhythm game data analysis system for **maimai DX** and **CHUNITHM** players.
 
@@ -33,7 +33,7 @@ It provides a QQ bot for command-based score lookup and image reports, plus a Vu
 
 | Area | Technologies |
 | --- | --- |
-| Backend | Java 17, Spring Boot 3.1.5, Spring Web, Spring Scheduling |
+| Backend | Java 17, Spring Boot 3.1.5 |
 | Persistence | MySQL, MyBatis-Plus, JDBC |
 | Bot Runtime | LDPlayer 9, Magisk, LSPosed, QQ, OpenShamrock, ADB |
 | Communication | WebSocket, OneBot-compatible message format |
@@ -117,33 +117,12 @@ npm run serve
 
 Note: database schema and production data are not packaged in this repository yet. The screenshots and source code show the implemented behavior; full local execution requires preparing the required MySQL tables and game data.
 
-## Repository Structure
-
-```text
-src/main/java/com/pygeton/nibot
-|-- communication   # Bot WebSocket client, command handlers, message entities, scheduled tasks
-|-- graphic         # Dynamic image generation
-|-- repository      # Game data entities, mappers, services
-`-- stat            # Statistic APIs and aggregation services
-
-web                 # Vue dashboard
-readme              # Demo screenshots
-bat                 # Emulator / ADB helper scripts
-```
-
 ## Background
 
 This project is based on my undergraduate thesis:
 
 **Design and Implementation of a Data Analysis System for Online Game Players**  
 South China Agricultural University, 2024
-
-## Future Improvements
-
-- Move emulator paths and WebSocket URL from code constants to external configuration.
-- Add database migration scripts and sample seed data.
-- Improve resilience when OpenShamrock itself is terminated inside the emulator.
-- Add tests for command parsing, statistic aggregation, and image rendering.
 
 ## Disclaimer
 

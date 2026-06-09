@@ -12,13 +12,13 @@ It provides a QQ bot for command-based score lookup and image reports, plus a Vu
 
 ## Demo
 
-| QQ Bot: Best Score | QQ Bot: Chart Info |
+| Best Score | Achievement List |
 | --- | --- |
-| ![Best 50](./readme/b50.png) | ![Chart information](./readme/info.png) |
+| ![Best 50](./readme/b50.png) | ![Achievement list](./readme/list.png) |
 
-| QQ Bot: Achievement List | Web Dashboard: Rating Distribution |
+| Chart Info | Rating Distribution |
 | --- | --- |
-| ![Achievement list](./readme/list.png) | ![Rating distribution](./readme/data1.png) |
+| ![Chart information](./readme/info.png) | ![Rating distribution](./readme/data1.png) |
 
 ## Highlights
 
@@ -46,10 +46,10 @@ It provides a QQ bot for command-based score lookup and image reports, plus a Vu
 flowchart LR
     User[QQ User] --> QQ[QQ in Android Emulator]
     QQ --> OS[OpenShamrock]
-    OS --> ADB["ADB Forward: 9099 to 5800"]
+    OS --> ADB[ADB Forward]
     ADB --> BE[Spring Boot Backend]
     BE --> DB[(MySQL)]
-    BE --> IMG[Graphics2D Reports]
+    BE --> IMG[Graphics2D Generator]
     BE --> API[REST API]
     API --> WEB[Vue + ECharts Dashboard]
 ```
@@ -63,13 +63,13 @@ flowchart LR
 
 ## Design Decisions
 
-**OpenShamrock over protocol-only bot frameworks**  
+- **OpenShamrock over protocol-only bot frameworks**  
 Older QQ bot frameworks often suffer from protocol instability and account risk. NiBot uses QQ running inside an Android emulator and OpenShamrock to receive/send messages, while the backend keeps a familiar WebSocket event model.
 
-**Image reports for QQ interaction**  
+- **Image reports for QQ interaction**  
 Rhythm game score data is dense. Instead of returning long text, NiBot renders score cards and analysis tables as images so players can read and share results directly in chat.
 
-**Separated statistics dashboard**  
+- **Separated statistics dashboard**  
 Bot commands focus on individual players, while aggregated community data is served through REST APIs and visualized on the web dashboard.
 
 ## Technical Challenges
